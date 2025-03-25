@@ -1,0 +1,13 @@
+{
+  "name": "client-data-access-core",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/client/data-access-core/src",
+  "prefix": "lib",
+  "tags": [
+    "scope:client",
+    "type:data-access"
+  ],
+  "projectType": "library",
+  "// targets": "to see all targets run: nx show project client-data-access-core --web",
+  "targets": {}
+}

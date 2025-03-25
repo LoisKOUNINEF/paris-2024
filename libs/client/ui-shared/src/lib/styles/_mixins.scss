@@ -1,0 +1,45 @@
+@use "variables" as *;
+@use "functions";
+
+@mixin flexCenter {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+};
+
+@mixin flexEvenly {
+	display: flex;
+	justify-content: space-evenly;
+	align-items: center;
+};
+
+@mixin coverImage {
+  -webkit-background-size: 100vw 100vh;
+  -moz-background-size: 100vw 100vh;
+  -o-background-size: 100vw 100vh;
+	background-size: 100vw 100vh;
+ 	background-attachment: fixed;
+};
+
+@mixin tableStyle {
+	table {
+	  border-collapse: collapse;
+	  width: 100%;
+	}
+	th, td {
+	  border: 1px solid green;
+	  padding: 1rem;
+	}
+	th {
+	  background-color: lightblue;
+	}
+	tr:nth-child(even) {
+	  background-color: #f2f2f2;
+	}
+}
+
+@mixin mobile {
+	@media #{$media-small} {
+		@content
+	}
+};

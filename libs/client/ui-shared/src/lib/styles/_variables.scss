@@ -1,0 +1,28 @@
+// responsive variables
+$small: 800px!default;
+$large: 1800px!default;
+
+$media-small: "only screen and (max-width: #{$small})";
+$media-large: "only screen and (min-width: #{$large})";
+
+$paddings: (
+	"smallest": 1rem,
+	"small": 2rem,
+	"medium": 10rem,
+	"large": 20vh,
+	"largest": 40vh
+);
+
+$margins: (
+	"smallest": 1rem,
+	"small": 2rem,
+	"medium": 5rem,
+	"large": 10rem,
+	"largest": 20rem
+);
+
+$font-sizes: (
+	"small": .5rem,
+	"medium": 2rem,
+	"large": 5rem
+);
