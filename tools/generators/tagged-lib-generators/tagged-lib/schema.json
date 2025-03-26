@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "$id": "TaggedLib",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the library",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "Name of the library?"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Scope of the library",
+      "enum": ["client", "server", "shared"],
+      "x-prompt": {
+        "message": "What is the scope of this library?",
+        "type": "list",
+        "items": [
+          {"value": "client", "label": "Client"},
+          {"value": "server", "label": "Server"},
+          {"value": "shared", "label": "Shared"}
+        ]
+      }
+    },
+    "type": {
+      "type": "string",
+      "description": "Type of the library",
+      "enum": ["business-logic", "data-access", "presentation", "ui", "util", "types", "api"],
+      "x-prompt": {
+        "message": "What is the type of this library?",
+        "type": "list",
+        "items": [
+          {"value": "business-logic", "label": "Business Logic"},
+          {"value": "data-access", "label": "Data Access"},
+          {"value": "presentation", "label": "Presentation"},
+          {"value": "ui", "label": "UI"},
+          {"value": "util", "label": "Utility"},
+          {"value": "types", "label": "Types"},
+          {"value": "api", "label": "API"}
+        ]
+      }
+    },
+    "directory": {
+      "type": "string",
+      "description": "A directory where the library is placed",
+      "x-prompt": "In which directory should the library be generated? Empty Defaults to 'libs/{scope}/{projectName}'"
+    }
+  },
+  "required": ["name", "scope", "type"]
+}

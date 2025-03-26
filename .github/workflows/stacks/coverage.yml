@@ -1,0 +1,35 @@
+services:
+  studi-exam-jo-coverage:
+    image: ghcr.io/loiskouninef/studi-exam-jo-coverage:image-placeholder
+    networks:
+      - traefik-public
+      - default
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.studi-exam-jo-coverage.rule=Host(`studi-exam-jo.lois-kouninef.eu`, `www.studi-exam-jo.lois-kouninef.eu`) && PathPrefix(`/coverage`)"
+        - "traefik.http.routers.studi-exam-jo-coverage.entrypoints=websecure"
+        - "traefik.http.routers.studi-exam-jo-coverage.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.studi-exam-jo-coverage.service=studi-exam-jo-coverage"
+        - "traefik.http.services.studi-exam-jo-coverage.loadbalancer.server.port=8090"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8090 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+networks:
+  traefik-public:
+    external: true
+  default:
+    driver: overlay

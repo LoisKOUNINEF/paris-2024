@@ -1,0 +1,20 @@
+{
+  "name": "db-readiness",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/scripts/db-readiness/src",
+  "projectType": "library",
+  "tags": ["scope:server","type:util"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/tools/scripts/db-readiness",
+        "main": "tools/scripts/db-readiness/src/index.ts",
+        "tsConfig": "tools/scripts/db-readiness/tsconfig.lib.json",
+        "assets": ["tools/scripts/db-readiness/*.md"],
+        "format": ["cjs"]
+      }
+    }
+  }
+}

@@ -1,0 +1,83 @@
+services:
+  server:
+    container_name: server
+    restart: always
+    ports:
+      - "8080:3000"
+    build:
+      context: .
+      dockerfile: ./apps/server/Dockerfile.dev
+    environment:
+      NODE_ENV: development
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      SESSION_SECRET: ${SESSION_SECRET}
+      SENDGRID_KEY: ${SENDGRID_KEY}
+      SENDGRID_SENDER: ${SENDGRID_SENDER}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "node /usr/src/app/scripts/healthcheck/index.cjs || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  migrations:
+    build:
+      context: .
+      dockerfile: ./apps/server/Dockerfile
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - server
+      - postgres
+    entrypoint: "node"
+    command: ["/usr/src/app/scripts/run-migrations/index.cjs"]
+    restart: "no"
+
+  client:
+    container_name: client
+    environment:
+      NODE_ENV: development
+    restart: always
+    ports:
+      - "8090:4222"
+    depends_on:
+      - server
+    build:
+      context: .
+      dockerfile: ./apps/client/Dockerfile.dev
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:4222 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  postgres:
+    image: postgres:16.3-alpine3.20
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - paris-2024-pgdata:/var/lib/postgresql/data
+    command: -p ${DB_PORT}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -h localhost -d ${DB_NAME} || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  paris-2024-pgdata:

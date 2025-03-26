@@ -1,21 +1,24 @@
 {
   "compilerOptions": {
+    "rootDir": ".",
+    "baseUrl": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": false,
+    "strictPropertyInitialization": false,
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "emitDecoratorMetadata": false,
-    "esModuleInterop": true,
-    "experimentalDecorators": false,
     "forceConsistentCasingInFileNames": true,
-    "importHelpers": true,
-    "incremental": true,
     "isolatedModules": true,
-    "lib": ["es2022"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
@@ -24,11 +27,35 @@
     "pretty": true,
     "removeComments": false,
     "resolveJsonModule": false,
-    "skipDefaultLibCheck": false,
-    "skipLibCheck": true,
-    "sourceMap": false,
     "strict": true,
-    "target": "es2022",
-    "verbatimModuleSyntax": false
-  }
+    "verbatimModuleSyntax": false,
+    "paths": {
+      "@paris-2024/client-data-access-core": [
+        "libs/client/data-access-core/src/index.ts"
+      ],
+      "@paris-2024/client-ui-shared": ["libs/client/ui-shared/src/index.ts"],
+      "@paris-2024/client-utils": ["libs/client/utils/src/index.ts"],
+      "@paris-2024/db-readiness": ["tools/scripts/db-readiness/src/index.ts"],
+      "@paris-2024/healthcheck": ["tools/scripts/healthcheck/src/index.ts"],
+      "@paris-2024/run-migrations": [
+        "tools/scripts/run-migrations/src/index.ts"
+      ],
+      "@paris-2024/server-base-entity": [
+        "libs/server/base-entity/src/index.ts"
+      ],
+      "@paris-2024/server-data-source": [
+        "libs/server/data-source/src/index.ts"
+      ],
+      "@paris-2024/server-data-source-entities": [
+        "libs/server/data-source-entities/src/index.ts"
+      ],
+      "@paris-2024/server-utils": ["libs/server/utils/src/index.ts"],
+      "@paris-2024/shared-interfaces": ["libs/shared/interfaces/src/index.ts"],
+      "@paris-2024/shared-utils": ["libs/shared/utils/src/index.ts"],
+      "@paris-2024/tagged-lib-generators": [
+        "tools/generators/tagged-lib-generators"
+      ]
+    }
+  },
+  "exclude": ["node_modules", "tmp", "**/files/**"]
 }

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/nx-plugin-generators",
+  "generators": {
+    "angular-tagged-lib": {
+      "factory": "./angular-tagged-lib/generator.ts",
+      "schema": "./angular-tagged-lib/schema.json",
+      "description": "Generator for scoped & tagged angular library"
+    },
+    "tagged-lib": {
+      "factory": "./tagged-lib/generator",
+      "schema": "./tagged-lib/schema.json",
+      "description": "tagged-lib generator"
+    },
+    "nest-tagged-lib": {
+      "factory": "./nest-tagged-lib/generator",
+      "schema": "./nest-tagged-lib/schema.json",
+      "description": "nest-tagged-lib generator"
+    }
+  }
+}

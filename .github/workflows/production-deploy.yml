@@ -1,0 +1,87 @@
+name: CI/CD production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      STACK_NAME: "production"
+      SERVER_PORT: "3000"
+      CLIENT_PORT: "4222"
+      DOMAIN_NAME: "studi-exam-jo.lois-kouninef.eu"
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ensure scripts are executable
+        run: chmod +x .github/workflows/scripts/jobs/*.sh
+
+      - name: Lowercase the repo name and project name
+        run: .github/workflows/scripts/jobs/format-name.sh
+
+      - name: Generate new stack file
+        run: .github/workflows/scripts/jobs/create-stack.sh
+
+      - name: Copy stack file to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASS }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "new-${{ env.STACK_NAME }}.yml"
+          target: "${{ env.PROJECT_LOWER }}"
+
+      - name: Deploy to production
+        uses: appleboy/ssh-action@master
+        env:
+          DOCKER_AUTH: ${{ secrets.DOCKER_AUTH }}
+          REPO_LOWER: ${{ env.REPO_LOWER }}
+          PROJECT_LOWER: ${{ env.PROJECT_LOWER }}
+          STACK_NAME: ${{ env.STACK_NAME }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASS }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: DOCKER_AUTH,REPO_LOWER,PROJECT_LOWER,STACK_NAME
+          script: |
+            cd $PROJECT_LOWER
+
+            ./scripts/deployment/deploy.sh
+
+  delete-old-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        image-name: ["server", "client"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ensure scripts are executable
+        run: chmod +x .github/workflows/scripts/jobs/*.sh
+
+      - name: Lowercase the repo name and project name
+        run: .github/workflows/scripts/jobs/format-name.sh
+
+      - name: Delete old container images
+        uses: actions/delete-package-versions@v4
+        with:
+          package-name: ${{ env.PROJECT_LOWER }}-${{ matrix.image-name }}
+          package-type: 'container'
+          min-versions-to-keep: 3
+          token: ${{ secrets.GITHUB_TOKEN }}

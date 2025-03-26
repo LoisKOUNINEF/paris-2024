@@ -1,0 +1,17 @@
+FROM node:22.3.0-alpine AS builder
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npx nx build client --configuration=development
+
+FROM node:22.3.0-alpine
+ENV NODE_ENV=development
+ENV API_URL=http://localhost:8080/api
+RUN apk add --no-cache curl
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+WORKDIR /usr/src/app
+COPY --from=builder  --chown=appuser:appgroup /usr/src/app/dist/apps/client /usr/src/app/dist
+EXPOSE 4222
+CMD ["node", "dist/server/server.mjs"]

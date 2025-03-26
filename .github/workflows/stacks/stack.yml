@@ -1,0 +1,176 @@
+services:
+  ${PROJECT_LOWER}-${STACK_NAME}-server:
+    image: ghcr.io/${REPO_LOWER}-server:image-placeholder
+    networks:
+      - traefik-public
+      - default
+    environment:
+      NODE_ENV: production
+      PORT: "${SERVER_PORT}"
+      DB_HOST_FILE: /run/secrets/db_host
+      DB_USER_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_user
+      DB_PASSWORD_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_password
+      DB_NAME_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_name
+      SESSION_SECRET_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_session_secret
+      SENDGRID_KEY_FILE: /run/secrets/sendgrid_key
+      SENDGRID_SENDER_FILE: /run/secrets/sendgrid_sender
+      ADMIN_EMAIL_FILE: /run/secrets/admin_email
+    healthcheck:
+      test: ["CMD-SHELL", "node /usr/src/app/scripts/healthcheck/index.cjs || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.rule=Host(`${DOMAIN_NAME}`, `www.${DOMAIN_NAME}`) && PathPrefix(`/api`)"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.entrypoints=websecure"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.service=${PROJECT_LOWER}-${STACK_NAME}-server"
+        - "traefik.http.services.${PROJECT_LOWER}-${STACK_NAME}-server.loadbalancer.server.port=${SERVER_PORT}"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.rule=Host(`${DOMAIN_NAME}`, `www.${DOMAIN_NAME}`) && PathPrefix(`/docs`)"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.entrypoints=websecure"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.service=${PROJECT_LOWER}-${STACK_NAME}-server"
+    depends_on:
+      - postgres
+      - ${PROJECT_LOWER}-${STACK_NAME}-migrations
+    secrets:
+      - db_host
+      - ${PROJECT_LOWER}_${STACK_NAME}_db_user
+      - ${PROJECT_LOWER}_${STACK_NAME}_db_password
+      - ${PROJECT_LOWER}_${STACK_NAME}_db_name
+      - ${PROJECT_LOWER}_${STACK_NAME}_session_secret
+      - sendgrid_key
+      - sendgrid_sender
+      - admin_email
+
+  ${PROJECT_LOWER}-${STACK_NAME}-migrations:
+    image: ghcr.io/${REPO_LOWER}-server:image-placeholder
+    networks:
+      - default
+    environment:
+      NODE_ENV: "production"
+      DB_HOST_FILE: /run/secrets/db_host
+      DB_USER_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_user
+      DB_PASSWORD_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_password
+      DB_NAME_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_name
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: none
+    entrypoint: ["node"]
+    command: ["/usr/src/app/scripts/run-migrations/index.cjs"]
+    depends_on:
+      - postgres
+    secrets:
+      - db_host
+      - ${PROJECT_LOWER}_${STACK_NAME}_db_user
+      - ${PROJECT_LOWER}_${STACK_NAME}_db_password
+      - ${PROJECT_LOWER}_${STACK_NAME}_db_name
+
+  ${PROJECT_LOWER}-${STACK_NAME}-client:
+    image: ghcr.io/${REPO_LOWER}-client:image-placeholder
+    networks:
+      - traefik-public
+      - default
+    environment:
+      NODE_ENV: "production"
+      PORT: "${CLIENT_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${CLIENT_PORT} || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.rule=Host(`${DOMAIN_NAME}`, `www.${DOMAIN_NAME}`) && PathPrefix(`/`)"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.entrypoints=websecure"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.service=${PROJECT_LOWER}-${STACK_NAME}-client"
+        - "traefik.http.services.${PROJECT_LOWER}-${STACK_NAME}-client.loadbalancer.server.port=${CLIENT_PORT}"
+    depends_on:
+      - ${PROJECT_LOWER}-${STACK_NAME}-server
+
+  postgres:
+    image: postgres:16.3-alpine3.20
+    networks:
+      - default
+    environment:
+      POSTGRES_USER_FILE: /run/secrets/db_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB_FILE: /run/secrets/db_name
+    volumes:
+      - ${PROJECT_LOWER}-${STACK_NAME}-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$(cat /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_user) -d $$(cat /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_name) || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    secrets:
+      - ${PROJECT_LOWER}_${STACK_NAME}_db_password
+      - ${PROJECT_LOWER}_${STACK_NAME}_db_user
+      - ${PROJECT_LOWER}_${STACK_NAME}_db_name
+      - encryption_password
+
+volumes:
+  ${PROJECT_LOWER}-${STACK_NAME}-pgdata:
+
+networks:
+  traefik-public:
+    external: true
+  default:
+    driver: overlay
+
+secrets:
+  db_host:
+    external: true
+  ${PROJECT_LOWER}_${STACK_NAME}_db_password:
+    external: true
+  ${PROJECT_LOWER}_${STACK_NAME}_db_name:
+    external: true
+  ${PROJECT_LOWER}_${STACK_NAME}_db_user:
+    external: true
+  ${PROJECT_LOWER}_${STACK_NAME}_session_secret:
+    external: true
+  sendgrid_key:
+    external: true
+  sendgrid_sender:
+    external: true
+  admin_email:
+    external: true
+  encryption_password:
+    external: true

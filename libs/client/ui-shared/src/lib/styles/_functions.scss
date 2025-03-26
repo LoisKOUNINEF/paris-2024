@@ -1,0 +1,23 @@
+@use "variables" as *;
+
+@function calcul_rem($size, $base) {
+	@return 1rem * $size / $base;
+}
+
+@function strip_unit($number) {
+	@if type-of($number) == 'number' and not unitless ($number) {
+		@return $number / ($number * 0 + 1);
+	}
+}
+
+@function padding($padding-name) {
+	@return map-get($paddings, $padding-name)
+};
+
+@function margin($margin-name) {
+	@return map-get($margins, $margin-name)
+};
+
+@function font-size($font-size-name) {
+	@return map-get($font-sizes, $font-size-name)
+};
