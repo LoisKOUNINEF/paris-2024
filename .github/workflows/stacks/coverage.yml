@@ -1,6 +1,6 @@
 services:
-  studi-exam-jo-coverage:
-    image: ghcr.io/loiskouninef/studi-exam-jo-coverage:image-placeholder
+  paris-2024-coverage:
+    image: ghcr.io/loiskouninef/paris-2024-coverage:image-placeholder
     networks:
       - traefik-public
       - default
@@ -10,17 +10,17 @@ services:
         parallelism: 1
         order: stop-first
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.studi-exam-jo-coverage.rule=Host(`studi-exam-jo.lois-kouninef.eu`, `www.studi-exam-jo.lois-kouninef.eu`) && PathPrefix(`/coverage`)"
-        - "traefik.http.routers.studi-exam-jo-coverage.entrypoints=websecure"
-        - "traefik.http.routers.studi-exam-jo-coverage.tls.certresolver=letsencrypt"
-        - "traefik.http.routers.studi-exam-jo-coverage.service=studi-exam-jo-coverage"
-        - "traefik.http.services.studi-exam-jo-coverage.loadbalancer.server.port=8090"
+        - "traefik.http.routers.paris-2024-coverage.rule=Host(`studi-exam-jo.lois-kouninef.eu`, `www.studi-exam-jo.lois-kouninef.eu`) && PathPrefix(`/coverage`)"
+        - "traefik.http.routers.paris-2024-coverage.entrypoints=websecure"
+        - "traefik.http.routers.paris-2024-coverage.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.paris-2024-coverage.service=paris-2024-coverage"
+        - "traefik.http.services.paris-2024-coverage.loadbalancer.server.port=8090"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8090 || exit 1"]
       interval: 30s
