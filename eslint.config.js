@@ -29,10 +29,6 @@ module.exports = [
                 "onlyDependOnLibsWithTags": ["scope:shared"]
               },
               {
-                "sourceTag": "scope:tools",
-                "onlyDependOnLibsWithTags": ["scope:tools"]
-              },
-              {
                 "sourceTag": "type:presentation",
                 "onlyDependOnLibsWithTags": [
                   "type:presentation",

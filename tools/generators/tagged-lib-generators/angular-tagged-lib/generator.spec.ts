@@ -26,7 +26,7 @@ describe('angular-tagged-lib Generator', () => {
   });
 
   it('should call generateTaggedLib with the correct parameters', async () => {
-    const p = await generator(tree, options);
+    await generator(tree, options);
 
     expect(generateTaggedLib).toHaveBeenCalledWith(
       tree,
