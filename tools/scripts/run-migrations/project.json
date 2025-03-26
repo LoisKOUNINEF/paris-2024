@@ -1,0 +1,23 @@
+{
+  "name": "run-migrations",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/scripts/run-migrations/src",
+  "projectType": "library",
+  "tags": [
+    "scope:server",
+    "type:util"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/tools/scripts/run-migrations",
+        "main": "tools/scripts/run-migrations/src/index.ts",
+        "tsConfig": "tools/scripts/run-migrations/tsconfig.lib.json",
+        "assets": ["tools/scripts/run-migrations/*.md"],
+        "format": ["cjs"]
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "healthcheck",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/scripts/healthcheck/src",
+  "projectType": "library",
+  "tags": [
+    "scope:server",
+    "type:util"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/tools/scripts/healthcheck",
+        "main": "tools/scripts/healthcheck/src/index.ts",
+        "tsConfig": "tools/scripts/healthcheck/tsconfig.lib.json",
+        "assets": ["tools/scripts/healthcheck/*.md"],
+        "format": ["cjs"]
+      }
+    }
+  }
+}
