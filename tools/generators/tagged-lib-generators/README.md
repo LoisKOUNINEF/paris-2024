@@ -1,9 +1,9 @@
 # Generate libraries with tags for Angular, NestJs and common libraries.
 
 - ## [Usage](#usage)
-- ## [Angular libraries generator](#angular-libraries-generators)
-- ## [NestJs libraries generator](#nestjs-libraries-generators)
-- ## [Common libraries generator](#common-libraries-generators)
+- ## [Angular libraries generator](#angular-libraries-generators-1)
+- ## [NestJs libraries generator](#nestjs-libraries-generators-1)
+- ## [Common libraries generator](#common-libraries-generators-1)
 
 ## Usage
 
