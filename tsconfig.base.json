@@ -30,9 +30,25 @@
     "strict": true,
     "verbatimModuleSyntax": false,
     "paths": {
+      "@paris-2024/client-data-access-auth": [
+        "libs/client/data-access-auth/src/index.ts"
+      ],
       "@paris-2024/client-data-access-core": [
         "libs/client/data-access-core/src/index.ts"
       ],
+      "@paris-2024/client-data-access-user": [
+        "libs/client/data-access-user/src/index.ts"
+      ],
+      "@paris-2024/client-presentation-auth": [
+        "libs/client/presentation-auth/src/index.ts"
+      ],
+      "@paris-2024/client-presentation-core": [
+        "libs/client/presentation-core/src/index.ts"
+      ],
+      "@paris-2024/client-ui-form-building-blocks": [
+        "libs/client/ui-form-building-blocks/src/index.ts"
+      ],
+      "@paris-2024/client-ui-forms": ["libs/client/ui-forms/src/index.ts"],
       "@paris-2024/client-ui-shared": ["libs/client/ui-shared/src/index.ts"],
       "@paris-2024/client-utils": ["libs/client/utils/src/index.ts"],
       "@paris-2024/db-readiness": ["tools/scripts/db-readiness/src/index.ts"],
@@ -43,11 +59,38 @@
       "@paris-2024/server-base-entity": [
         "libs/server/base-entity/src/index.ts"
       ],
+      "@paris-2024/server-business-logic-auth": [
+        "libs/server/business-logic-auth/src/index.ts"
+      ],
+      "@paris-2024/server-business-logic-cron": [
+        "libs/server/business-logic-cron/src/index.ts"
+      ],
+      "@paris-2024/server-business-logic-guards": [
+        "libs/server/business-logic-guards/src/index.ts"
+      ],
+      "@paris-2024/server-business-logic-mailer": [
+        "libs/server/business-logic-mailer/src/index.ts"
+      ],
+      "@paris-2024/server-business-logic-user": [
+        "libs/server/business-logic-user/src/index.ts"
+      ],
+      "@paris-2024/server-data-access-user": [
+        "libs/server/data-access-user/src/index.ts"
+      ],
       "@paris-2024/server-data-source": [
         "libs/server/data-source/src/index.ts"
       ],
       "@paris-2024/server-data-source-entities": [
         "libs/server/data-source-entities/src/index.ts"
+      ],
+      "@paris-2024/server-presentation-auth": [
+        "libs/server/presentation-auth/src/index.ts"
+      ],
+      "@paris-2024/server-presentation-user": [
+        "libs/server/presentation-user/src/index.ts"
+      ],
+      "@paris-2024/server-security-guards": [
+        "libs/server/security-guards/src/index.ts"
       ],
       "@paris-2024/server-utils": ["libs/server/utils/src/index.ts"],
       "@paris-2024/shared-interfaces": ["libs/shared/interfaces/src/index.ts"],
