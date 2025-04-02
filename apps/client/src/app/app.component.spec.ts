@@ -1,13 +1,23 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { Router, NavigationEnd, NavigationCancel } from '@angular/router';
+import { AuthService } from '@paris-2024/client-data-access-auth';
 import { PlatformService } from '@paris-2024/client-utils';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
+import { Component } from '@angular/core';
+
+@Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
+  selector: 'lib-navbar',
+  template: ''
+})
+class MockNavbarComponent {}
 
 describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
   let platformService: jest.Mocked<PlatformService>;
+  let authService: jest.Mocked<AuthService>;
   let router: jest.Mocked<Router>;
   let routerEvents: BehaviorSubject<any>;
 
@@ -18,6 +28,10 @@ describe('AppComponent', () => {
       isBrowser: jest.fn().mockReturnValue(true)
     } as unknown as jest.Mocked<PlatformService>;
 
+    authService = {
+      checkUserStatus: jest.fn().mockReturnValue(of(null)),
+    } as unknown as jest.Mocked<AuthService>;
+
     router = {
       events: routerEvents.asObservable(),
       url: '/test-url'
@@ -25,10 +39,11 @@ describe('AppComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [AppComponent],
-      declarations: [],
+      declarations: [MockNavbarComponent],
       providers: [
         { provide: Router, useValue: router },
         { provide: PlatformService, useValue: platformService },
+        { provide: AuthService, useValue: authService }
       ]
     })
     .compileComponents();
@@ -44,6 +59,21 @@ describe('AppComponent', () => {
 
   it('should have title "Paris 2024"', () => {
     expect(component.title).toBe('Paris 2024');
+  });
+
+  describe('ngOnInit', () => {
+    it('should check user status if platform is browser', () => {
+      component.ngOnInit();
+      expect(authService.checkUserStatus).toHaveBeenCalled();
+    });
+
+    it('should not check user status if platform is not browser', () => {
+      Object.defineProperty(platformService, 'isBrowser', {
+        get: () => false
+      });
+      component.ngOnInit();
+      expect(authService.checkUserStatus).not.toHaveBeenCalled();
+    });
   });
 
   describe('recallJsFuntions', () => {
