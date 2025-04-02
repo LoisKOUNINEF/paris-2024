@@ -5,7 +5,7 @@
   "projectType": "library",
   "tags": [
     "scope:server",
-    "type:util"
+    "type:data-access"
   ],
   "targets": {
     "build": {
@@ -75,7 +75,7 @@
       "options": {
         "commands": [
           {
-            "command": "nx run server-data-source:typeorm migration:generate libs/server/data-source/src/migrations/{args.name}Migration -d libs/server/data-source/src/lib/server-data-source.ts --pretty"
+            "command": "nx run server-data-source:typeorm migration:generate libs/server/data-source/src/migrations/{args.name}Migration -d libs/server/data-source/src/lib/data-source.ts --pretty"
           }
         ]
       }
@@ -97,7 +97,7 @@
       "options": {
         "commands": [
           {
-            "command": "nx run server-data-source:typeorm migration:run -d libs/server/data-source/src/lib/server-data-source.ts"
+            "command": "nx run server-data-source:typeorm migration:run -d libs/server/data-source/src/lib/data-source.ts"
           }
         ]
       }
@@ -108,7 +108,7 @@
       "options": {
         "commands": [
           {
-            "command": "nx run server-data-source:typeorm migration:revert -d libs/server/data-source/src/lib/server-data-source.ts"
+            "command": "nx run server-data-source:typeorm migration:revert -d libs/server/data-source/src/lib/data-source.ts"
           }
         ]
       }
