@@ -1,0 +1,7 @@
+@use "mixins";
+
+nav {
+	@include mixins.flexEvenly;
+	justify-content: space-between;
+	min-height: 3rem;
+}

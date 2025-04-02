@@ -1,0 +1,23 @@
+<div class="wrapper">
+	<h1>
+		Les JO c'est bien.
+	</h1>
+	<div class="container">
+		<div class="presentation">
+			Lorem, ipsum dolor sit amet consectetur, adipisicing elit. Eum magnam nesciunt in facilis incidunt, minima, cupiditate ea dolorum eos, unde sint. At voluptates dolore hic autem distinctio quos delectus modi eligendi, ut sequi tempora numquam atque. Distinctio veritatis, voluptate sed! Cum quo voluptatum sunt cumque, necessitatibus mollitia aliquam non dolorum reprehenderit et a laudantium placeat, architecto, nesciunt. Enim magnam suscipit error ipsa asperiores iste, optio possimus accusamus maiores dicta voluptatem dolores quaerat commodi alias reiciendis tenetur praesentium. Natus deserunt distinctio ex eos est? Provident quisquam deleniti nihil ex soluta repudiandae odio velit cum quibusdam aspernatur. Accusamus nobis harum veritatis ipsum?
+		</div>
+		<div class="contests">
+			@for(contest of contests; track contest) {
+				<lib-contest 
+					[contest]=contest
+				></lib-contest>
+			}
+		</div>
+		<div>
+			<lib-route-button 
+				content="Aller à la boutique" 
+				path="shop/offers"
+			></lib-route-button>
+		</div>
+	</div>
+</div>

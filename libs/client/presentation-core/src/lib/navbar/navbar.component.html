@@ -1,0 +1,39 @@
+<nav>
+	@if (auth.isAdmin()) {
+		<!-- Displays only to admin user -->
+		<lib-route-button 
+			content="Dashboard Administrateur" 
+			path="admin"
+		></lib-route-button>
+	} @else { 
+	<!-- Displays to all users except admin -->
+	<lib-route-button 
+		content="Aller à la boutique" 
+		path="shop/offers"
+	></lib-route-button>
+	<lib-route-button 
+		content="Mon Panier" 
+		path="shop/cart"
+	></lib-route-button>
+	}
+	@if (auth.isAuth()) {
+		<!-- Displays only to logged-in users -->
+		<lib-route-button 
+			content="Mon Compte" 
+			path="user/user"
+		></lib-route-button>
+		<button (click)=logout()>
+			Se déconnecter
+		</button>
+	} @else {
+		<!-- Displays only to non-logged-in users -->
+		<lib-route-button 
+			content="Se Connecter" 
+			path="auth/login"
+		></lib-route-button>
+		<lib-route-button 
+			content="Créer un compte" 
+			path="auth/signup"
+		></lib-route-button>
+	}
+</nav>

@@ -1,0 +1,14 @@
+<div class="wrapper">
+	<div class="not-found">
+		<p class="intro">
+			Cette page n'existe pas.
+		</p>
+		<p class="countdown">
+			Vous allez être redirigé dans {{ time }}.
+		</p>
+			<lib-route-button 
+				content="Retour à l'accueil"
+				(buttonClicked)=redirectToHome()
+			></lib-route-button>
+	</div>
+</div>
