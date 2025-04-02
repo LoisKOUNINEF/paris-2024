@@ -1,0 +1,26 @@
+<div [formGroup]="emailForm">
+	<div class="form-class email">
+		<label class="label">
+			E-Mail
+		</label>
+		<input 
+			name="email"
+			type="email" 
+			id="email" 
+			placeholder="E-Mail" 
+			class="form-input" 
+			formControlName=email
+			autofocus
+			required
+		>
+		@if(
+			emailForm.controls['email'].touched 
+			&& (emailForm.controls['email'].hasError('required') 
+			|| emailForm.controls['email'].invalid)
+		) {
+			<span>
+				Email requis.
+			</span>
+		}
+	</div>
+</div>
