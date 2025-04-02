@@ -22,9 +22,15 @@
           ]
         },
         "assets": [
+          "apps/client/src/assets",
           {
             "glob": "**/*",
             "input": "apps/client/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "apps/client/src/assets",
+            "output": "/assets"
           }
         ],
         "styles": ["apps/client/src/styles.scss"],
