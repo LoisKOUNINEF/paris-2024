@@ -21,7 +21,7 @@ export class UserCreationMigration1743626456683 implements MigrationInterface {
                 "role" "public"."user_role_enum" NOT NULL DEFAULT 'customer',
                 "cartId" text NOT NULL DEFAULT 'cartId',
                 "isAnonymized" boolean NOT NULL DEFAULT false,
-                "lastLoginDate" TIMESTAMP WITH TIME ZONE NOT NULL,
+                "lastLoginAt" TIMESTAMP WITH TIME ZONE NOT NULL,
                 CONSTRAINT "UQ_e12875dfb3b1d92d7d7c5377e22" UNIQUE ("email"),
                 CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"),
                 CREATE INDEX IDX_user_email ON "user" ("email")

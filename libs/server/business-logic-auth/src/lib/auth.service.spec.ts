@@ -46,7 +46,7 @@ describe('AuthService', () => {
         role: Roles.CUSTOMER,
         cartId: '',
         isAnonymized: false,
-        lastLoginDate: new Date(),
+        lastLoginAt: new Date(),
         password: 'hashedPassword',
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -74,7 +74,7 @@ describe('AuthService', () => {
         role: Roles.CUSTOMER,
         cartId: '',
         isAnonymized: false,
-        lastLoginDate: new Date(),
+        lastLoginAt: new Date(),
         password: 'hashedPassword',
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -96,7 +96,7 @@ describe('AuthService', () => {
         role: Roles.CUSTOMER,
         cartId: '',
         isAnonymized: false,
-        lastLoginDate: new Date(),
+        lastLoginAt: new Date(),
         hashPassword: (bcrypt.hash as jest.Mock).mockReturnValue('hashedPassword'),
       });
       expect(userRepository.findOneByEmail).toHaveBeenCalledWith('test@example.com');

@@ -20,7 +20,7 @@ const mockUser: User = {
   role: Roles.CUSTOMER,
   cartId: 'cart-id',
   isAnonymized: false,
-  lastLoginDate: new Date(),
+  lastLoginAt: new Date(),
   deletedAt: null,
   secretKey: 'test-secret',
   createdAt: new Date(),

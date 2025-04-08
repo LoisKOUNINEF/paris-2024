@@ -80,7 +80,7 @@ export class User extends BaseEntity implements IUser {
 
   @Column({ type: 'timestamptz' })
   @ApiProperty()
-  lastLoginDate: Date;
+  lastLoginAt: Date;
 
   @BeforeInsert()
   @BeforeUpdate()
