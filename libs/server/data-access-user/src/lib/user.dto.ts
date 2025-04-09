@@ -1,18 +1,24 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsEmail, Matches } from 'class-validator';
 import { Roles } from '@paris-2024/shared-interfaces';
 import { Exclude } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 
 export class CreateUserDto {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'email@example.com',
+  })
   @IsEmail()
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'Jane',
+  })
   firstName: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'Doe',
+  })
   lastName: string;
 
   @ApiProperty({ 
@@ -33,3 +39,5 @@ export class CreateUserDto {
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
+
+export class LoginDto extends PickType(CreateUserDto, ['email', 'password'] as const) {}

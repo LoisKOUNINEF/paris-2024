@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Request, UseGuards } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UserService } from "@paris-2024/server-business-logic-user";
-import { CreateUserDto, User } from "@paris-2024/server-data-access-user";
+import { CreateUserDto, LoginDto, User } from "@paris-2024/server-data-access-user";
 import { AuthenticatedGuard, Admin, Staff } from '@paris-2024/server-business-logic-guards';
 import { LocalAuthGuard } from '@paris-2024/server-security-guards';
 
@@ -17,6 +17,10 @@ export class AuthController {
     type: User,
     description: 'create new user',
   })
+  @ApiBody({
+    type: CreateUserDto,
+    description: 'Json structure for User object',
+  })
   @ApiBadRequestResponse()
   createUser(@Body() userDto: CreateUserDto): Promise<User | undefined> {
     return this.userService.create(userDto, false);
@@ -24,6 +28,9 @@ export class AuthController {
 
   @Post('login')
 	@UseGuards(LocalAuthGuard)
+  @ApiBody({
+    type: LoginDto,
+  })
 	login(@Request() req: any, err?: Error) {
     if (!req.user) {
     	throw new HttpException('Login failed', HttpStatus.UNAUTHORIZED);
@@ -48,18 +55,24 @@ export class AuthController {
 
   @Get('status/is-authenticated')
   @UseGuards(AuthenticatedGuard)
+  @ApiResponse({ status: 201, description: 'User is authenticated.' })
+  @ApiResponse({ status: 403, description: 'User is not authenticated.' })
   isAuthenticated(): boolean {
     return true;
   }
 
   @Get('status/is-admin')
   @Admin(true)
+  @ApiResponse({ status: 201, description: 'User is administrator.' })
+  @ApiResponse({ status: 403, description: 'User is not administrator.' })
   isAdmin(): boolean {
     return true;
   }
 
   @Get('status/is-staff')
   @Staff(true)
+  @ApiResponse({ status: 201, description: 'User is a staff member.' })
+  @ApiResponse({ status: 403, description: 'User is not a staff member.' })
   isStaff(): boolean {
     return true;
   }

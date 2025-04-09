@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiTags } from "@nestjs/swagger";
 import { UserService } from "@paris-2024/server-business-logic-user";
 import { CreateUserDto, User } from "@paris-2024/server-data-access-user";
 import { Admin } from '@paris-2024/server-business-logic-guards';
@@ -14,7 +14,11 @@ export class UserController {
   @Admin(true)
   @ApiCreatedResponse({
     type: User,
-    description: 'create new user',
+    description: 'Created new User object',
+  })
+  @ApiBody({
+    type: CreateUserDto,
+    description: 'Json structure for User object',
   })
   @ApiBadRequestResponse()
   createUser(@Body() userDto: CreateUserDto): Promise<User | undefined> {

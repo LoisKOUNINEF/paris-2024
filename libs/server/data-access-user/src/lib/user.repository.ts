@@ -105,7 +105,10 @@ export class UserRepository {
       return;
     }
     
-    return await this.userRepository.save(Object.assign(user, { lastLoginAt: new Date() }))
+    return await this.userRepository.save(Object.assign(
+      user, 
+      { lastLoginAt: new Date() }
+    ));
   }
 
   private async restore(user: User, userDto: UpdateUserDto): Promise<User> {
