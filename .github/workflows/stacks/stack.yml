@@ -3,7 +3,7 @@ services:
     image: ghcr.io/${REPO_LOWER}-server:image-placeholder
     networks:
       - traefik-public
-      - mail-delivery 
+      - mail-deliver
       - default
     environment:
       NODE_ENV: production
@@ -152,7 +152,7 @@ volumes:
 networks:
   traefik-public:
     external: true
-  mail-delivery:
+  mail-deliver:
     external: true
   default:
     driver: overlay
