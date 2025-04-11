@@ -1,87 +1,67 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WelcomeMailerService } from './welcome-mailer.service';
-import { SendgridService } from '../../shared-mailer/sendgrid.service';
-import { ConfigService } from '@nestjs/config';
-import * as fs from 'fs';
-import * as hbs from 'handlebars';
-import MailerParams from '../../shared-mailer/mailer-params';
-
-jest.mock('fs');
-jest.mock('handlebars');
+import { MailerService } from '@nestjs-modules/mailer';
+import MailerParams from '../../mailer.params';
 
 describe('WelcomeMailerService', () => {
   let service: WelcomeMailerService;
-  let sendgridService: SendgridService;
-  let configService: ConfigService;
-  let mailerParams: MailerParams;
+  // let mailerService: MailerService;
+
+  let mockMailerService = {
+    sendMail: jest.fn(),
+  };
+
+  const mockMailerParams: MailerParams = {
+    mainUrl: 'https://example.com',
+    mainImage: 'https://example.com/image.jpg',
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         WelcomeMailerService,
-        { provide: SendgridService, useValue: { send: jest.fn() } },
-        { provide: ConfigService, useValue: { get: jest.fn() } },
-        {
-          provide: MailerParams,
-          useValue: {
-            mainUrl: 'http://example.com',
-            mainImage: 'http://example.com/image.jpg',
-          },
-        },
+        { provide: MailerService, useValue: mockMailerService },
+        { provide: MailerParams, useValue: mockMailerParams },
       ],
     }).compile();
 
     service = module.get<WelcomeMailerService>(WelcomeMailerService);
-    sendgridService = module.get<SendgridService>(SendgridService);
-    configService = module.get<ConfigService>(ConfigService);
-    mailerParams = module.get<MailerParams>(MailerParams);
+    mockMailerService = module.get(MailerService);
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should read and compile the email template', async () => {
-    const mockEmail = 'test@example.com';
-    const mockTemplate = '<html>{{email}}</html>';
-    const compiledTemplate = jest.fn().mockReturnValue('<html>test@example.com</html>');
+  it('should send a welcome email with correct parameters', async () => {
+    const email = 'user@example.com';
+    const mockSendResult = { messageId: '123abc' };
 
-    (fs.readFileSync as jest.Mock).mockReturnValue(mockTemplate);
-    (hbs.compile as jest.Mock).mockReturnValue(compiledTemplate);
+    mockMailerService.sendMail.mockResolvedValue(mockSendResult);
 
-    (configService.get as jest.Mock).mockReturnValue('sender@example.com');
+    const result = await service.sendWelcome(email);
 
-    await service.sendWelcome(mockEmail);
-
-    expect(fs.readFileSync).toHaveBeenCalledWith(
-      './dist/src/mailer/user-mailer/welcome-mailer/welcome-mailer.hbs'
-    );
-
-    expect(hbs.compile).toHaveBeenCalledWith(mockTemplate);
-    expect(compiledTemplate).toHaveBeenCalledWith({
-      email: mockEmail,
-      url: mailerParams.mainUrl,
-      mainImage: mailerParams.mainImage,
+    expect(mockMailerService.sendMail).toHaveBeenCalledWith({
+      to: email,
+      subject: 'Your Paris 2024 account was successfully created',
+      template: './dist/src/mailer/user-mailer/welcome-mailer/welcome-mailer',
+      context: {
+        email,
+        url: mockMailerParams.mainUrl,
+        mainImage: mockMailerParams.mainImage,
+      },
     });
+
+    expect(result).toBe(mockSendResult);
   });
 
-  it('should send an email with the correct parameters', async () => {
-    const mockEmail = 'test@example.com';
-    const compiledHtml = '<html>test@example.com</html>';
+  it('should propagate errors from mailerService', async () => {
+    const email = 'user@example.com';
+    const error = new Error('Failed to send mail');
 
-    (fs.readFileSync as jest.Mock).mockReturnValue('<html>{{email}}</html>');
-    (hbs.compile as jest.Mock).mockReturnValue(jest.fn().mockReturnValue(compiledHtml));
+    mockMailerService.sendMail.mockRejectedValue(error);
 
-    (configService.get as jest.Mock).mockReturnValue('sender@example.com');
-    const sendMock = sendgridService.send as jest.Mock;
-
-    await service.sendWelcome(mockEmail);
-
-    expect(sendMock).toHaveBeenCalledWith({
-      to: mockEmail,
-      subject: 'Your Paris 2024 account was successfully created',
-      from: 'sender@example.com',
-      html: compiledHtml,
-    });
+    await expect(service.sendWelcome(email)).rejects.toThrow('Failed to send mail');
   });
 });

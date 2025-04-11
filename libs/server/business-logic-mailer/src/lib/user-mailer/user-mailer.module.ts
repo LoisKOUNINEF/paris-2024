@@ -2,11 +2,11 @@ import { Module } from "@nestjs/common";
 import { AnonymizeMailerService } from "./anonymize-mailer/anonymize-mailer.service";
 import { WelcomeMailerService } from "./welcome-mailer/welcome-mailer.service";
 import { InactiveUsersMailerService } from "./inactive-users-mailer/inactive-users-mailer.service";
-import { SharedMailerModule } from "../shared-mailer/shared-mailer.module";
+import MailerParams from "../mailer.params";
 
 @Module({
-  imports: [SharedMailerModule],
   providers: [
+    MailerParams,
     WelcomeMailerService,
     AnonymizeMailerService,
     InactiveUsersMailerService,

@@ -3,6 +3,7 @@ services:
     image: ghcr.io/${REPO_LOWER}-server:image-placeholder
     networks:
       - traefik-public
+      - mail-delivery 
       - default
     environment:
       NODE_ENV: production
@@ -144,13 +145,14 @@ services:
       - ${PROJECT_LOWER}_${STACK_NAME}_db_password
       - ${PROJECT_LOWER}_${STACK_NAME}_db_user
       - ${PROJECT_LOWER}_${STACK_NAME}_db_name
-      - encryption_password
 
 volumes:
   ${PROJECT_LOWER}-${STACK_NAME}-pgdata:
 
 networks:
   traefik-public:
+    external: true
+  mail-delivery:
     external: true
   default:
     driver: overlay
@@ -171,6 +173,4 @@ secrets:
   sendgrid_sender:
     external: true
   admin_email:
-    external: true
-  encryption_password:
     external: true
