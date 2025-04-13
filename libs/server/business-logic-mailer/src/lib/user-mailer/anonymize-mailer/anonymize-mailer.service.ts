@@ -12,7 +12,7 @@ export class AnonymizeMailerService {
     return await this.mailerService.sendMail({
       to: email,
       subject: 'Your Paris 2024 account will be permanently deleted',
-      template: './dist/src/mailer/user-mailer/anonymize-mailer/anonymize-mailer',
+      template: 'user-mailer/anonymize-mailer/anonymize-mailer',
       context: {
         email: email,
         url: this.mailerParams.mainUrl,

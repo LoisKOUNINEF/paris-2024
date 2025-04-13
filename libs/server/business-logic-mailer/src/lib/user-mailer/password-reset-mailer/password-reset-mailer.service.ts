@@ -18,7 +18,7 @@ export class PasswordResetMailerService {
     return await this.mailerService.sendMail({
       to: pwdReset.email,
       subject: 'Your password has been reset',
-      template: './dist/src/mailer/user-mailer/password-reset-mailer/password-reset-mailer',
+      template: 'user-mailer/password-reset-mailer/password-reset-mailer',
       context: {
         email,
         url,
