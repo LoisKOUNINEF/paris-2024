@@ -121,9 +121,9 @@ services:
     networks:
       - default
     environment:
-      POSTGRES_USER_FILE: /run/secrets/db_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-      POSTGRES_DB_FILE: /run/secrets/db_name
+      POSTGRES_USER_FILE: /run/secrets/${PROJECT_LOWER}-${STACK_NAME}-db_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/${PROJECT_LOWER}-${STACK_NAME}-db_password
+      POSTGRES_DB_FILE: /run/secrets/${PROJECT_LOWER}-${STACK_NAME}-db_name
     volumes:
       - ${PROJECT_LOWER}-${STACK_NAME}-pgdata:/var/lib/postgresql/data
     healthcheck:
