@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThan } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { User } from '@paris-2024/server-data-access-user';
-import { subDays, subWeeks, subYears } from 'date-fns';
+import { subDays, subYears } from 'date-fns';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserDeletionService {
@@ -13,7 +13,6 @@ export class UserDeletionService {
       email: `anon-${userId}@anonymous.com`,
       firstName: 'Anonymized',
       lastName: 'User',
-      deletedAt: new Date(),
       isAnonymized: true,
     }
   }
@@ -23,7 +22,10 @@ export class UserDeletionService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron(
+    CronExpression.EVERY_DAY_AT_MIDNIGHT,
+    { name: 'anonymize-deleted-accounts' }
+  )
   async anonymizeDeletedAccounts() {
     const thresholdDate = subDays(new Date(), 7);
 
@@ -40,15 +42,43 @@ export class UserDeletionService {
     }
 
     for (const user of usersToAnonymize) {
-      await this.userRepository.update(user.id, this.anonymizedUser(user.id));
+      await this.userRepository.update(
+        user.id, 
+        this.anonymizedUser(user.id)
+      );
 
       this.logger.log(`Anonymized user ID: ${user.id}`);
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async softDeleteOldAccounts() {
-    const tresholdDate = subWeeks(subYears(new Date(), 2), 1);
-    return tresholdDate;
+  @Cron(
+    CronExpression.EVERY_DAY_AT_MIDNIGHT, 
+    { name: 'soft-delete-inative-accounts' }
+  )
+  async softDeleteInactiveAccounts() {
+    const thresholdDate = subYears(new Date(), 2);
+
+    const usersToSoftDelete = await this.userRepository.find({
+      where: {
+        lastLoginAt: LessThan(thresholdDate),
+        deletedAt: undefined,
+      },
+    });
+
+    if (usersToSoftDelete.length === 0) {
+      this.logger.log('No users to softDelete.');
+      return;
+    }
+
+    for (const user of usersToSoftDelete) {
+      await this.userRepository.update(
+        user.id, 
+        { deletedAt: new Date() },
+      );
+
+      this.logger.log(`SoftDeleted user ID: ${user.id}`);
+    }
+
+    return thresholdDate;
   }
 }

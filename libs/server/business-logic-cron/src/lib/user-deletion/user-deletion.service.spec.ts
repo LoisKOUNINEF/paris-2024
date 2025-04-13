@@ -3,7 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '@paris-2024/server-data-access-user';
 import { UserDeletionService } from './user-deletion.service';
 import { Logger } from '@nestjs/common';
-import { subDays } from 'date-fns';
+import { subDays, subYears } from 'date-fns';
 
 describe('UserDeletionService', () => {
   let service: UserDeletionService;
@@ -71,7 +71,6 @@ describe('UserDeletionService', () => {
         email: 'anon-user1@anonymous.com',
         firstName: 'Anonymized',
         lastName: 'User',
-        deletedAt: expect.any(Date),
         isAnonymized: true,
       });
       
@@ -79,7 +78,6 @@ describe('UserDeletionService', () => {
         email: 'anon-user2@anonymous.com',
         firstName: 'Anonymized',
         lastName: 'User',
-        deletedAt: expect.any(Date),
         isAnonymized: true,
       });
       
@@ -90,7 +88,7 @@ describe('UserDeletionService', () => {
     it('should use the correct threshold date for finding users', async () => {
       mockUserRepository.find.mockResolvedValue([]);
       
-      const currentDate = new Date('2023-01-10T00:00:00Z');
+      const currentDate = new Date('2023-01-30T00:00:00Z');
       const expectedThresholdDate = subDays(currentDate, 7);
       
       jest.spyOn(global, 'Date').mockImplementation(() => currentDate as any);
@@ -111,6 +109,78 @@ describe('UserDeletionService', () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       await expect(service.anonymizeDeletedAccounts()).rejects.toThrow('Database error');
+      
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('softDeleteInactiveAccounts', () => {
+    it('should not softDelete any users when none match criteria', async () => {
+      mockUserRepository.find.mockResolvedValue([]);
+
+      await service.softDeleteInactiveAccounts();
+
+      expect(mockUserRepository.find).toHaveBeenCalledTimes(1);
+      expect(mockUserRepository.find).toHaveBeenCalledWith({
+        where: {
+          lastLoginAt: expect.any(Object),
+          deletedAt: undefined,
+        },
+      });
+      expect(mockUserRepository.update).not.toHaveBeenCalled();
+      expect(loggerSpy).toHaveBeenCalledWith('No users to softDelete.');
+    });
+
+    it('should softDelete users inactive since more than 24 months', async () => {
+      const mockUsers = [
+        { id: 'user1', email: 'user1@example.com', lastLoginAt: new Date() },
+        { id: 'user2', email: 'user2@example.com', lastLoginAt: new Date() },
+      ];
+      mockUserRepository.find.mockResolvedValue(mockUsers);
+      mockUserRepository.update.mockResolvedValue(undefined);
+
+      await service.softDeleteInactiveAccounts();
+
+      expect(mockUserRepository.find).toHaveBeenCalledTimes(1);
+      
+      expect(mockUserRepository.update).toHaveBeenCalledTimes(2);
+      
+      expect(mockUserRepository.update).toHaveBeenCalledWith('user1', {
+        deletedAt: expect.any(Object),
+      });
+      
+      expect(mockUserRepository.update).toHaveBeenCalledWith('user2', {
+        deletedAt: expect.any(Object),
+      });
+      
+      expect(loggerSpy).toHaveBeenCalledWith('SoftDeleted user ID: user1');
+      expect(loggerSpy).toHaveBeenCalledWith('SoftDeleted user ID: user2');
+    });
+
+    it('should use the correct threshold date for finding users', async () => {
+      mockUserRepository.find.mockResolvedValue([]);
+      
+      const currentDate = new Date('2023-01-30T00:00:00Z');
+      const expectedThresholdDate = subYears(currentDate, 2);
+      
+      jest.spyOn(global, 'Date').mockImplementation(() => currentDate as any);
+
+      await service.softDeleteInactiveAccounts();
+
+      const findCall = mockUserRepository.find.mock.calls[0][0];
+      
+      expect(findCall.where.lastLoginAt.value).toEqual(expectedThresholdDate);
+      
+      jest.restoreAllMocks();
+    });
+
+    it('should handle errors gracefully', async () => {
+      const error = new Error('Database error');
+      mockUserRepository.find.mockRejectedValue(error);
+      
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      await expect(service.softDeleteInactiveAccounts()).rejects.toThrow('Database error');
       
       consoleErrorSpy.mockRestore();
     });
