@@ -5,28 +5,7 @@ import { Repository } from 'typeorm';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User } from './user.entity';
-import { Roles } from '@paris-2024/shared-interfaces';
-import { createEntityMock } from '@paris-2024/shared-utils';
-
-const { mockEntity } = createEntityMock(User);
-
-const mockUser: User = {
-  ...mockEntity,
-  id: 'test-id',
-  firstName: 'John',
-  lastName: 'Doe',
-  email: 'john.doe@example.com',
-  password: 'Test@12345',
-  role: Roles.CUSTOMER,
-  cartId: 'cart-id',
-  isAnonymized: false,
-  lastLoginAt: new Date(),
-  deletedAt: null,
-  secretKey: 'test-secret',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  hashPassword: async () => { return; } ,
-}
+import { mockUser } from './user.mock';
 
 describe('UserRepository', () => {
   let userRepository: UserRepository;

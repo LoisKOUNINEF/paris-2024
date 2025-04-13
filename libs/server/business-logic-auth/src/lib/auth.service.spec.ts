@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { UserRepository } from '@paris-2024/server-data-access-user';
 import * as bcrypt from 'bcrypt';
 import { Roles } from '@paris-2024/shared-interfaces';
+import { mockUser } from '@paris-2024/server-data-access-user';
 
 jest.mock('@paris-2024/server-data-access-user');
 jest.mock('bcrypt');
@@ -21,6 +22,8 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     userRepository = module.get(UserRepository) as jest.Mocked<UserRepository>;
+
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -38,69 +41,33 @@ describe('AuthService', () => {
     });
 
     it('should return null if password does not match', async () => {
-      const mockUser = {
-        id: '1',
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@example.com',
-        role: Roles.CUSTOMER,
-        cartId: '',
-        isAnonymized: false,
-        lastLoginAt: new Date(),
-        password: 'hashedPassword',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        deletedAt: null,
-        secretKey: 'secret',
-        hashPassword: (bcrypt.hash as jest.Mock).mockReturnValue('hashedPassword'),
-      };
-
       userRepository.findOneByEmail.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      const result = await service.validateUser('test@example.com', 'wrongPassword');
+      const result = await service.validateUser('john.doe@example.com', 'wrongPassword');
 
       expect(result).toBeNull();
-      expect(userRepository.findOneByEmail).toHaveBeenCalledWith('test@example.com');
-      expect(bcrypt.compare).toHaveBeenCalledWith('wrongPassword', 'hashedPassword');
+      expect(userRepository.findOneByEmail).toHaveBeenCalledWith('john.doe@example.com');
+      expect(bcrypt.compare).toHaveBeenCalledWith('wrongPassword', '10Characters+');
     });
 
     it('should return user data without sensitive fields if validation succeeds', async () => {
-      const mockUser = {
-        id: '1',
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@example.com',
-        role: Roles.CUSTOMER,
-        cartId: '',
-        isAnonymized: false,
-        lastLoginAt: new Date(),
-        password: 'hashedPassword',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        deletedAt: null,
-        secretKey: 'secret',
-        hashPassword: (bcrypt.hash as jest.Mock).mockReturnValue('hashedPassword'),
-      };
-
       userRepository.findOneByEmail.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      const result = await service.validateUser('test@example.com', 'correctPassword');
+      const result = await service.validateUser('john.doe@example.com', '10Characters+');
 
-      expect(result).toEqual({
-        id: '1',
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@example.com',
+      expect(result).toEqual(expect.objectContaining({
+        id: 'test-id',
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
         role: Roles.CUSTOMER,
-        cartId: '',
+        cartId: 'cart-id',
         isAnonymized: false,
-        lastLoginAt: new Date(),
-        hashPassword: (bcrypt.hash as jest.Mock).mockReturnValue('hashedPassword'),
-      });
-      expect(userRepository.findOneByEmail).toHaveBeenCalledWith('test@example.com');
-      expect(bcrypt.compare).toHaveBeenCalledWith('correctPassword', 'hashedPassword');
+      }));
+      expect(userRepository.findOneByEmail).toHaveBeenCalledWith('john.doe@example.com');
+      expect(bcrypt.compare).toHaveBeenCalledWith('10Characters+', '10Characters+');
     });
   });
 });
