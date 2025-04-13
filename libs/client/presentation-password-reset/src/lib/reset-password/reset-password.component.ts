@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { PasswordConfirmFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
 import { UserDto, UserFormValue } from '@paris-2024/client-data-access-user';
-import { AuthService } from '@paris-2024/client-data-access-auth';
+import { PasswordResetService } from '@paris-2024/client-data-access-password-reset';
 import { Subscription, filter } from 'rxjs';
 
 @Component({
@@ -18,7 +18,7 @@ import { Subscription, filter } from 'rxjs';
   styleUrl: './reset-password.component.scss',
 })
 export class ResetPasswordComponent implements OnInit, OnDestroy {
-  token: string = '';
+  token = '';
   subscription: Subscription = new Subscription;
   resetPasswordForm!: FormGroup;
 
@@ -26,7 +26,7 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService,
+    private passwordResetService: PasswordResetService,
   ) {}
 
   ngOnInit(): void {
@@ -44,13 +44,13 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
 
   resetPassword(): Subscription | Promise<boolean> {
     if(!this.resetPasswordForm.valid) {
-      return this.router.navigate([`auth/reset-password/${this.token}`])
+      return this.router.navigate([`password-reset/${this.token}`])
     } 
     const user = new UserDto({
       password: this.resetPasswordForm.value.passwordConfirm.password,
     } as UserFormValue);
 
-    return this.subscription = this.authService.resetPwd(user, this.token)
+    return this.subscription = this.passwordResetService.resetPwd(user, this.token)
       .pipe(filter( res => !!res))
       .subscribe(() => {
         this.router.navigate(['auth/login'])

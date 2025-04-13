@@ -3,19 +3,19 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { PasswordConfirmFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
-import { AuthService } from '@paris-2024/client-data-access-auth';
+import { PasswordResetService } from '@paris-2024/client-data-access-password-reset';
 import { ResetPasswordComponent } from './reset-password.component';
 import { By } from '@angular/platform-browser';
 
 describe('ResetPasswordComponent', () => {
   let component: ResetPasswordComponent;
   let fixture: ComponentFixture<ResetPasswordComponent>;
-  let authServiceMock: any;
+  let passwordResetServiceMock: any;
   let routerMock: any;
   let activatedRouteMock: any;
 
   beforeEach(() => {
-    authServiceMock = {
+    passwordResetServiceMock = {
       resetPwd: jest.fn().mockReturnValue(of({ id: 1 })),
     };
 
@@ -32,7 +32,7 @@ describe('ResetPasswordComponent', () => {
     TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, PasswordConfirmFormComponent, SubmitButtonComponent, ResetPasswordComponent],
       providers: [
-        { provide: AuthService, useValue: authServiceMock },
+        { provide: PasswordResetService, useValue: passwordResetServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         FormBuilder,
@@ -88,7 +88,7 @@ describe('ResetPasswordComponent', () => {
 
     component.resetPassword();
 
-    expect(authServiceMock.resetPwd).toHaveBeenCalledWith(
+    expect(passwordResetServiceMock.resetPwd).toHaveBeenCalledWith(
       { password: 'newPassword1#' },
       'test-token'
     );

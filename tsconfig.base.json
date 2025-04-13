@@ -36,6 +36,9 @@
       "@paris-2024/client-data-access-core": [
         "libs/client/data-access-core/src/index.ts"
       ],
+      "@paris-2024/client-data-access-password-reset": [
+        "libs/client/data-access-password-reset/src/index.ts"
+      ],
       "@paris-2024/client-data-access-user": [
         "libs/client/data-access-user/src/index.ts"
       ],
@@ -44,6 +47,9 @@
       ],
       "@paris-2024/client-presentation-core": [
         "libs/client/presentation-core/src/index.ts"
+      ],
+      "@paris-2024/client-presentation-password-reset": [
+        "libs/client/presentation-password-reset/src/index.ts"
       ],
       "@paris-2024/client-ui-form-building-blocks": [
         "libs/client/ui-form-building-blocks/src/index.ts"

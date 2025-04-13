@@ -4,7 +4,7 @@ import { Observable, filter, forkJoin, map } from 'rxjs';
 import { User, UserDto } from '@paris-2024/client-data-access-user';
 import { ApiRequestService } from '@paris-2024/client-data-access-core';
 
-interface IAuthStatus {
+declare interface IAuthStatus {
   isAuth: boolean; 
   isStaff: boolean; 
   isAdmin: boolean;
@@ -19,7 +19,6 @@ export class AuthService {
   private readonly signupUrl = this.authUrl + '/signup';
   private readonly loginUrl = this.authUrl + '/login';
   private readonly logoutUrl = this.authUrl + '/logout';
-  private readonly pwdResetUrl = this.authUrl + '/password-reset';
   private readonly checkAuthUrl = this.statusUrl + '/is-authenticated';
   private readonly checkStaffUrl = this.statusUrl + '/is-staff';
   private readonly checkAdminUrl = this.statusUrl + '/is-admin';
@@ -77,16 +76,6 @@ export class AuthService {
           return { isAuth, isStaff, isAdmin };
       })
     );
-  }
-
-  public sendPwdResetLink(userDto: UserDto): Observable<any> {
-    return this.apiRequestService
-      .post<User>(this.pwdResetUrl, userDto);
-  }
-
-  public resetPwd(userDto: UserDto, token: string): Observable<any> {
-    return this.apiRequestService
-      .post<Partial<User>>(`${this.pwdResetUrl}?token=${token}`, userDto);
   }
 
   private checkAuthStatus(): Observable<boolean> {

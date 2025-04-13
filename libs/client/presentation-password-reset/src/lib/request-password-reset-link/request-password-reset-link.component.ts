@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { EmailFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
 import { UserDto } from '@paris-2024/client-data-access-user';
-import { AuthService } from '@paris-2024/client-data-access-auth';
+import { PasswordResetService } from '@paris-2024/client-data-access-password-reset';
 import { Subscription, filter } from 'rxjs';
 
 @Component({
@@ -22,7 +22,7 @@ export class RequestPasswordResetLinkComponent implements OnInit, OnDestroy {
   requestResetLinkForm!: FormGroup;
 
   constructor(
-    private authService: AuthService,
+    private passwordResetService: PasswordResetService,
     private formBuilder: FormBuilder,
     private router: Router,
   ) {}
@@ -41,17 +41,17 @@ export class RequestPasswordResetLinkComponent implements OnInit, OnDestroy {
 
   sendPwdResetLink(): Subscription | Promise<boolean> {
     if (!this.requestResetLinkForm.valid) {
-      return this.router.navigate(['auth/reset-password']);
+      return this.router.navigate(['password-reset']);
     };
 
     const user = new UserDto({
       email: this.requestResetLinkForm.value.email.email
     });
 
-    return this.subscription = this.authService.sendPwdResetLink(user)
+    return this.subscription = this.passwordResetService.sendPwdResetLink(user)
       .pipe(filter(res => !!res))
       .subscribe(() => {
-        this.router.navigate(['auth/reset-link-sent'])
+        this.router.navigate(['password-reset/reset-link-sent'])
       }
     )
   }

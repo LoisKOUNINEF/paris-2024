@@ -13,6 +13,10 @@ export const appRoutes: Routes = [
 		loadChildren: () => import('@paris-2024/client-presentation-auth').then(m => m.authRoutes)
 	},
 	{
+		path: 'password-reset',
+		loadChildren: () => import('@paris-2024/client-presentation-password-reset').then(m => m.passwordResetRoutes)
+	},
+	{
 		path: '**',
 		pathMatch: 'full',
 		title: '404',

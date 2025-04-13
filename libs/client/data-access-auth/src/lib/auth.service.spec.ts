@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { AuthService } from './auth.service';
 import { ApiRequestService } from '@paris-2024/client-data-access-core';
 import { of } from 'rxjs';
-import { User, UserDto } from '@paris-2024/client-data-access-user';
+import { User } from '@paris-2024/client-data-access-user';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -99,37 +99,6 @@ describe('AuthService', () => {
       });
 
       expect(apiRequestServiceMock.get).toHaveBeenCalledWith('/auth/status/is-admin');
-    });
-  });
-
-  describe('sendPwdResetLink', () => {
-    it('should send password reset link', () => {
-      const mockUserDto: UserDto = { email: 'test@test.com' };
-      const mockResponse = { success: true };
-
-      apiRequestServiceMock.post.mockReturnValue(of(mockResponse));
-
-      service.sendPwdResetLink(mockUserDto).subscribe((response) => {
-        expect(response).toEqual(mockResponse);
-      });
-
-      expect(apiRequestServiceMock.post).toHaveBeenCalledWith('/auth/password-reset', mockUserDto);
-    });
-  });
-
-  describe('resetPwd', () => {
-    it('should reset password with the given token', () => {
-      const mockUserDto: UserDto = { email: 'test@test.com', password: 'newpassword' };
-      const mockResponse = { success: true };
-      const token = 'reset-token';
-
-      apiRequestServiceMock.post.mockReturnValue(of(mockResponse));
-
-      service.resetPwd(mockUserDto, token).subscribe((response: any) => {
-        expect(response).toEqual(mockResponse);
-      });
-
-      expect(apiRequestServiceMock.post).toHaveBeenCalledWith('/auth/password-reset?token=reset-token', mockUserDto);
     });
   });
 });

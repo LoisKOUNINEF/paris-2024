@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testin
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { AuthService } from '@paris-2024/client-data-access-auth';
+import { PasswordResetService } from '@paris-2024/client-data-access-password-reset';
 import { UserDto } from '@paris-2024/client-data-access-user';
 import { RequestPasswordResetLinkComponent } from './request-password-reset-link.component';
 import { EmailFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
@@ -11,11 +11,11 @@ import { By } from '@angular/platform-browser';
 describe('RequestPasswordResetLinkComponent', () => {
   let component: RequestPasswordResetLinkComponent;
   let fixture: ComponentFixture<RequestPasswordResetLinkComponent>;
-  let authServiceMock: any;
+  let passwordResetServiceMock: any;
   let routerMock: any;
 
   beforeEach(() => {
-    authServiceMock = {
+    passwordResetServiceMock = {
       sendPwdResetLink: jest.fn().mockReturnValue(of(true)),
     };
 
@@ -26,7 +26,7 @@ describe('RequestPasswordResetLinkComponent', () => {
     TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, EmailFormComponent, SubmitButtonComponent, RequestPasswordResetLinkComponent],
       providers: [
-        { provide: AuthService, useValue: authServiceMock },
+        { provide: PasswordResetService, useValue: passwordResetServiceMock },
         { provide: Router, useValue: routerMock },
         FormBuilder,
       ],
@@ -63,7 +63,7 @@ describe('RequestPasswordResetLinkComponent', () => {
     component.requestResetLinkForm.markAsTouched();
     component.requestResetLinkForm.setErrors({ 'incorrect': true });
     component.sendPwdResetLink();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['auth/reset-password']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['password-reset']);
   });
 
   it('should disable submit button when form is invalid', () => {
@@ -109,7 +109,7 @@ describe('RequestPasswordResetLinkComponent', () => {
     });
     component.sendPwdResetLink();
 
-    expect(authServiceMock.sendPwdResetLink).toHaveBeenCalledWith(new UserDto({ email: 'test@test.com' }));
-    expect(routerMock.navigate).toHaveBeenCalledWith(['auth/reset-link-sent']);
+    expect(passwordResetServiceMock.sendPwdResetLink).toHaveBeenCalledWith(new UserDto({ email: 'test@test.com' }));
+    expect(routerMock.navigate).toHaveBeenCalledWith(['password-reset/reset-link-sent']);
   });
 });
