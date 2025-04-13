@@ -1,0 +1,45 @@
+<div [formGroup]=userInfosForm>
+	<div class="form-class firstName">
+		<label class="label">
+			Prénom
+		</label>
+		<input 
+			name="firstName"
+			type="text" 
+			id="firstName" 
+			placeholder="Nom d'utilisateur" 
+			class="form-input" 
+			formControlName="firstName" 
+			required
+		>
+		@if(
+			userInfosForm.controls['firstName'].touched 
+			&& (userInfosForm.controls['firstName'].hasError('required'))
+		) {
+			<span>
+				Prénom requis.
+			</span>
+		}
+	</div>
+	<div class="form-class lastName">
+		<label class="label">
+			Nom
+		</label>
+		<input 
+			name='lastName'
+			type="text" 
+			id="lastName" 
+			placeholder="Nom d'utilisateur" 
+			class="form-input" 
+			formControlName="lastName" 
+			required
+		>
+		@if(
+			userInfosForm.controls['lastName'].touched && (userInfosForm.controls['lastName'].hasError('required'))
+		) {
+			<span>
+				Nom requis.
+			</span>
+		}
+	</div>
+</div>

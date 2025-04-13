@@ -1,0 +1,16 @@
+<div class="container">
+	<h2 
+		class="auth-title" 
+		title="La création d'un compte est nécessaire pour finaliser l'achat."
+	>
+		Créer un compte
+	</h2>
+	<p>Si vous avez déjà un profil, vous pouvez 
+		<a (click)="goToLogin()">
+			<strong><u>vous connecter directement.</u></strong>
+		</a>
+	</p>
+	<lib-full-user-form
+		(submitted)=signup($event)
+	></lib-full-user-form>
+</div>

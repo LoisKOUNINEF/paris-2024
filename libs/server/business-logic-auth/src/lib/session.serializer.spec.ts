@@ -1,0 +1,64 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { SessionSerializer, UserSession } from './session.serializer';
+
+describe('SessionSerializer', () => {
+  let serializer: SessionSerializer;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [SessionSerializer],
+    }).compile();
+
+    serializer = module.get<SessionSerializer>(SessionSerializer);
+  });
+
+  it('should be defined', () => {
+    expect(serializer).toBeDefined();
+  });
+
+  describe('serializeUser', () => {
+    it('should serialize user to only include id', (done) => {
+      const user: UserSession = { id: '123' };
+
+      serializer.serializeUser(user, (err, serializedUser) => {
+        expect(err).toBeNull();
+        expect(serializedUser).toEqual({ id: '123' });
+        done();
+      });
+    });
+
+    it('should handle user with additional properties', (done) => {
+      const user = { id: '123', name: 'Test User', email: 'test@example.com' };
+
+      serializer.serializeUser(user as UserSession, (err, serializedUser) => {
+        expect(err).toBeNull();
+        expect(serializedUser).toEqual({ id: '123' });
+        expect(serializedUser).not.toHaveProperty('name');
+        expect(serializedUser).not.toHaveProperty('email');
+        done();
+      });
+    });
+  });
+
+  describe('deserializeUser', () => {
+    it('should deserialize payload without modification', (done) => {
+      const payload: UserSession = { id: '123' };
+
+      serializer.deserializeUser(payload, (err, deserializedUser) => {
+        expect(err).toBeNull();
+        expect(deserializedUser).toEqual(payload);
+        done();
+      });
+    });
+
+    it('should handle payload with id as number', (done) => {
+      const payload = { id: 123 };
+
+      serializer.deserializeUser(payload as unknown as UserSession, (err, deserializedUser) => {
+        expect(err).toBeNull();
+        expect(deserializedUser).toEqual(payload);
+        done();
+      });
+    });
+  });
+});

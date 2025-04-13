@@ -1,3 +1,25 @@
-import { Route } from '@angular/router';
+import { Routes } from '@angular/router';
+import { LandingPageComponent, PageNotFoundComponent } from '@paris-2024/client-presentation-core';
 
-export const appRoutes: Route[] = [];
+export const appRoutes: Routes = [
+	{
+		path: '',
+		pathMatch: 'full',
+		title: 'Paris 2024',
+		component: LandingPageComponent,
+	},
+	{
+		path: 'auth',
+		loadChildren: () => import('@paris-2024/client-presentation-auth').then(m => m.authRoutes)
+	},
+	{
+		path: 'password-reset',
+		loadChildren: () => import('@paris-2024/client-presentation-password-reset').then(m => m.passwordResetRoutes)
+	},
+	{
+		path: '**',
+		pathMatch: 'full',
+		title: '404',
+		component: PageNotFoundComponent,
+	},
+];

@@ -1,0 +1,13 @@
+{
+  "name": "client-presentation-core",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/client/presentation-core/src",
+  "prefix": "lib",
+  "tags": [
+    "scope:client",
+    "type:presentation"
+  ],
+  "projectType": "library",
+  "// targets": "to see all targets run: nx show project client-presentation-core --web",
+  "targets": {}
+}

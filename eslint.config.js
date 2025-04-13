@@ -40,19 +40,20 @@ module.exports = [
                 ]
               },
               {
-                "sourceTag": "type:business-logic",
+                "sourceTag": "type:ui",
                 "onlyDependOnLibsWithTags": [
+                  "type:data-access",
                   "type:business-logic",
                   "type:ui",
-                  "type:data-access",
                   "type:util",
                   "type:types"
                 ]
               },
               {
-                "sourceTag": "type:ui",
+                "sourceTag": "type:business-logic",
                 "onlyDependOnLibsWithTags": [
-                  "type:ui",
+                  "type:business-logic",
+                  "type:data-access",
                   "type:util",
                   "type:types"
                 ]
@@ -67,7 +68,10 @@ module.exports = [
               },
               {
                 "sourceTag": "type:util",
-                "onlyDependOnLibsWithTags": ["type:util", "type:types"]
+                "onlyDependOnLibsWithTags": [
+                  "type:util", 
+                  "type:types"
+                ]
               },
               {
                 "sourceTag": "type:types",

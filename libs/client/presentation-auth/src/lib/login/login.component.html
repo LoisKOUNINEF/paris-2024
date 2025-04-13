@@ -1,0 +1,23 @@
+<div class="container">
+	<h2 class="auth-title">
+		Se connecter.
+	</h2>
+	<div class="container">
+    <p title="Vous devez être connecté pour finaliser votre achat.">
+    	Vous devez être connecté pour finaliser votre achat.
+    </p>
+    <p>Si vous n'avez pas encore de profil, vous pouvez en 
+    	<a (click)="goToSignup()">
+    		<strong><u>créer un</u></strong>
+    	</a>
+    </p>
+    <lib-login-form
+    	(submitted)=login($event)
+    ></lib-login-form>
+		<p (click)="goToResetPassword()">
+			<a class="forgotten-password">
+				(Mot de passe oublié ? Clique ici)
+			</a>
+		</p>
+  </div>
+</div>

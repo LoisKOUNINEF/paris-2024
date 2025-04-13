@@ -10,6 +10,7 @@ import pg from 'pg';
 import 'reflect-metadata';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { getEnvValue } from '@paris-2024/server-utils';
+import { OriginGuard } from '@paris-2024/server-security-guards';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule,{
@@ -40,7 +41,7 @@ async function bootstrap() {
     : ['http://localhost:8090'];
 
   app.enableCors({
-    methods: 'GET,POST,PUT,DELETE,OPTIONS',
+    methods: 'GET,POST,PATCH,PUT,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Accept, Origin, Set-Cookie',
     origin: allowedOrigins,
     credentials: true,
@@ -70,6 +71,7 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  app.useGlobalGuards(new OriginGuard());
   app.useGlobalPipes(new ValidationPipe());
 
   const globalPrefix = 'api';
@@ -87,7 +89,7 @@ async function bootstrap() {
     swaggerOptions: {
       supportedSubmitMethods: isProduction 
         ? [] 
-        : ['get', 'post', 'put', 'delete']
+        : ['get', 'post', 'patch', 'put', 'delete']
     },
   });
 
