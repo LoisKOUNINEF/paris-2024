@@ -11,6 +11,7 @@ import { AdminGuard, OwnerGuard, StaffGuard } from '@paris-2024/server-business-
 import { MailerConfigService } from '@paris-2024/server-business-logic-mailer';
 import { BusinessLogicCronModule } from '@paris-2024/server-business-logic-cron';
 import { PresentationAuthModule } from '@paris-2024/server-presentation-auth';
+import { PresentationPasswordResetModule } from '@paris-2024/server-presentation-password-reset';
 import { PresentationUserModule } from '@paris-2024/server-presentation-user';
 
 @Module({
@@ -30,6 +31,7 @@ import { PresentationUserModule } from '@paris-2024/server-presentation-user';
     ScheduleModule.forRoot(),
     BusinessLogicCronModule,
     PresentationAuthModule,
+    PresentationPasswordResetModule,
     PresentationUserModule,
   ],
   controllers: [AppController],

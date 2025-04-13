@@ -3,6 +3,7 @@ import { AnonymizeMailerService } from "./anonymize-mailer/anonymize-mailer.serv
 import { WelcomeMailerService } from "./welcome-mailer/welcome-mailer.service";
 import { InactiveUsersMailerService } from "./inactive-users-mailer/inactive-users-mailer.service";
 import MailerParams from "../mailer.params";
+import { PasswordResetMailerService } from "./password-reset-mailer/password-reset-mailer.service";
 
 @Module({
   providers: [
@@ -10,11 +11,13 @@ import MailerParams from "../mailer.params";
     WelcomeMailerService,
     AnonymizeMailerService,
     InactiveUsersMailerService,
+    PasswordResetMailerService,
   ],
   exports: [
     WelcomeMailerService,
     AnonymizeMailerService,
     InactiveUsersMailerService,
+    PasswordResetMailerService,
   ]
 })
 export class UserMailerModule {}

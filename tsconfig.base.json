@@ -71,8 +71,14 @@
       "@paris-2024/server-business-logic-mailer": [
         "libs/server/business-logic-mailer/src/index.ts"
       ],
+      "@paris-2024/server-business-logic-password-reset": [
+        "libs/server/business-logic-password-reset/src/index.ts"
+      ],
       "@paris-2024/server-business-logic-user": [
         "libs/server/business-logic-user/src/index.ts"
+      ],
+      "@paris-2024/server-data-access-password-reset": [
+        "libs/server/data-access-password-reset/src/index.ts"
       ],
       "@paris-2024/server-data-access-user": [
         "libs/server/data-access-user/src/index.ts"
@@ -85,6 +91,9 @@
       ],
       "@paris-2024/server-presentation-auth": [
         "libs/server/presentation-auth/src/index.ts"
+      ],
+      "@paris-2024/server-presentation-password-reset": [
+        "libs/server/presentation-password-reset/src/index.ts"
       ],
       "@paris-2024/server-presentation-user": [
         "libs/server/presentation-user/src/index.ts"
