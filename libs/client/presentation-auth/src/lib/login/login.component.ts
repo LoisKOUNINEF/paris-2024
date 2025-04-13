@@ -39,7 +39,7 @@ export class LoginComponent implements OnDestroy {
   }
 
   goToResetPassword() {
-    this.router.navigate(['auth/request-reset-link']);
+    this.router.navigate(['password-reset/request-reset-link']);
   }
 
   goToSignup() {
