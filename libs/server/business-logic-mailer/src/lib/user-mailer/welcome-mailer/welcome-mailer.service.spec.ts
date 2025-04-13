@@ -45,7 +45,7 @@ describe('WelcomeMailerService', () => {
     expect(mockMailerService.sendMail).toHaveBeenCalledWith({
       to: email,
       subject: 'Your Paris 2024 account was successfully created',
-      template: './dist/src/mailer/user-mailer/welcome-mailer/welcome-mailer',
+      template: 'user-mailer/welcome-mailer/welcome-mailer',
       context: {
         email,
         url: mockMailerParams.mainUrl,

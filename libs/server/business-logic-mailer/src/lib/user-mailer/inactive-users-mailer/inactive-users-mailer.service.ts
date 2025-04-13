@@ -12,7 +12,7 @@ export class InactiveUsersMailerService {
     return await this.mailerService.sendMail({
       to: email,
       subject: 'Your Paris 2024 account will be suspended',
-      template: './dist/src/mailer/user-mailer/inactive-users-mailer/inactive-users-mailer',
+      template: 'user-mailer/inactive-users-mailer/inactive-users-mailer',
       context: {
         email: email,
         url: this.mailerParams.mainUrl,
