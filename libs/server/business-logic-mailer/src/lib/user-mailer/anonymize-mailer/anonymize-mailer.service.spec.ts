@@ -44,7 +44,7 @@ describe('AnonymizeMailerService', () => {
     expect(mockMailerService.sendMail).toHaveBeenCalledWith({
       to: email,
       subject: 'Your Paris 2024 account will be permanently deleted',
-      template: './dist/src/mailer/user-mailer/anonymize-mailer/anonymize-mailer',
+      template: 'user-mailer/anonymize-mailer/anonymize-mailer',
       context: {
         email,
         signupUrl: mockMailerParams.mainUrl + '/auth/signup',

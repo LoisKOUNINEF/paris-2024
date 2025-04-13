@@ -44,7 +44,7 @@ describe('InactiveUsersMailerService', () => {
     expect(mockMailerService.sendMail).toHaveBeenCalledWith({
       to: email,
       subject: 'Your Paris 2024 account will be suspended',
-      template: './dist/src/mailer/user-mailer/inactive-users-mailer/inactive-users-mailer',
+      template: 'user-mailer/inactive-users-mailer/inactive-users-mailer',
       context: {
         email,
         signupUrl: mockMailerParams.mainUrl + '/auth/signup',

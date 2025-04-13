@@ -17,7 +17,7 @@ export class PasswordResetMailerService {
 
     return await this.mailerService.sendMail({
       to: pwdReset.email,
-      subject: 'Your password has been reset',
+      subject: 'Reset your Paris 2024 account password',
       template: 'user-mailer/password-reset-mailer/password-reset-mailer',
       context: {
         email,
