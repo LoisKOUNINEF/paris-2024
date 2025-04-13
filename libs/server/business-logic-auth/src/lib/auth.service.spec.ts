@@ -1,9 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { UserRepository } from '@paris-2024/server-data-access-user';
+import { User, UserRepository } from '@paris-2024/server-data-access-user';
 import * as bcrypt from 'bcrypt';
 import { Roles } from '@paris-2024/shared-interfaces';
-import { mockUser } from '@paris-2024/server-data-access-user';
+import { createEntityMock } from '@paris-2024/shared-utils';
+
+const { mockEntity } = createEntityMock(User);
+
+const mockUser: User = {
+  ...mockEntity,
+  id: 'test-id',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john.doe@example.com',
+  password: '10Characters+',
+  role: Roles.CUSTOMER,
+  cartId: 'cart-id',
+  isAnonymized: false,
+  lastLoginAt: new Date(),
+  deletedAt: null,
+  secretKey: 'test-secret',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  hashPassword: async () => { return; } ,
+}
 
 jest.mock('@paris-2024/server-data-access-user');
 jest.mock('bcrypt');

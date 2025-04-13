@@ -1,10 +1,31 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PasswordResetService } from './password-reset.service';
 import { PasswordResetRepository } from '@paris-2024/server-data-access-password-reset';
-import { UserRepository } from '@paris-2024/server-data-access-user';
+import { User, UserRepository } from '@paris-2024/server-data-access-user';
 import { PasswordResetMailerService } from '@paris-2024/server-business-logic-mailer';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { mockUser } from '@paris-2024/server-data-access-user';
+import { createEntityMock } from '@paris-2024/shared-utils';
+import { Roles } from '@paris-2024/shared-interfaces';
+
+const { mockEntity } = createEntityMock(User);
+
+const mockUser: User = {
+  ...mockEntity,
+  id: 'test-id',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john.doe@example.com',
+  password: '10Characters+',
+  role: Roles.CUSTOMER,
+  cartId: 'cart-id',
+  isAnonymized: false,
+  lastLoginAt: new Date(),
+  deletedAt: null,
+  secretKey: 'test-secret',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  hashPassword: async () => { return; } ,
+}
 
 jest.mock('@paris-2024/server-data-access-user', () => {
   const originalModule = jest.requireActual('@paris-2024/server-data-access-user');

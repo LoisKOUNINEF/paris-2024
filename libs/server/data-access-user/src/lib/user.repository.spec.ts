@@ -10,7 +10,7 @@ import { Roles } from '@paris-2024/shared-interfaces';
 
 const { mockEntity } = createEntityMock(User);
 
-export const mockUser: User = {
+const mockUser: User = {
   ...mockEntity,
   id: 'test-id',
   firstName: 'John',
