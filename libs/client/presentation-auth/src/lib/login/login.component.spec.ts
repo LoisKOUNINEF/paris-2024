@@ -66,7 +66,7 @@ describe('LoginComponent', () => {
 
   it('should navigate to request-reset-link on goToResetPassword', () => {
     component.goToResetPassword();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['auth/request-reset-link']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['password-reset/request-reset-link']);
   });
 
   it('should navigate to signup on goToSignup', () => {
