@@ -16,6 +16,7 @@ services:
       SENDGRID_KEY_FILE: /run/secrets/sendgrid_key
       SENDGRID_SENDER_FILE: /run/secrets/sendgrid_sender
       ADMIN_EMAIL_FILE: /run/secrets/admin_email
+      SMTP_HOST_FILE: /run/secrets/smtp_host
     healthcheck:
       test: ["CMD-SHELL", "node /usr/src/app/scripts/healthcheck/index.cjs || exit 1"]
       interval: 30s
@@ -173,4 +174,6 @@ secrets:
   sendgrid_sender:
     external: true
   admin_email:
+    external: true
+  smtp_host:
     external: true

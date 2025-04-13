@@ -1,17 +1,22 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailerOptions, MailerOptionsFactory } from '@nestjs-modules/mailer';
 import * as path from 'path';
+import { getEnvValue } from '@paris-2024/server-utils';
 
 @Injectable()
 export class MailerConfigService implements MailerOptionsFactory {
-  createMailerOptions(): MailerOptions {
+  constructor( private configService: ConfigService ) {}
 
+  private readonly host = getEnvValue(this.configService, 'SMTP_HOST') || 'mail-deliver_postfix';
+
+  createMailerOptions(): MailerOptions {
     const templateDir = path.join(__dirname, 'src', 'mailer')
 
     return {
       transport: {
-        host: 'postfix',
+        host: this.host,
         port: 587,
         secure: false,
         tls: {
