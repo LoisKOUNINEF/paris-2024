@@ -56,6 +56,7 @@ export class UserRepository {
 
     if (!userExists) {
       const newUser = this.userRepository.create(createUserDto);
+      newUser.lastLoginAt = new Date();
       
       await this.userRepository.save(newUser);
 
