@@ -12,6 +12,8 @@ import { Exclude } from 'class-transformer';
 import { Roles, IUser } from '@paris-2024/shared-interfaces';
 import { BaseEntity } from '@paris-2024/server-base-entity';
 
+export const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{10}$/;
+
 @Entity()
 export class User extends BaseEntity implements IUser {
   @Column({
@@ -44,7 +46,7 @@ export class User extends BaseEntity implements IUser {
   ensures a minimum length of 10 characters 
   and at least 1 special character, 1 number, 1 lowercase & 1 uppercase.
   */
-  @Matches('^(?=.{10,})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=]).*$')
+  @Matches(passwordRegex)
   @Exclude({ toPlainOnly: true })
   @ApiProperty({ 
     type: 'text', 

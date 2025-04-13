@@ -3,6 +3,7 @@ import { IsEmail, Matches } from 'class-validator';
 import { Roles } from '@paris-2024/shared-interfaces';
 import { Exclude } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
+import { passwordRegex } from './user.entity';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -28,7 +29,7 @@ export class CreateUserDto {
   ensures a minimum length of 10 characters 
   and at least 1 special character, 1 number, 1 lowercase & 1 uppercase.
   */
-  @Matches('^(?=.{10,})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=]).*$')
+  @Matches(passwordRegex)
   password: string;
 
   @Exclude({ toPlainOnly: true })
