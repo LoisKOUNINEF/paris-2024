@@ -2,6 +2,8 @@
 @use "functions";
 
 .button {
+	font-size: inherit;
+	font-weight: bold;
 	background-color: $primary-color;
 	color: $background-light;
 	border: 1px solid $primary-color;
