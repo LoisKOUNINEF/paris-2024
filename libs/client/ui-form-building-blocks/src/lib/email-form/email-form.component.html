@@ -1,9 +1,10 @@
 <div [formGroup]="emailForm">
-	<div class="form-class email">
-		<label class="label">
+	<mat-form-field class="form-class">
+		<label for="email" class="label">
 			E-Mail
 		</label>
 		<input 
+			matInput
 			name="email"
 			type="email" 
 			id="email" 
@@ -18,9 +19,9 @@
 			&& (emailForm.controls['email'].hasError('required') 
 			|| emailForm.controls['email'].invalid)
 		) {
-			<span>
+			<mat-error class="error-message">
 				Email requis.
-			</span>
+			</mat-error>
 		}
-	</div>
+	</mat-form-field>
 </div>

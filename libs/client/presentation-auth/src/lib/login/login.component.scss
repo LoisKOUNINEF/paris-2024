@@ -1,0 +1,9 @@
+@use "mixins";
+
+.form-title {
+	@include mixins.formTitle
+}
+
+.form-aside {
+	@include mixins.formHeader;
+}

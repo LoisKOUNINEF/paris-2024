@@ -18,11 +18,11 @@ describe('validatePasswords', () => {
     expect(result).toBeNull();
   });
 
-  it('should return { notSame: true } when passwords do not match', () => {
+  it('should return { passwordMismatch: true } when passwords do not match', () => {
     formGroup.get('password')?.setValue('password123');
     formGroup.get('passwordConfirm')?.setValue('differentPassword');
     const result: ValidationErrors | null = validatePasswords(formGroup);
-    expect(result).toEqual({ notSame: true });
+    expect(result).toEqual({ passwordMismatch: true });
   });
 
   it('should return null when both password and passwordConfirm are empty', () => {
@@ -32,10 +32,10 @@ describe('validatePasswords', () => {
     expect(result).toBeNull();
   });
 
-  it('should return { notSame: true } when one of the passwords is empty', () => {
+  it('should return { passwordMismatch: true } when one of the passwords is empty', () => {
     formGroup.get('password')?.setValue('password123');
     formGroup.get('passwordConfirm')?.setValue('');
     const result: ValidationErrors | null = validatePasswords(formGroup);
-    expect(result).toEqual({ notSame: true });
+    expect(result).toEqual({ passwordMismatch: true });
   });
 });

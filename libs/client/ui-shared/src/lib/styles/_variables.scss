@@ -1,28 +1,40 @@
-// responsive variables
-$small: 800px!default;
-$large: 1800px!default;
-
-$media-small: "only screen and (max-width: #{$small})";
-$media-large: "only screen and (min-width: #{$large})";
+$background-light: rgb(255 255 255);
+$background-dark: rgb(0 32 91);
+$text-color: rgb(0 0 0);
+$accent-yellow: rgb(252 177 49);
+$accent-green: rgb(0 166 81);
+$primary-color: rgb(0 129 200);
+$secondary-color: rgb(238 51 78);
 
 $paddings: (
-	"smallest": 1rem,
-	"small": 2rem,
-	"medium": 10rem,
-	"large": 20vh,
-	"largest": 40vh
+	"smallest": .5em,
+	"small": 1em,
+	"medium": 2em,
+	"large": 5em,
+	"largest": 10em
 );
 
 $margins: (
-	"smallest": 1rem,
-	"small": 2rem,
-	"medium": 5rem,
-	"large": 10rem,
-	"largest": 20rem
+	"smallest": .5em,
+	"small": 1em,
+	"medium": 2em,
+	"large": 5em,
+	"largest": 10em
 );
 
 $font-sizes: (
-	"small": .5rem,
-	"medium": 2rem,
-	"large": 5rem
+	"smallest": .5em,
+	"small": .8em,
+	"medium": 1.5em,
+	"large": 2em,
+	"largest": 3em
 );
+
+// responsive variables
+$small: 800px!default;
+$medium: 1050px!default;
+$large: 1200px!default;
+
+$media-small: "only screen and (max-width: #{$small})";
+$media-medium: "only screen and (max-width: #{$medium})";
+$media-large: "only screen and (min-width: #{$large})";

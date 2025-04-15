@@ -1,15 +1,17 @@
-<form 
-  [formGroup]="loginForm" 
- 	(ngSubmit)="onSubmit()"
->
-  <lib-email-form 
-  	formGroupName="email"
-  ></lib-email-form>
-  <lib-password-form 
-  	formGroupName="password"
-  ></lib-password-form>
-	<lib-submit-button
-		content="Se Connecter"
-		[isDisabled]=!loginForm.valid
-	></lib-submit-button>
-</form>
+<div class="form-container">
+	<form 
+	  [formGroup]="loginForm" 
+	 	(ngSubmit)="onSubmit()"
+	>
+	  <lib-email-form 
+	  	formGroupName="email"
+	  ></lib-email-form>
+	  <lib-password-form 
+	  	formGroupName="password"
+	  ></lib-password-form>
+		<lib-submit-button
+			content="Se Connecter"
+			[isDisabled]=!loginForm.valid
+		></lib-submit-button>
+	</form>
+</div>

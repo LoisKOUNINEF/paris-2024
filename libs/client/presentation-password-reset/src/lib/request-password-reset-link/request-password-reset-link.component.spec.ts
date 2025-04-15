@@ -7,6 +7,7 @@ import { UserDto } from '@paris-2024/client-data-access-user';
 import { RequestPasswordResetLinkComponent } from './request-password-reset-link.component';
 import { EmailFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
 import { By } from '@angular/platform-browser';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('RequestPasswordResetLinkComponent', () => {
   let component: RequestPasswordResetLinkComponent;
@@ -29,6 +30,7 @@ describe('RequestPasswordResetLinkComponent', () => {
         { provide: PasswordResetService, useValue: passwordResetServiceMock },
         { provide: Router, useValue: routerMock },
         FormBuilder,
+        provideNoopAnimations(),
       ],
     }).compileComponents();
 

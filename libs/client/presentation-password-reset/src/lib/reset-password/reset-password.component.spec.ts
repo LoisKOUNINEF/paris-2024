@@ -6,6 +6,7 @@ import { PasswordConfirmFormComponent, SubmitButtonComponent } from '@paris-2024
 import { PasswordResetService } from '@paris-2024/client-data-access-password-reset';
 import { ResetPasswordComponent } from './reset-password.component';
 import { By } from '@angular/platform-browser';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('ResetPasswordComponent', () => {
   let component: ResetPasswordComponent;
@@ -36,6 +37,7 @@ describe('ResetPasswordComponent', () => {
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         FormBuilder,
+        provideNoopAnimations(),
       ],
     }).compileComponents();
 

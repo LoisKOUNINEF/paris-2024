@@ -9,6 +9,7 @@ import {
 } from '@paris-2024/client-ui-form-building-blocks';
 import { User } from '@paris-2024/client-data-access-user';
 import { Roles } from '@paris-2024/shared-interfaces';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('EditUserFormComponent', () => {
   let component: EditUserFormComponent;
@@ -44,7 +45,10 @@ describe('EditUserFormComponent', () => {
         UserInfosFormComponent,
         SubmitButtonComponent
       ],
-      providers: [FormBuilder]
+      providers: [
+        FormBuilder,
+        provideNoopAnimations(),
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(EditUserFormComponent);

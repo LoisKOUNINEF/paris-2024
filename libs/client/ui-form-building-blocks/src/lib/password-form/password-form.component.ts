@@ -3,12 +3,16 @@ import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { User } from '@paris-2024/client-data-access-user';
 import { CommonFormComponent } from '../common-form.component';
 import { RevealPasswordPipe, PwdCheckboxTextPipe } from '@paris-2024/client-utils';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'lib-password-form',
   standalone: true,
   imports: [
-    ReactiveFormsModule, 
+    ReactiveFormsModule,
+    MatFormFieldModule, 
+    MatInputModule,
     RevealPasswordPipe, 
     PwdCheckboxTextPipe,
   ],

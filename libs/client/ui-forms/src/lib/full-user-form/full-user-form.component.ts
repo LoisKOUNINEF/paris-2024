@@ -30,13 +30,13 @@ export class FullUserFormComponent implements OnInit {
   ngOnInit() { 
     this.fullUserForm = this.formBuilder.group({
       email: this.formBuilder.group({}, 
-        Validators.required
+        { validators: Validators.required }
       ),
       passwordConfirm: this.formBuilder.group({}, 
-        Validators.required
+        { validators: Validators.required }
       ),
       userInfos: this.formBuilder.group({}, 
-        Validators.required
+        { validators: Validators.required }
       )
     }); 
   }

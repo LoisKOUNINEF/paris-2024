@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EmailFormComponent } from './email-form.component';
 import { ReactiveFormsModule, FormGroup, ControlContainer, AbstractControl } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 class MockControlContainer {
   control: AbstractControl = new FormGroup({});
@@ -14,7 +15,13 @@ describe('EmailFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, EmailFormComponent],
-      providers: [{ provide: ControlContainer, useClass: MockControlContainer }]
+      providers: [
+        { 
+        provide: ControlContainer, 
+        useClass: MockControlContainer 
+        },
+        provideNoopAnimations(),
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(EmailFormComponent);

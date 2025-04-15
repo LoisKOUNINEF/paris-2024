@@ -1,0 +1,35 @@
+@use "functions";
+
+.form-class {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+label {
+  font-size: functions.font-size(small);
+  font-style: italic;
+}
+
+input {
+  padding: .2em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.error-message {
+  color: #d00;
+  position: absolute;
+  transform: translateX(-20%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.reveal-password {
+  font-size: functions.font-size(small);
+  font-style: italic;
+  position: relative;
+  margin-top: -3em;
+  margin-bottom: 3em;
+}

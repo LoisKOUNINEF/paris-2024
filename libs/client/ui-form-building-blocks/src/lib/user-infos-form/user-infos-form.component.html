@@ -1,13 +1,14 @@
 <div [formGroup]=userInfosForm>
-	<div class="form-class firstName">
-		<label class="label">
+	<mat-form-field class="form-class">
+		<label for="firstName" class="label">
 			Prénom
 		</label>
 		<input 
+			matInput
 			name="firstName"
 			type="text" 
 			id="firstName" 
-			placeholder="Nom d'utilisateur" 
+			placeholder="Prénom" 
 			class="form-input" 
 			formControlName="firstName" 
 			required
@@ -16,20 +17,21 @@
 			userInfosForm.controls['firstName'].touched 
 			&& (userInfosForm.controls['firstName'].hasError('required'))
 		) {
-			<span>
+			<mat-error class="error-message">
 				Prénom requis.
-			</span>
+			</mat-error>
 		}
-	</div>
-	<div class="form-class lastName">
-		<label class="label">
+	</mat-form-field>
+	<mat-form-field class="form-class">
+		<label for="lastName" class="label">
 			Nom
 		</label>
 		<input 
+			matInput
 			name='lastName'
 			type="text" 
 			id="lastName" 
-			placeholder="Nom d'utilisateur" 
+			placeholder="Nom de famille" 
 			class="form-input" 
 			formControlName="lastName" 
 			required
@@ -37,9 +39,9 @@
 		@if(
 			userInfosForm.controls['lastName'].touched && (userInfosForm.controls['lastName'].hasError('required'))
 		) {
-			<span>
+			<mat-error class="error-message">
 				Nom requis.
-			</span>
+			</mat-error>
 		}
-	</div>
+	</mat-form-field>
 </div>

@@ -8,6 +8,7 @@ import {
   PasswordConfirmFormComponent, 
   UserInfosFormComponent 
 } from '@paris-2024/client-ui-form-building-blocks';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('FullUserFormComponent', () => {
   let component: FullUserFormComponent;
@@ -23,7 +24,10 @@ describe('FullUserFormComponent', () => {
         UserInfosFormComponent,
         SubmitButtonComponent
       ],
-      providers: [FormBuilder]
+      providers: [
+        FormBuilder,
+        provideNoopAnimations(),
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(FullUserFormComponent);

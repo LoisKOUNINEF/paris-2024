@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { LoginFormComponent } from './login-form.component';
 import { By } from '@angular/platform-browser';
 import { EmailFormComponent, PasswordFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('LoginFormComponent', () => {
   let component: LoginFormComponent;
@@ -16,7 +17,10 @@ describe('LoginFormComponent', () => {
         PasswordFormComponent,
         SubmitButtonComponent,
       ],
-      providers: [FormBuilder],
+      providers: [
+        FormBuilder,
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginFormComponent);

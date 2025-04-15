@@ -1,5 +1,5 @@
 @use "mixins";
-@use "variables";
+@use "variables" as *;
 @use "functions";
 @use "@angular/material" as mat;
 
@@ -22,15 +22,17 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 }
 
 html {
-	background: url('assets/olympic-rings.jpg') center center / cover no-repeat;
-	@include mixins.coverImage;
+	// background: url('assets/olympic-rings.jpg') center center / cover no-repeat;
+	// @include mixins.coverImage;
 }
 
 body {
-	background-color: white;
-	opacity: .7;
+	background-color: $background-light;
+  color: $text-color;
 	min-height: 100vh;
-	font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+	font-family: 'Open Sans', Arial, sans-serif;
+  font-size: 1em;
 	cursor: default;
 }
 
@@ -43,7 +45,16 @@ h1 {
 	font-size: functions.font-size(large);
 }
 
+main {
+  padding-top: 2em;
+}
+
+form {
+  @include mixins.form;
+}
+
 // angular material
+// snackbar
 .error-snackbar {
   &.validation-error {
     background-color: mat.m2-get-color-from-palette(mat.$m2-red-palette, 500);
@@ -68,4 +79,44 @@ h1 {
   .mat-simple-snackbar-action {
     color: white;
   }
+}
+
+// mat-form overrides
+// hides underline
+.mat-mdc-form-field .mdc-line-ripple {
+  display: none;
+}
+
+// smaller hint messages
+.mat-mdc-form-field-hint {
+  font-size: functions.font-size(small);
+}
+
+// emphasizes input fields
+.mat-mdc-form-field .mat-mdc-form-field-infix {
+  background-color: rgba($primary-color, 0.1);  
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(.3,.3,.3,.3);
+}
+
+// on input focus
+.mat-mdc-form-field 
+.mat-mdc-form-field-infix:has(.mat-mdc-input-element:focus)
+//.mat-mdc-input-element:focus 
+{
+  background-color: rgba($primary-color, 0.3);
+}
+
+// placeholder lower opacity (accessibility)
+.mat-mdc-form-field 
+.mat-mdc-form-field-infix 
+.mat-mdc-input-element::placeholder {
+  opacity: .5;
+}
+
+// hides placeholder on focus
+.mat-mdc-form-field 
+.mat-mdc-form-field-infix 
+.mat-mdc-input-element:focus::placeholder {
+  opacity: 0;
 }

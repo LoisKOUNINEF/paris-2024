@@ -1,18 +1,20 @@
-<form 
-	[formGroup]="fullUserForm" 
-	(ngSubmit)="onSubmit()"
->
-	<lib-email-form 
-		formGroupName="email"
-	></lib-email-form>
-	<lib-password-confirm-form 
-		formGroupName="passwordConfirm"
-	></lib-password-confirm-form>
-	<lib-user-infos-form 
-		formGroupName="userInfos"
-	></lib-user-infos-form>
-	<lib-submit-button
-		content="Valider"
-		[isDisabled]=!fullUserForm.valid
-	></lib-submit-button>
-</form>
+<div class="form-container">	
+	<form 
+		[formGroup]="fullUserForm" 
+		(ngSubmit)="onSubmit()"
+	>
+		<lib-email-form 
+			formGroupName="email"
+		></lib-email-form>
+		<lib-user-infos-form 
+			formGroupName="userInfos"
+		></lib-user-infos-form>
+		<lib-password-confirm-form 
+			formGroupName="passwordConfirm"
+		></lib-password-confirm-form>
+		<lib-submit-button
+			content="Valider"
+			[isDisabled]=!fullUserForm.valid
+		></lib-submit-button>
+	</form>
+</div>
