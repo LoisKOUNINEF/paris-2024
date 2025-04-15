@@ -22,11 +22,10 @@ export class UserCreationMigration1743626456683 implements MigrationInterface {
                 "cartId" text NOT NULL DEFAULT 'cartId',
                 "isAnonymized" boolean NOT NULL DEFAULT false,
                 "lastLoginAt" TIMESTAMP WITH TIME ZONE NOT NULL,
-                CONSTRAINT "UQ_e12875dfb3b1d92d7d7c5377e22" UNIQUE ("email"),
-                CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id")                
+                CONSTRAINT "UQ_user_email" UNIQUE ("email"),
+                CONSTRAINT "PK_user" PRIMARY KEY ("id")                
             )
         `);
-
         await queryRunner.query(`
             CREATE INDEX "IDX_user_email" ON "user" ("email")
         `)
