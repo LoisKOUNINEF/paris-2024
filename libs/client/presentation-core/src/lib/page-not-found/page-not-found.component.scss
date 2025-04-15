@@ -1,0 +1,25 @@
+@use "variables" as *;
+@use "mixins";
+@use "functions";
+
+.container {
+	@include mixins.flexCenter;
+	flex-direction: column;
+	font-size: functions.font-size(medium);
+}
+
+.info {
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+	color: $secondary-color;
+}
+
+.countdown {
+	font-style: italic;
+	margin-bottom: 1em;
+}
+
+.route-button {
+	margin-left: 20%;
+	margin-right: 20%;
+}

@@ -94,10 +94,12 @@ describe('NavbarComponent', () => {
       fixture.detectChanges();
     });
 
-    it('should show shop, cart, account and logout buttons', () => {
+    it('should show home, shop, cart, account and logout buttons', () => {
       const buttons = fixture.nativeElement.querySelectorAll('lib-route-button');
-      expect(buttons.length).toBe(3);
+      expect(buttons.length).toBe(4);
       
+      const homeButton = Array.from(buttons)
+        .find((button: any) => button.getAttribute('content') === 'Accueil');
       const shopButton = Array.from(buttons)
         .find((button: any) => button.getAttribute('content') === 'Aller à la boutique');
       const cartButton = Array.from(buttons)
@@ -106,6 +108,7 @@ describe('NavbarComponent', () => {
         .find((button: any) => button.getAttribute('content') === 'Mon Compte');
       const logoutButton = fixture.nativeElement.querySelector('button');;
       
+      expect(homeButton).toBeTruthy();
       expect(shopButton).toBeTruthy();
       expect(cartButton).toBeTruthy();
       expect(accountButton).toBeTruthy();
@@ -120,22 +123,28 @@ describe('NavbarComponent', () => {
       fixture.detectChanges();
     });
 
-    it('should show shop, cart and auth buttons, and not show logout button', () => {
+    it('should show home, shop, cart and auth buttons, and not show logout button nor account button', () => {
       const buttons = fixture.nativeElement.querySelectorAll('lib-route-button');
-      expect(buttons.length).toBe(4);
+      expect(buttons.length).toBe(5);
       
+      const homeButton = Array.from(buttons)
+        .find((button: any) => button.getAttribute('content') === 'Accueil');
       const shopButton = Array.from(buttons)
         .find((button: any) => button.getAttribute('content') === 'Aller à la boutique');
       const loginButton = Array.from(buttons)
         .find((button: any) => button.getAttribute('content') === 'Se Connecter');
       const signupButton = Array.from(buttons)
         .find((button: any) => button.getAttribute('content') === 'Créer un compte');
+      const accountButton = Array.from(buttons)
+        .find((button: any) => button.getAttribute('content') === 'Mon Compte');
       const logoutButton = Array.from(buttons)
         .find((button: any) => button.getAttribute('content') === 'Se déconnecter');
       
+      expect(homeButton).toBeTruthy();
       expect(shopButton).toBeTruthy();
       expect(loginButton).toBeTruthy();
       expect(signupButton).toBeTruthy();
+      expect(accountButton).toBeFalsy();
       expect(logoutButton).toBeFalsy();
     });
   });
