@@ -2,11 +2,11 @@
 	<p>
 		{{ contest.name }}
 	</p>
-	<img src={{contest.imageUrl}} alt="{{contest.name}}	"/>
+	<img src={{contest.imageUrl||imageUrl}} alt="Photo de {{contest.name}}"/>
 	<p>
 		{{ contest.date | date : "fullDate" }}
 	</p>
 	<p class="details">
-		{{ contest.details }}
+		{{ contest.details || details }}
 	</p>
 </div>

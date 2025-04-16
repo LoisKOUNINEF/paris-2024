@@ -1,12 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
-
-export type Contest = {
-  name: string;
-  date: Date;
-  imageUrl?: string;
-  details: string;
-};
+import * as Contests from './contests';
 
 @Component({
   selector: 'lib-contest',
@@ -16,10 +10,14 @@ export type Contest = {
   styleUrl: './contest.component.scss',
 })
 export class ContestComponent {
-  @Input() contest: Contest = {
+  imageUrl = 'assets/rings.avif';
+  details = 'Pas de description disponible';
+
+  @Input() contest: Contests.IContest = {
     name: '', 
     date: new Date(), 
     details: '',
     imageUrl: '',
+    isParalympic: false,
   };
 }
