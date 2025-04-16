@@ -6,8 +6,6 @@ export interface ILandingSection {
   imageUrl: string;
   imageAlt: string;
   content: string;
-  routeUrl?: string;
-  routeContent?: string;
 }
 
 @Component({
