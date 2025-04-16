@@ -1,0 +1,27 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.container {
+  margin: auto;
+  margin-bottom: 2em;
+  margin-top: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+}
+
+.svg-container {
+  display: block;
+  width: 100%;
+  margin: 0 auto;
+  max-width: 80vh;
+}
+
+svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
