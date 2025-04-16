@@ -54,6 +54,7 @@
   display: flex;
   flex-direction: column;
   background: #fff;
+  margin-top: functions.margin(small);
   padding: 2rem;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba($text-color,0.1);
@@ -70,14 +71,16 @@
 }
 
 @mixin formTitle {
+	background-color: $background-dark;
+	color: $background-light;
+	font-size: functions.font-size(medium);
+	letter-spacing: 2px;
+	border-radius: 10px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: $background-dark;
-	color: $background-light;
 	padding-top: .2em;
 	padding-bottom: .2em;
-	border-radius: 10px;
 	margin-left: 30%;
 	margin-right: 30%;
 	margin-top: .2em;
@@ -91,5 +94,5 @@
 	padding-top: .2em;
 	padding-bottom: .2em;
 	font-style: italic;
-	color: $accent-yellow;
+	color: $accent-green;
 }
