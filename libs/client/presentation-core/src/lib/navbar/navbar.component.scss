@@ -9,11 +9,12 @@ nav {
 	background-color: $primary-color;
   
   @include mixins.mobile {
-  	background-color: $background-light;
   	display: flex;
   	justify-content: flex-end;
   	align-items: center;
   	position: relative;
+  	width: 100%;
+  	min-height: 5em;
   }
 }
 
