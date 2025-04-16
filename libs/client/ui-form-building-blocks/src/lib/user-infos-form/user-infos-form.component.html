@@ -17,7 +17,7 @@
 			userInfosForm.controls['firstName'].touched 
 			&& (userInfosForm.controls['firstName'].hasError('required'))
 		) {
-			<mat-error class="error-message">
+			<mat-error>
 				Prénom requis.
 			</mat-error>
 		}
@@ -39,7 +39,7 @@
 		@if(
 			userInfosForm.controls['lastName'].touched && (userInfosForm.controls['lastName'].hasError('required'))
 		) {
-			<mat-error class="error-message">
+			<mat-error>
 				Nom requis.
 			</mat-error>
 		}

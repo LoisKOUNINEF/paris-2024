@@ -7,29 +7,19 @@
   position: relative;
 }
 
-label {
-  font-size: functions.font-size(small);
-  font-style: italic;
-}
-
 input {
   padding: .2em;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
 
-.error-message {
-  color: #d00;
-  position: absolute;
-  transform: translateX(-20%);
-  white-space: nowrap;
-  pointer-events: none;
+.label {
+  font-style: italic;
 }
 
 .reveal-password {
-  font-size: functions.font-size(small);
   font-style: italic;
   position: relative;
-  margin-top: -3em;
-  margin-bottom: 3em;
+  margin-top: -1em;
+  margin-bottom: 1em;
 }
