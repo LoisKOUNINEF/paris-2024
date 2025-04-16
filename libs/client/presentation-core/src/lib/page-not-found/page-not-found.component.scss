@@ -6,6 +6,7 @@
 	@include mixins.flexCenter;
 	flex-direction: column;
 	font-size: functions.font-size(medium);
+	text-align: center;
 }
 
 .info {
@@ -17,9 +18,4 @@
 .countdown {
 	font-style: italic;
 	margin-bottom: 1em;
-}
-
-.route-button {
-	margin-left: 20%;
-	margin-right: 20%;
 }
