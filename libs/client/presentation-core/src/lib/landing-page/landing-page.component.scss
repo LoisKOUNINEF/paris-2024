@@ -1,0 +1,47 @@
+@use "mixins";
+@use "functions";
+@use "variables" as *;
+
+main {
+  margin-bottom: 5em;
+}
+
+h1 {
+  text-align: center;
+  font-weight: bold;
+  padding-bottom: functions.padding(smallest);
+}
+
+.landing-image {
+  width: 80vw;
+  max-height: 50vh;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 1em;
+
+  @include mixins.mobile {
+    width: 100vw;
+  }
+}
+
+.container {
+  width: 80%;
+  margin: 0 auto;
+  padding: functions.padding(small);
+  max-width: 90vw;
+}
+
+.presentation {
+  font-size: functions.font-size(large);
+
+  @include mixins.mobile {
+    font-size: functions.font-size(medium);
+  }
+}
+
+.shop-button {
+  text-align: center;
+  padding: 3em;
+  font-size: functions.font-size(large);
+}

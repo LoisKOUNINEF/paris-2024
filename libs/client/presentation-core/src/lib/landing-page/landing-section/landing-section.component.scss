@@ -1,0 +1,110 @@
+@use "mixins";
+@use "functions";
+@use "variables" as *;
+
+h2 {
+  margin-bottom: 1rem;
+  font-size: 1.75rem;
+  font-weight: bold;
+}
+
+.section-image img {
+  width: 30em;
+  height:30em;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  object-fit: cover;
+  aspect-ratio: 4 / 3;
+  border-radius: 0.5rem;
+  @include mixins.mediumScreen {
+    width: 50vw;
+  }
+  @include mixins.mobile {
+    width: 60vw;
+    height: 20em;
+  }
+}
+
+h2 {
+  text-align: center;
+
+}
+
+.container {
+  display: flex;
+  width: 100%;
+  margin: 4rem 0;
+
+  &.align-left {
+    justify-content: flex-start;
+  }
+
+  &.align-right {
+    justify-content: flex-end;
+  }
+
+  @include mixins.mediumScreen {
+    &.align-left, &.align-right  {
+      justify-content: center;
+    }
+  }
+
+  @include mixins.mobile {
+    &.align-left, &.align-right  {
+      justify-content: center;
+    }
+  }
+}
+
+.section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  max-width: 80%;
+  gap: 2rem;
+
+  &.reverse {
+    flex-direction: row-reverse;
+  }
+
+  .section-content {
+    font-size: functions.font-size(medium);
+    max-width: 50%;
+  }
+
+  @include mixins.mediumScreen {
+    flex-direction: column !important;
+
+    .section-content,
+    .section-image {
+      text-align: center;
+    }
+
+    &.reverse {
+      flex-direction: row;
+    }
+
+    .section-content {
+      max-width: 100%;
+    }
+  }
+
+  @include mixins.mobile {
+    flex-direction: column !important;
+    max-width: 100%;
+
+    .section-content,
+    .section-image {
+      text-align: center;
+    }
+
+    &.reverse {
+      flex-direction: row;
+    }
+
+    .section-content {
+      max-width: 90%;
+    }
+  }
+}
