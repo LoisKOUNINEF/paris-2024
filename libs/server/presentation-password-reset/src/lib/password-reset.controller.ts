@@ -1,7 +1,6 @@
 import { Body, Controller, Param, Post } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiTags } from '@nestjs/swagger';
 import { PasswordResetService } from '@paris-2024/server-business-logic-password-reset';
-import { PasswordResetExpirationService } from '@paris-2024/server-business-logic-cron';
 import { PasswordReset, PasswordResetBody, PasswordResetDto } from '@paris-2024/server-data-access-password-reset';
 
 @ApiTags('password-reset')
@@ -10,7 +9,6 @@ import { PasswordReset, PasswordResetBody, PasswordResetDto } from '@paris-2024/
 export class PasswordResetController {
   constructor(
     private passwordResetService: PasswordResetService,
-    private passwordResetExpiration: PasswordResetExpirationService,
   ) {}
 
   @Post()
@@ -24,8 +22,7 @@ export class PasswordResetController {
   })
   @ApiBadRequestResponse()
   async sendToken(@Body('email') email: PasswordReset['email']) {
-    const token = await this.passwordResetService.sendLink(email);
-    this.passwordResetExpiration.scheduleTokenDeletion(token.id);
+    await this.passwordResetService.sendLink(email);
     return { msg: 'Reset link sent to your email.' };
   }
 

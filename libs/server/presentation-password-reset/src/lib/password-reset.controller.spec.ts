@@ -1,21 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PasswordResetController } from './password-reset.controller';
 import { PasswordResetService } from '@paris-2024/server-business-logic-password-reset';
-import { PasswordResetExpirationService } from '@paris-2024/server-business-logic-cron';
 import { PasswordReset } from '@paris-2024/server-data-access-password-reset';
 
 describe('PasswordResetController', () => {
   let controller: PasswordResetController;
   let passwordResetService: PasswordResetService;
-  let passwordResetExpirationService: PasswordResetExpirationService;
 
   const mockPasswordResetService = {
     sendLink: jest.fn(),
     reset: jest.fn(),
-  };
-
-  const mockPasswordResetExpirationService = {
-    scheduleTokenDeletion: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -26,16 +20,11 @@ describe('PasswordResetController', () => {
           provide: PasswordResetService,
           useValue: mockPasswordResetService,
         },
-        {
-          provide: PasswordResetExpirationService,
-          useValue: mockPasswordResetExpirationService,
-        },
       ],
     }).compile();
 
     controller = module.get<PasswordResetController>(PasswordResetController);
     passwordResetService = module.get<PasswordResetService>(PasswordResetService);
-    passwordResetExpirationService = module.get<PasswordResetExpirationService>(PasswordResetExpirationService);
   });
 
   afterEach(() => {
@@ -52,7 +41,6 @@ describe('PasswordResetController', () => {
       const result = await controller.sendToken(email);
 
       expect(passwordResetService.sendLink).toHaveBeenCalledWith(email);
-      expect(passwordResetExpirationService.scheduleTokenDeletion).toHaveBeenCalledWith(mockToken.id);
       expect(result).toEqual({ msg: 'Reset link sent to your email.' });
     });
 
@@ -64,7 +52,6 @@ describe('PasswordResetController', () => {
 
       await expect(controller.sendToken(email)).rejects.toThrow(error);
       expect(passwordResetService.sendLink).toHaveBeenCalledWith(email);
-      expect(passwordResetExpirationService.scheduleTokenDeletion).not.toHaveBeenCalled();
     });
   });
 
