@@ -21,7 +21,7 @@ h2 {
     width: 50vw;
   }
   @include mixins.mobile {
-    width: 60vw;
+    width: 90vw;
     height: 20em;
   }
 }
@@ -92,7 +92,7 @@ h2 {
 
   @include mixins.mobile {
     flex-direction: column !important;
-    max-width: 100%;
+    max-width: 90vw;
 
     .section-content,
     .section-image {
@@ -104,7 +104,8 @@ h2 {
     }
 
     .section-content {
-      max-width: 90%;
+      max-width: 100%;
+      font-size: 1.1em;
     }
   }
 }
