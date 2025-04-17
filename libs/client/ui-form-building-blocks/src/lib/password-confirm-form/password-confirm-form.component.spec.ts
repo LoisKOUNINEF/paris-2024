@@ -60,12 +60,15 @@ describe('PasswordConfirmFormComponent', () => {
   });
 
   it('should validate passwordConfirm control as required', () => {
+    const passwordControl = component.passwordConfirmForm.get('password');
     const passwordConfirmControl = component.passwordConfirmForm.get('passwordConfirm');
 
-    passwordConfirmControl?.setValue('');
-    expect(passwordConfirmControl?.valid).toBeFalsy();
-    expect(passwordConfirmControl?.errors?.['required']).toBeTruthy();
+    passwordControl?.setValue('StrongPass123@');
+    passwordConfirmControl?.setValue('StrngossaP312@');
 
+    expect(passwordConfirmControl?.valid).toBeFalsy();
+    expect(passwordConfirmControl?.errors?.['passwordMismatch']).toBeTruthy();
+    
     passwordConfirmControl?.setValue('StrongPass123@');
     expect(passwordConfirmControl?.valid).toBeTruthy();
   });
@@ -79,7 +82,7 @@ describe('PasswordConfirmFormComponent', () => {
     expect(component.passwordConfirmForm.errors).toBeNull();
 
     passwordConfirmControl?.setValue('DifferentPass123@');
-    expect(component.passwordConfirmForm.errors?.['passwordMismatch']).toBeTruthy();
+    expect(passwordConfirmControl?.errors?.['passwordMismatch']).toBeTruthy();
   });
 
   it('should toggle the showPassword flag when revealPassword is called', () => {

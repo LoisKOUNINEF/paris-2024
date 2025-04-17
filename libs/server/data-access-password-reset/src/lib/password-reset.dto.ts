@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, Matches } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import { passwordRegex } from '@paris-2024/server-data-access-user';
+import { passwordRegex } from '@paris-2024/shared-utils';
 
 export class PasswordResetDto {
   @ApiProperty({

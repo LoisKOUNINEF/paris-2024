@@ -11,8 +11,7 @@ import { IsEmail, Matches } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { Roles, IUser } from '@paris-2024/shared-interfaces';
 import { BaseEntity } from '@paris-2024/server-base-entity';
-
-export const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{10}$/;
+import { passwordRegex } from '@paris-2024/shared-utils';
 
 @Entity()
 export class User extends BaseEntity implements IUser {
@@ -42,10 +41,6 @@ export class User extends BaseEntity implements IUser {
   email: string;
 
   @Column({ type: 'text' })
-  /*
-  ensures a minimum length of 10 characters 
-  and at least 1 special character, 1 number, 1 lowercase & 1 uppercase.
-  */
   @Matches(passwordRegex)
   @Exclude({ toPlainOnly: true })
   @ApiProperty({ 

@@ -109,6 +109,7 @@
       ],
       "@paris-2024/server-utils": ["libs/server/utils/src/index.ts"],
       "@paris-2024/shared-interfaces": ["libs/shared/interfaces/src/index.ts"],
+      "@paris-2024/shared-mocks": ["libs/shared/mocks/src/index.ts"],
       "@paris-2024/shared-utils": ["libs/shared/utils/src/index.ts"],
       "@paris-2024/tagged-lib-generators": [
         "tools/generators/tagged-lib-generators"

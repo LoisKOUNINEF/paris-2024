@@ -5,6 +5,7 @@ import { CommonFormComponent } from '../common-form.component';
 import { RevealPasswordPipe, PwdCheckboxTextPipe } from '@paris-2024/client-utils';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { passwordRegex } from '@paris-2024/shared-utils';
 
 @Component({
   selector: 'lib-password-form',
@@ -28,13 +29,8 @@ export class PasswordFormComponent extends CommonFormComponent implements OnInit
     this.passwordForm.addControl<User['password']>('password',
       this.formBuilder.control<User['password']>('',[
         Validators.required,
-        Validators.pattern(
-/*
-  ensures at least 10 characters (1 lowercase & 1 uppercase),
-  1 number, 1 special character (@#$%^&+=)
-*/
-        '^(?=.{10,})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=]).*$'
-      )]
+        Validators.pattern(passwordRegex)
+      ]
     ))
   }
 
