@@ -1,13 +1,16 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
-import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
+import { OlympicRingsComponent, RouteButtonComponent } from '@paris-2024/client-ui-shared';
 import { PlatformService } from '@paris-2024/client-utils';
 import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'lib-page-not-found',
   standalone: true,
-  imports: [RouteButtonComponent],
+  imports: [
+    RouteButtonComponent,
+    OlympicRingsComponent,
+  ],
   templateUrl: './page-not-found.component.html',
   styleUrl: './page-not-found.component.scss',
 })

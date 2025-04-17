@@ -24,8 +24,8 @@ export class EditPasswordFormComponent {
 
   ngOnInit(): void { 
     this.editPasswordForm = this.formBuilder.group({
-      passwordConfirm: this.formBuilder.group({},
-        Validators.required
+      passwordConfirm: this.formBuilder.group({}, 
+        { validators: Validators.required }
       ),
     })
   }

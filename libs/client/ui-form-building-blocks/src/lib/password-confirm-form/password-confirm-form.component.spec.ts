@@ -3,6 +3,7 @@ import { PasswordConfirmFormComponent } from './password-confirm-form.component'
 import { ReactiveFormsModule, FormGroup, ControlContainer, AbstractControl } from '@angular/forms';
 import { RevealPasswordPipe, PwdCheckboxTextPipe } from '@paris-2024/client-utils';
 import { By } from '@angular/platform-browser';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 class MockControlContainer {
   control: AbstractControl = new FormGroup({});
@@ -20,7 +21,13 @@ describe('PasswordConfirmFormComponent', () => {
         RevealPasswordPipe,
         PwdCheckboxTextPipe
       ],
-      providers: [{ provide: ControlContainer, useClass: MockControlContainer }]
+      providers: [
+        { 
+          provide: ControlContainer, 
+          useClass: MockControlContainer 
+        },
+        provideNoopAnimations(),
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(PasswordConfirmFormComponent);
@@ -72,7 +79,7 @@ describe('PasswordConfirmFormComponent', () => {
     expect(component.passwordConfirmForm.errors).toBeNull();
 
     passwordConfirmControl?.setValue('DifferentPass123@');
-    expect(component.passwordConfirmForm.errors?.['notSame']).toBeTruthy();
+    expect(component.passwordConfirmForm.errors?.['passwordMismatch']).toBeTruthy();
   });
 
   it('should toggle the showPassword flag when revealPassword is called', () => {

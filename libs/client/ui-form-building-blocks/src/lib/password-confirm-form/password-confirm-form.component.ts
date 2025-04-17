@@ -4,12 +4,16 @@ import { User } from '@paris-2024/client-data-access-user';
 import { CommonFormComponent } from '../common-form.component';
 import { RevealPasswordPipe, PwdCheckboxTextPipe } from '@paris-2024/client-utils';
 import { validatePasswords } from '../validators/validate-passwords.validator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'lib-password-confirm-form',
   standalone: true,
   imports: [
-    ReactiveFormsModule, 
+    ReactiveFormsModule,
+    MatFormFieldModule, 
+    MatInputModule, 
     RevealPasswordPipe, 
     PwdCheckboxTextPipe,
   ],

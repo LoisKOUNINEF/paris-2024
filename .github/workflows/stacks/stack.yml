@@ -155,6 +155,7 @@ networks:
     external: true
   mail-deliver:
     external: true
+    name: mail-deliver
   default:
     driver: overlay
 

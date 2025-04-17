@@ -1,0 +1,25 @@
+@use "functions";
+
+.form-class {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+input {
+  padding: .2em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.label {
+  font-style: italic;
+}
+
+.reveal-password {
+  font-style: italic;
+  position: relative;
+  margin-top: -1em;
+  margin-bottom: 1em;
+}

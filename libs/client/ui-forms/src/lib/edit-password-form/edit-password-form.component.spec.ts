@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { EditPasswordFormComponent } from './edit-password-form.component';
 import { PasswordConfirmFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('EditPasswordFormComponent', () => {
   let component: EditPasswordFormComponent;
@@ -16,7 +17,10 @@ describe('EditPasswordFormComponent', () => {
         PasswordConfirmFormComponent,
         SubmitButtonComponent
       ],
-      providers: [FormBuilder]
+      providers: [
+        FormBuilder,
+        provideNoopAnimations(),
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(EditPasswordFormComponent);

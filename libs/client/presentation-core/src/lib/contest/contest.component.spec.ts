@@ -1,16 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatePipe } from '@angular/common';
-import { ContestComponent, Contest } from './contest.component';
+import { ContestComponent } from './contest.component';
+import { IContest } from './contests';
 
 describe('ContestComponent', () => {
   let component: ContestComponent;
   let fixture: ComponentFixture<ContestComponent>;
 
-  const mockContest: Contest = {
+  const mockContest: IContest = {
     name: 'Test Contest',
     date: new Date('2024-03-15'),
     imageUrl: 'test-image.jpg',
-    details: 'Test contest details'
+    details: 'Test contest details',
+    isParalympic: true,
   };
 
   beforeEach(async () => {
@@ -66,11 +68,12 @@ describe('ContestComponent', () => {
 
   describe('input changes', () => {
     it('should update template when contest input changes', () => {
-      const updatedContest: Contest = {
+      const updatedContest: IContest = {
         name: 'Updated Contest',
         date: new Date('2024-04-20'),
         imageUrl: 'updated-image.jpg',
-        details: 'Updated details'
+        details: 'Updated details',
+        isParalympic: false,
       };
 
       component.contest = updatedContest;
@@ -88,11 +91,12 @@ describe('ContestComponent', () => {
 
   describe('edge cases', () => {
     it('should handle empty strings', () => {
-      const emptyContest: Contest = {
+      const emptyContest: IContest = {
         name: '',
         date: new Date(),
         imageUrl: '',
-        details: ''
+        details: '',
+        isParalympic: true,
       };
 
       component.contest = emptyContest;
@@ -102,7 +106,70 @@ describe('ContestComponent', () => {
       const detailsElement = fixture.nativeElement.querySelector('.details');
 
       expect(nameElement.textContent.trim()).toBe('');
-      expect(detailsElement.textContent.trim()).toBe('');
+      expect(detailsElement.textContent.trim()).toBe('Pas de description disponible');
     });
   });
 });
+
+
+
+
+  //   it('should render all contests from the array', () => {
+  //     const contestElements = fixture.nativeElement.querySelectorAll('lib-contest');
+  //     expect(contestElements.length).toBe(CONTESTS.length);
+  //   });
+
+  // it('should initialize contests with CONTESTS data', () => {
+  //   expect(component.contests).toBe(CONTESTS);
+  // });
+
+  //   it('should pass correct contest data to contest components', () => {
+  //     const contestComponents = fixture.debugElement.queryAll(By.directive(ContestComponent));
+  //     contestComponents.forEach((debugElement, index) => {
+  //       const contestComponent = debugElement.componentInstance;
+  //       expect(contestComponent.contest).toEqual(CONTESTS[index]);
+  //     });
+  //   });
+
+// describe('contests section', () => {
+//     it('should render contests in correct order', () => {
+//       const contestComponents = fixture.debugElement.queryAll(By.directive(ContestComponent));
+//       contestComponents.forEach((debugElement, index) => {
+//         const contestComponent = debugElement.componentInstance;
+//         expect(contestComponent.contest).toEqual(CONTESTS[index]);
+//       });
+//     });
+
+//     it('should update contests when array changes', () => {
+//       const newContests = CONTESTS.slice(0, 2);
+//       component.contests = newContests;
+//       fixture.detectChanges();
+
+//       const contestElements = fixture.nativeElement.querySelectorAll('lib-contest');
+//       expect(contestElements.length).toBe(2);
+//     });
+//   });
+
+//   describe('edge cases', () => {
+//     it('should handle empty contests array', () => {
+//       component.contests = [];
+//       fixture.detectChanges();
+
+//       const contestElements = fixture.nativeElement.querySelectorAll('lib-contest');
+//       expect(contestElements.length).toBe(0);
+      
+//       const contestsContainer = fixture.nativeElement.querySelector('.contests');
+//       expect(contestsContainer).toBeTruthy();
+//     });
+
+//     it('should maintain structure when contests is undefined', () => {
+//       component.contests = undefined as any;
+//       fixture.detectChanges();
+
+//       const wrapper = fixture.nativeElement.querySelector('.wrapper');
+//       const container = fixture.nativeElement.querySelector('.container');
+      
+//       expect(wrapper).toBeTruthy();
+//       expect(container).toBeTruthy();
+//     });
+//   });

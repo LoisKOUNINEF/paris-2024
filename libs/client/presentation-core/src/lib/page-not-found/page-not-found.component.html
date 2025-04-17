@@ -1,14 +1,18 @@
-<div class="wrapper">
+<main class="container">
+	<lib-olympic-rings
+		width=20%
+		height=30%
+	></lib-olympic-rings>
 	<div class="not-found">
-		<p class="intro">
+		<p class="info">
 			Cette page n'existe pas.
 		</p>
 		<p class="countdown">
 			Vous allez être redirigé dans {{ time }}.
 		</p>
-			<lib-route-button 
-				content="Retour à l'accueil"
-				(buttonClicked)=redirectToHome()
-			></lib-route-button>
+		<lib-route-button 
+			content="Retour à l'accueil"
+			(buttonClicked)=redirectToHome()
+		></lib-route-button>
 	</div>
-</div>
+</main>

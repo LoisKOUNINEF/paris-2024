@@ -1,0 +1,23 @@
+<div 
+	class="container"
+	[ngClass]="{
+    'align-left': imagePosition === 'left',
+    'align-right': imagePosition === 'right'
+  }"
+>
+	<div 
+		class="section"
+	  [ngClass]="{ 'reverse': imagePosition === 'right' }"
+	>
+	  <div class="section-image">
+ 		 <h2>{{ section.title }}</h2>
+	  	<img 
+	  		src={{section.imageUrl}} 
+	  		alt={{section.imageAlt}}
+	  	/>
+		</div>
+		<div class="section-content">
+	  	<p>{{ section.content }}</p>
+		</div>
+	</div>
+</div>
