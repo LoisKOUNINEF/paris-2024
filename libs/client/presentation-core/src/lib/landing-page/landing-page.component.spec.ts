@@ -3,6 +3,7 @@ import { LandingPageComponent } from './landing-page.component';
 import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
 import { LandingSectionComponent } from './landing-section/landing-section.component';
 import { By } from '@angular/platform-browser';
+import { CONTESTS } from './landing-section/contests';
 
 describe('LandingPageComponent', () => {
   let component: LandingPageComponent;
@@ -47,16 +48,22 @@ describe('LandingPageComponent', () => {
       expect(container).toBeTruthy();
       expect(presentation).toBeTruthy();
     });
-    it('should render all sections from the array', () => {
+    it('should render all sections (3 sections defined in landingPageComponent + all contests)', () => {
+      const contestsLength = CONTESTS.length;
       const sectionElements = fixture.nativeElement.querySelectorAll('lib-landing-section');
-      expect(sectionElements.length).toBe(3);
+      expect(sectionElements.length).toBe(3 + contestsLength);
     });
 
-    it('should pass correct section data to section components', () => {
+    it('should initialize contests with CONTESTS data', () => {
+      expect(component.contests).toBe(CONTESTS);
+    });
+
+    it('should pass correct data to section components', () => {
       const sectionComponents = fixture.debugElement.queryAll(By.directive(LandingSectionComponent));
+      const sectionsArray = [...component.sections, ...component.contests]
       sectionComponents.forEach((debugElement, index) => {
         const sectionComponent = debugElement.componentInstance;
-        expect(sectionComponent.section).toEqual(component.sections[index]);
+        expect(sectionComponent.section).toEqual(sectionsArray[index]);
       });
     });
   });

@@ -16,6 +16,17 @@ h1 {
   }
 }
 
+h2 {
+  text-align: center;
+  font-weight: bold;
+  padding-top: functions.padding(smallest);
+  font-size: functions.font-size(largest);
+
+  @include mixins.mobile {
+    font-size: functions.font-size(largest);
+  }
+}
+
 .landing-image {
   width: 80vw;
   max-height: 50vh;

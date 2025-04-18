@@ -2,10 +2,11 @@
 @use "functions";
 @use "variables" as *;
 
-h2 {
+h3 {
   margin-bottom: 1rem;
-  font-size: 1.75rem;
   font-weight: bold;
+  text-align: center;
+  font-size: functions.font-size(large);
 }
 
 .section-image img {
@@ -18,17 +19,12 @@ h2 {
   aspect-ratio: 4 / 3;
   border-radius: 0.5rem;
   @include mixins.mediumScreen {
-    width: 50vw;
+    width: 40em;
   }
   @include mixins.mobile {
     width: 90vw;
     height: 20em;
   }
-}
-
-h2 {
-  text-align: center;
-
 }
 
 .container {
@@ -44,12 +40,6 @@ h2 {
     justify-content: flex-end;
   }
 
-  @include mixins.mediumScreen {
-    &.align-left, &.align-right  {
-      justify-content: center;
-    }
-  }
-
   @include mixins.mobile {
     &.align-left, &.align-right  {
       justify-content: center;
@@ -61,7 +51,7 @@ h2 {
   display: flex;
   flex-direction: row;
   align-items: center;
-  max-width: 80%;
+  max-width: 90%;
   gap: 2rem;
 
   &.reverse {
@@ -70,7 +60,6 @@ h2 {
 
   .section-content {
     font-size: functions.font-size(medium);
-    max-width: 50%;
   }
 
   @include mixins.mediumScreen {
@@ -108,4 +97,9 @@ h2 {
       font-size: 1.1em;
     }
   }
+}
+
+.section-date {
+  font-style: italic;
+  padding-bottom: functions.padding(small);
 }

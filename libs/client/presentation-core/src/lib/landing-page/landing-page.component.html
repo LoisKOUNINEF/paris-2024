@@ -15,6 +15,13 @@
         [imagePosition]="e ? 'right' : 'left'"
 	    ></lib-landing-section>
 	  }
+	  <h2>Les Epreuves</h2>
+ 		@for (contest of contests; track contest.title; let e = $even) {
+      <lib-landing-section 
+        [section]="contest"
+        [imagePosition]="e ? 'left' : 'right'"
+	    ></lib-landing-section>
+	  }
 		<div class="shop-button">
 			<lib-route-button 
 				content="Aller à la boutique" 

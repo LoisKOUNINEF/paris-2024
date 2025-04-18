@@ -10,14 +10,17 @@
 	  [ngClass]="{ 'reverse': imagePosition === 'right' }"
 	>
 	  <div class="section-image">
- 		 <h2>{{ section.title }}</h2>
+ 		 <h3>{{ section.title }}</h3>
 	  	<img 
-	  		src={{section.imageUrl}} 
-	  		alt={{section.imageAlt}}
+	  		src={{section.imageUrl||imageUrl}} 
+	  		alt={{section.imageAlt||imageAlt}}
 	  	/>
 		</div>
 		<div class="section-content">
-	  	<p>{{ section.content }}</p>
+			@if (section.date) {
+				<p class="section-date"> {{ section.date | date: "fullDate" }}
+			}
+	  	<p>{{ section.content || content }}</p>
 		</div>
 	</div>
 </div>
