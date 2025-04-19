@@ -1,19 +1,18 @@
 import { Injectable, NgZone } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { ApiError, ErrorType, ErrorConfig } from './error.interface';
+import { SnackbarService } from './snackbar.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ErrorHandlerService {
-  private displayTime = 5000;
   private errorSubject = new Subject<{ type: ErrorType; message: string }>();
   error$ = this.errorSubject.asObservable();
 
   constructor(
-    private snackBar: MatSnackBar,
+    private snackbarService: SnackbarService,
     private ngZone: NgZone,
   ) {}
 
@@ -30,7 +29,6 @@ export class ErrorHandlerService {
       this.showErrorSnackbar(errorConfig.displayMessage, errorConfig.type);
     });
   }
-
 
   private parseApiError(error: HttpErrorResponse): ApiError {
     return {
@@ -79,12 +77,7 @@ export class ErrorHandlerService {
   private showErrorSnackbar(message: string, type: ErrorType): void {
     const config = this.getSnackbarConfig(type);
     
-    this.snackBar.open(message, 'Close', {
-      duration: this.displayTime,
-      horizontalPosition: 'center',
-      verticalPosition: 'top',
-      panelClass: config.panelClass
-    });
+    this.snackbarService.showError(message, config.panelClass)
   }
 
   private getSnackbarConfig(type: ErrorType) {

@@ -1,9 +1,10 @@
 import { Component, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { filter, Subscription } from 'rxjs';
+import { filter, Subscription, switchMap } from 'rxjs';
 import { UserDto, UserFormValue, User } from '@paris-2024/client-data-access-user';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { FullUserFormComponent } from '@paris-2024/client-ui-forms';
+import { SnackbarService } from '@paris-2024/client-utils';
 
 @Component({
   selector: 'lib-signup',
@@ -18,6 +19,7 @@ export class SignupComponent implements OnDestroy {
   constructor(
     private authService: AuthService,
     private router: Router,
+    private snackbarService: SnackbarService,
   ) { }
 
   ngOnDestroy() {
@@ -29,7 +31,11 @@ export class SignupComponent implements OnDestroy {
     return this.subscription = this.authService.signup(user)
       .pipe(filter(res => !!res))
       .subscribe((res: User) => {
-        this.authService.login(user)
+        this.snackbarService.showSuccess('Compte créé.')
+          .afterDismissed()
+          .pipe(
+            switchMap(() => this.authService.login(user))
+          )
         .subscribe(() => {
           this.router.navigate(['shop'])
       }) 

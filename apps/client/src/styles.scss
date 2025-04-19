@@ -88,6 +88,16 @@ form {
   }
 }
 
+.snackbar-success {
+  background-color: $accent-green;
+  color: $background-light;
+}
+
+.snackbar-info {
+  background-color: $primary-color;
+  color: $background-light;
+}
+
 // Mat Form 
 // theme
 $primary: mat.m2-define-palette(mat.$m2-indigo-palette);
