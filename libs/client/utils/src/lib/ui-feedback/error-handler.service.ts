@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { ApiError, ErrorType, ErrorConfig } from './error.interface';
@@ -13,7 +13,6 @@ export class ErrorHandlerService {
 
   constructor(
     private snackbarService: SnackbarService,
-    private ngZone: NgZone,
   ) {}
 
   handleError(error: HttpErrorResponse) {
@@ -25,9 +24,7 @@ export class ErrorHandlerService {
       message: errorConfig.displayMessage
     });
 
-    this.ngZone.run(() => {
       this.showErrorSnackbar(errorConfig.displayMessage, errorConfig.type);
-    });
   }
 
   private parseApiError(error: HttpErrorResponse): ApiError {
