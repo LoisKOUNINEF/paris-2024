@@ -5,6 +5,7 @@ import {
   Column,
   Entity,
   Generated,
+  Index,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { IsEmail, Matches } from 'class-validator';
@@ -36,6 +37,7 @@ export class User extends BaseEntity implements IUser {
     type: 'text',
     unique: true 
   })
+  @Index('IDX_user_email')
   @IsEmail()
   @ApiProperty()
   email: string;
