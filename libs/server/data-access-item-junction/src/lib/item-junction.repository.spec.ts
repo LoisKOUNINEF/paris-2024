@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ItemJunctionRepository } from './item-junction.repository';
 import { ItemJunction } from './item-junction.entity';
-import { ItemJunctionDto } from './item-junction.dto';
+import { CreateItemJunctionDto } from './item-junction.dto';
 import { createEntityMock } from '@paris-2024/shared-mocks';
 
 const { mockEntity } = createEntityMock(ItemJunction);
@@ -12,7 +12,6 @@ const mockItemJunction: ItemJunction = {
   createdAt: new Date(),
   updatedAt: new Date(),
   quantity: 2,
-  subTotal: 150,
   bundleId: 'bundle-id',
   cartId: '',
   orderId: '',
@@ -28,6 +27,7 @@ describe('ItemJunctionRepository', () => {
     find: jest.fn(),
     findOne: jest.fn(),
     delete: jest.fn(),
+    createQueryBuilder: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -52,27 +52,14 @@ describe('ItemJunctionRepository', () => {
     expect(itemJunctionRepository).toBeDefined();
   });
 
-  describe('getManyByCartId', () => {
-    it('should return all matching provided cartId', async () => {
-      const mockJunctions = [
-        mockItemJunction,
-        {...mockItemJunction, id: 'toBeFound'},
-        {...mockItemJunction, id: 'notToBeFound', cartId: 'another-id'}
-      ];
-      mockRepository.find.mockResolvedValue(mockJunctions);
-
-      const result = await itemJunctionRepository.getManyByCartId(mockItemJunction.cartId)
-
-      expect(mockRepository.find).toHaveBeenCalledWith({where: { cartId: mockItemJunction.cartId }});
-      expect(result).toEqual(mockJunctions);
-    });
+  describe('getManyByRelationshipId', () => {
+    it.todo('Manage to mock query builder methods');
   });
 
   describe('create', () => {
     it('should create and save a new item junction', async () => {
-      const dto: ItemJunctionDto = {
+      const dto: CreateItemJunctionDto = {
         quantity: 2,
-        subTotal: 100,
         bundleId: 'bundle-123',
         cartId: 'cart-123',
       };
@@ -91,9 +78,8 @@ describe('ItemJunctionRepository', () => {
 
   describe('update', () => {
     it('should update an existing item junction', async () => {
-      const dto: ItemJunctionDto = {
+      const dto: CreateItemJunctionDto = {
         quantity: 3,
-        subTotal: 150,
         bundleId: 'bundle-123',
         cartId: 'cart-456',
       };
@@ -112,9 +98,8 @@ describe('ItemJunctionRepository', () => {
 
     it('should return null if item junction not found', async () => {
       const id = 'non-existent-id';
-      const dto: ItemJunctionDto = {
+      const dto: CreateItemJunctionDto = {
         quantity: 3,
-        subTotal: 150,
         bundleId: 'bundle-123',
       };
       

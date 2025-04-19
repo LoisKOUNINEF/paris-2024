@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { Cart } from './cart.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateCartDto } from './cart.dto';
+import { noIdentifierProvided } from './cart.exceptions';
 
 @Injectable()
 export class CartRepository {
@@ -10,6 +11,27 @@ export class CartRepository {
     @InjectRepository(Cart) 
     private cartRepository: Repository<Cart>,
   ) {}
+
+  async getCart(identifier: { userId?: string; guestToken?: string }): Promise<Cart | null> {
+
+    if (!identifier.userId && !identifier.guestToken) {
+      noIdentifierProvided();
+      return null;
+    }
+
+    if (identifier.userId) {
+      const userCart = await this.getUserCart(identifier.userId)
+      if (userCart) {
+        return userCart;
+      }
+    }
+
+    if (identifier.guestToken) {
+      return this.getGuestCart(identifier.guestToken);
+    }
+
+    return null;
+  }
 
   async createGuestCart(guestToken: string): Promise<Cart> {
     const cart = this.cartRepository.create({ guestToken });

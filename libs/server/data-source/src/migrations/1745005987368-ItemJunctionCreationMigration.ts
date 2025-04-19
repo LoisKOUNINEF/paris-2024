@@ -11,7 +11,6 @@ export class ItemJunctionCreationMigration1745005987368 implements MigrationInte
                 "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT now(),
                 "deletedAt" TIMESTAMP WITH TIME ZONE,
                 "quantity" integer NOT NULL DEFAULT '1',
-                "subTotal" integer NOT NULL,
                 "bundleId" character varying NOT NULL,
                 "cartId" text,
                 "orderId" text,

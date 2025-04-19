@@ -20,8 +20,4 @@ export class Cart extends BaseEntity implements ICartEntity {
   @Index('IDX_cart_userId')
   @ApiProperty()
   userId: string;
-
-  @Column()
-  @ApiProperty()
-  totalPrice: number;
 }

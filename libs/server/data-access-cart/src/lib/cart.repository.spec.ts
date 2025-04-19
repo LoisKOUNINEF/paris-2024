@@ -45,6 +45,47 @@ describe('CartRepository', () => {
     jest.clearAllMocks();
   });
 
+  describe('getCart', () => {
+    it('should return user cart if there is one', async () => {
+      mockCartRepository.findOne.mockResolvedValue(mockUserCart);
+
+      const result = await cartRepository.getCart({userId: mockUserCart.userId});
+
+      expect(mockCartRepository.findOne).toHaveBeenCalledWith({
+        where: { userId: mockUserCart.userId },
+      });
+      expect(result).toEqual(mockUserCart);
+    });
+
+    it('should return guest cart if there is no user cart matching identifier', async () => {
+      const spyGetUserCart = jest.spyOn(cartRepository as any, 'getUserCart');
+      const spyGetGuestCart = jest.spyOn(cartRepository as any, 'getGuestCart');
+
+      mockCartRepository.findOne.mockResolvedValue(null);
+      await cartRepository.getCart({userId: mockGuestCart.guestToken});
+      expect(spyGetUserCart).toHaveBeenCalledWith(mockGuestCart.guestToken);
+
+      mockCartRepository.findOne.mockResolvedValue(mockGuestCart);
+      const result = await cartRepository.getCart({guestToken: mockGuestCart.guestToken});
+      expect(spyGetGuestCart).toHaveBeenCalledWith(mockGuestCart.guestToken);
+
+      expect(result).toEqual(mockGuestCart);
+    });
+
+
+    it('should return null when guest cart does not exist', async () => {
+      const guestToken = 'non-existent-token';
+      mockCartRepository.findOne.mockResolvedValue(null);
+
+      const result = await cartRepository['getGuestCart'](guestToken);
+
+      expect(mockCartRepository.findOne).toHaveBeenCalledWith({
+        where: { guestToken },
+      });
+      expect(result).toBeNull();
+    });
+  });
+
   describe('createGuestCart', () => {
     it('should create a cart with guestToken', async () => {
       const guestToken = 'guest-token-123';
@@ -78,7 +119,7 @@ describe('CartRepository', () => {
       const guestToken = 'guest-token-123';
       mockCartRepository.findOne.mockResolvedValue(mockGuestCart);
 
-      const result = await cartRepository.getGuestCart(guestToken);
+      const result = await cartRepository['getGuestCart'](guestToken);
 
       expect(mockCartRepository.findOne).toHaveBeenCalledWith({
         where: { guestToken },
@@ -90,7 +131,7 @@ describe('CartRepository', () => {
       const guestToken = 'non-existent-token';
       mockCartRepository.findOne.mockResolvedValue(null);
 
-      const result = await cartRepository.getGuestCart(guestToken);
+      const result = await cartRepository['getGuestCart'](guestToken);
 
       expect(mockCartRepository.findOne).toHaveBeenCalledWith({
         where: { guestToken },
@@ -104,7 +145,7 @@ describe('CartRepository', () => {
       const userId = 'user-123';
       mockCartRepository.findOne.mockResolvedValue(mockUserCart);
 
-      const result = await cartRepository.getUserCart(userId);
+      const result = await cartRepository['getUserCart'](userId);
 
       expect(mockCartRepository.findOne).toHaveBeenCalledWith({
         where: { userId },
@@ -116,7 +157,7 @@ describe('CartRepository', () => {
       const userId = 'non-existent-user';
       mockCartRepository.findOne.mockResolvedValue(null);
 
-      const result = await cartRepository.getUserCart(userId);
+      const result = await cartRepository['getUserCart'](userId);
 
       expect(mockCartRepository.findOne).toHaveBeenCalledWith({
         where: { userId },

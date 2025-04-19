@@ -11,10 +11,6 @@ export class ItemJunction extends BaseEntity implements IItemJunction {
 
   @ApiProperty()
   @Column()
-  subTotal: number;
-
-  @ApiProperty()
-  @Column()
   bundleId: string;
 
   @ApiProperty()

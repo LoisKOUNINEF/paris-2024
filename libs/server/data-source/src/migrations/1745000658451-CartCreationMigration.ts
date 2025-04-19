@@ -12,7 +12,6 @@ export class CartCreationMigration1745000658451 implements MigrationInterface {
                 "deletedAt" TIMESTAMP WITH TIME ZONE,
                 "guestToken" text,
                 "userId" text,
-                "totalPrice" integer NOT NULL,
                 CONSTRAINT "PK_cart" PRIMARY KEY ("id")
             )
         `);
