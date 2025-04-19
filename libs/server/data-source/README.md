@@ -15,6 +15,8 @@ Migrations are generated in libs/server/data-source/src/migrations
 
 ### To generate migrations
 
+- ***If new entity***: import it to `server-data-source-entities` library module's import array & static method's return array.
+
 - Change DB_HOST in .env from "postgres" to "localhost".
 
 - Run existing migrations `nx run server-data-source:migration-run`
