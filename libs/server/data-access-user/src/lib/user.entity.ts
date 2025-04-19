@@ -10,12 +10,12 @@ import {
 import * as bcrypt from 'bcrypt';
 import { IsEmail, Matches } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import { Roles, IUser } from '@paris-2024/shared-interfaces';
+import { Roles, IUserEntity } from '@paris-2024/shared-interfaces';
 import { BaseEntity } from '@paris-2024/server-base-entity';
 import { passwordRegex } from '@paris-2024/shared-utils';
 
 @Entity()
-export class User extends BaseEntity implements IUser {
+export class User extends BaseEntity implements IUserEntity {
   @Column({
     type: 'text',
     select: false 

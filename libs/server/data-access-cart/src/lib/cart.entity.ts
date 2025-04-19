@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntity } from '@paris-2024/server-base-entity';
-import { ICart } from '@paris-2024/shared-interfaces';
+import { ICartEntity} from '@paris-2024/shared-interfaces';
 import { Column, Entity, Index } from 'typeorm';
 
 @Entity()
-export class Cart extends BaseEntity implements ICart {
+export class Cart extends BaseEntity implements ICartEntity {
   @Column({ 
     type: 'text',
     nullable: true 

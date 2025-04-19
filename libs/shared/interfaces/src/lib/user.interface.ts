@@ -1,4 +1,7 @@
 import { IBase } from "./base.interface";
+import { ICart } from "./cart.interface";
+import { IOrder } from "./order.interface";
+import { ITicket } from "./ticket.interface";
 
 export enum Roles {
   ADMIN = 'admin',
@@ -15,5 +18,14 @@ export interface IUser extends IBase {
   email: string;
   password: string;
   role: Roles;
+}
+
+export interface IUserEntity extends IUser {
   cartId: string;
+}
+
+export interface IUserModel {
+  cart: ICart,
+  orders: Array<IOrder>,
+  tickets: Array<ITicket>,
 }
