@@ -40,6 +40,52 @@ export class ItemJunctionRepository {
     })
   }
 
+  async getOneWithSales(bundleId: string): Promise<number> {
+    const itemJunctions = await this.itemJunctionRepository
+      .createQueryBuilder('junction')
+      .select('item_junction')
+      .where('item_junction.bundleId = :id', { id: bundleId })
+      .andWhere('item_junction.orderId != null')
+      .getRawMany();
+
+    const sales = itemJunctions.reduce((acc: any, sale: ItemJunction) => {
+      return acc += sale.quantity
+    }, 0);
+
+    return sales;
+  }
+
+  async getAllWithSales(bundleIds: Array<string>): Promise<Record<string, number>> {
+    if (!bundleIds.length) {
+      return {};
+    }
+
+    const itemJunctions = await this.itemJunctionRepository
+      .createQueryBuilder('junction')
+      .select(['item_junction.bundleId', 'item_junction.quantity'])
+      .where('item_junction.bundleId IN (:...ids)', { ids: bundleIds })
+      .andWhere('item_junction.orderId IS NOT NULL')
+      .getRawMany();
+
+    const salesByBundleId = itemJunctions.reduce((acc: Record<string, number>, sale: any) => {
+      const bundleId = sale.item_junction_bundleId;
+      if (!acc[bundleId]) {
+        acc[bundleId] = 0;
+      }
+      acc[bundleId] += sale.item_junction_quantity;
+      return acc;
+    }, {});
+
+    bundleIds.forEach(id => {
+      if (salesByBundleId[id] === undefined) {
+        salesByBundleId[id] = 0;
+      }
+    });
+
+    return salesByBundleId;
+  }
+
+
   async updateQuantity(id: ItemJunction['id'], quantity: number): Promise<ItemJunction | null> {
     const itemJunction = await this.itemJunctionRepository.findOne({ 
       where: { id: id } 
@@ -76,6 +122,13 @@ export class ItemJunctionRepository {
   }
 
   async create(dto: CreateItemJunctionDto): Promise<ItemJunction> {
+    if (dto.cartId) {
+      const alreadyExists = await this.getOne(dto.cartId, dto.bundleId);
+      if (alreadyExists) {
+        await this.updateQuantity(alreadyExists.id, dto.quantity)
+      }
+    }
+    
     const itemJunction = this.itemJunctionRepository.create(dto);
     return this.itemJunctionRepository.save(itemJunction);
   }
