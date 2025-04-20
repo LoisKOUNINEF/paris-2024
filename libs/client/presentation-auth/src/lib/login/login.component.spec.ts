@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { AuthService } from '@paris-2024/client-data-access-auth';
+import { SnackbarService } from '@paris-2024/client-utils';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserDto, User } from '@paris-2024/client-data-access-user';
 import { LoginComponent } from './login.component';
 import { LoginFormComponent } from '@paris-2024/client-ui-forms';
@@ -11,6 +13,8 @@ describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let authServiceMock: any;
   let routerMock: any;
+  let snackbarMock: jest.Mocked<MatSnackBar>;
+  let snackbarServiceMock: any;
 
   beforeEach(() => {
     authServiceMock = {
@@ -22,11 +26,23 @@ describe('LoginComponent', () => {
       navigate: jest.fn(),
     };
 
+    snackbarServiceMock = {
+      showSuccess: jest.fn(() => ({
+        afterDismissed: () => of({ dismissedByAction: false })
+      })),
+    };
+
+    snackbarMock = {
+      open: jest.fn()
+    } as any;
+
     TestBed.configureTestingModule({
       imports: [LoginFormComponent, LoginComponent],
       providers: [
         { provide: AuthService, useValue: authServiceMock },
         { provide: Router, useValue: routerMock },
+        { provide: SnackbarService, useValue: snackbarServiceMock },
+        { provide: MatSnackBar, useValue: snackbarMock },
       ],
     }).compileComponents();
 
@@ -35,7 +51,7 @@ describe('LoginComponent', () => {
   });
 
   afterEach(() => {
-    component.ngOnDestroy();  // Clean up after each test
+    component.ngOnDestroy();
   });
 
   it('should create', () => {
@@ -53,7 +69,11 @@ describe('LoginComponent', () => {
     component.login(userFormValue);
 
     expect(authServiceMock.login).toHaveBeenCalledWith(new UserDto(userFormValue));
-    expect(routerMock.navigate).toHaveBeenCalledWith(['shop']);
+    snackbarServiceMock.showSuccess('done')
+      .afterDismissed()
+      .subscribe(() => {
+        expect(routerMock.navigate).toHaveBeenCalledWith(['shop']);
+    })
   });
 
   it('should navigate to admin when user is admin', () => {
@@ -61,7 +81,11 @@ describe('LoginComponent', () => {
     const userFormValue = { email: 'admin@test.com', password: 'password' };
     component.login(userFormValue);
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['admin']);
+    snackbarServiceMock.showSuccess('done')
+      .afterDismissed()
+      .subscribe(() => {
+        expect(routerMock.navigate).toHaveBeenCalledWith(['admin']);
+    })
   });
 
   it('should navigate to request-reset-link on goToResetPassword', () => {
