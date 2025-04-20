@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { ICartIdentifier } from '@paris-2024/shared-interfaces';
 import { Cart } from './cart.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateCartDto } from './cart.dto';
@@ -12,7 +13,7 @@ export class CartRepository {
     private cartRepository: Repository<Cart>,
   ) {}
 
-  async getCart(identifier: { userId?: string; guestToken?: string }): Promise<Cart | null> {
+  async getCart(identifier: ICartIdentifier): Promise<Cart | null> {
 
     if (!identifier.userId && !identifier.guestToken) {
       noIdentifierProvided();
@@ -44,15 +45,25 @@ export class CartRepository {
   }
 
   async getGuestCart(guestToken: string): Promise<Cart | null> {
-    return this.cartRepository.findOne({
+    let cart = await this.cartRepository.findOne({
       where: { guestToken },
     });
+
+    if (!cart) {
+      cart = await this.createGuestCart(guestToken);
+    }
+    return cart;
   }
 
   async getUserCart(userId: string): Promise<Cart | null> {
-    return this.cartRepository.findOne({
+    let cart = await this.cartRepository.findOne({
       where: { userId },
     });
+
+    if (!cart) {
+      cart = await this.createUserCart(userId);
+    }
+    return cart;
   }
 
   async getCartById(id: Cart['id']): Promise<Cart | null> {

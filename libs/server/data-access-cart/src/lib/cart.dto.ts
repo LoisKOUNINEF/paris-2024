@@ -9,3 +9,8 @@ export class CartDto {
 }
 
 export class UpdateCartDto extends PartialType(CartDto) { }
+
+export class AddToCartDto extends CartDto {
+  quantity: number;
+  bundleId: string;
+}
