@@ -7,5 +7,10 @@ export interface ICartEntity extends IBase {
 }
 
 export interface ICartModel extends IBase {
-  bundles: Array<IBundle>;
+  bundles: Array<{ bundle: IBundle, quantity: number }>;
+}
+
+export interface ICartIdentifier {
+  userId?: string; 
+  guestToken?: string;
 }

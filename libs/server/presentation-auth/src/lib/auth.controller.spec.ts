@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { UserService } from '@paris-2024/server-business-logic-user';
+import { RequestWithUser } from '@paris-2024/server-base-entity';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -23,23 +24,23 @@ describe('AuthController', () => {
 
   describe('login', () => {
     it('should return login successful with user when req.user exists', () => {
-      const req = { user: { id: 1, name: 'Test User' }, session: { passport: {} } };
+      const req: RequestWithUser & any = { user: { id: '1' }, session: { passport: {} } };
       const result = controller.login(req, undefined);
       expect(result).toEqual({
         message: 'Login successful',
-        user: { id: 1, name: 'Test User' },
+        user: { id: '1' },
       });
     });
 
     it('should throw HttpException when req.user is missing', () => {
-      const req = { user: null };
+      const req: RequestWithUser & any = { user: null };
       expect(() => controller.login(req, undefined)).toThrow(
         new HttpException('Login failed', HttpStatus.UNAUTHORIZED)
       );
     });
 
     it('should return error message when an error occurs', () => {
-      const req = { user: { id: 1, name: 'Test User' }, session: {} };
+      const req: RequestWithUser & any = { user: { id: '1' }, session: {} };
       const err = new Error('Some error');
       const result = controller.login(req, err);
       expect(result).toBe('Some error');
@@ -49,7 +50,7 @@ describe('AuthController', () => {
   describe('logout', () => {
 
     it('should log out successfully and return logged out message', async () => {
-      const req = {
+      const req: RequestWithUser & any = {
         logout: jest.fn((callback) => callback(null)),
       };
       const result = await controller.logout(req);
@@ -58,7 +59,7 @@ describe('AuthController', () => {
     });
 
     it('should return error message when logout fails', async () => {
-      const req = {
+      const req: RequestWithUser & any = {
         logout: jest.fn((callback) => callback(new Error('Logout failed'))),
       };
       const result = await controller.logout(req);
