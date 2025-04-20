@@ -14,6 +14,7 @@ import { PresentationAuthModule } from '@paris-2024/server-presentation-auth';
 import { PresentationPasswordResetModule } from '@paris-2024/server-presentation-password-reset';
 import { PresentationUserModule } from '@paris-2024/server-presentation-user';
 import { PresentationCartModule } from '@paris-2024/server-presentation-cart';
+import { PresentationBundleModule } from '@paris-2024/server-presentation-bundle';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { PresentationCartModule } from '@paris-2024/server-presentation-cart';
     PresentationPasswordResetModule,
     PresentationUserModule,
     PresentationCartModule,
+    PresentationBundleModule,
   ],
   controllers: [AppController],
   providers: [

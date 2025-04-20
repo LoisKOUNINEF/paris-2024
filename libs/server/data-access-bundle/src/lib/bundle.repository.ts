@@ -15,10 +15,7 @@ export class BundleRepository {
     private bundleRepository: Repository<Bundle>,
   ) {}
 
-  async getBundles(name?: Bundle['name']): Promise<Array<Bundle> | Bundle | null> {
-    if (name) {
-      return await this.getOneByName(name);
-    }
+  async getBundles(): Promise<Array<Bundle> | null> {
     return await this.bundleRepository.find({ where: { deletedAt: undefined } });
   }
 
@@ -53,6 +50,11 @@ export class BundleRepository {
     if (bundleExists && bundleExists.deletedAt === null) {
       bundleAlreadyExists();
     }
+
+    if (bundleExists && bundleExists.deletedAt) {
+      this.restore(bundleExists, dto);
+    }
+    
     const newBundle = this.bundleRepository.create(dto);
     return await this.bundleRepository.save(newBundle);
   }

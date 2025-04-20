@@ -79,7 +79,7 @@ describe('BundleRepository', () => {
     it('should return a single bundle when name is provided', async () => {
       jest.spyOn(bundleRepository, 'getOneByName').mockResolvedValue(mockBundle);
 
-      const result = await bundleRepository.getBundles(mockBundle.name);
+      const result = await bundleRepository.getOneByName('Mock Bundle');
 
       expect(bundleRepository.getOneByName).toHaveBeenCalledWith(mockBundle.name);
       expect(result).toEqual(mockBundle);
