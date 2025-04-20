@@ -23,14 +23,15 @@ describe('CartService', () => {
     deletedAt: null,
   };
 
-  const bundles = [
+  const bundlesArray = [
     { id: 'bundle1', name: 'Bundle 1', price: 100, ticketAmount: 3, isAvailable: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null  },
-    { id: 'bundle1', name: 'Bundle 1', price: 100, ticketAmount: 3, isAvailable: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null  }
+    { id: 'bundle2', name: 'Bundle 2', price: 150, ticketAmount: 4, isAvailable: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null  }
   ]
+  const bundlesWithQuantity = [ { bundle: bundlesArray[0], quantity: 2 },{ bundle: bundlesArray[1], quantity: 2 },]
 
   const mockJunctions = [
     { id: 'junction1', quantity: 2, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, bundle: { id: 'bundle1', name: 'Bundle 1', price: 100, ticketAmount: 3, isAvailable: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null  } },
-    { id: 'junction2', quantity: 2, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, bundle: { id: 'bundle1', name: 'Bundle 1', price: 100, ticketAmount: 3, isAvailable: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null  } }
+    { id: 'junction2', quantity: 2, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, bundle: { id: 'bundle2', name: 'Bundle 2', price: 150, ticketAmount: 4, isAvailable: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null  } }
   ];
 
   let service: CartService;
@@ -103,7 +104,7 @@ describe('CartService', () => {
 
       expect(result).toEqual({
         ...mockUserCart,
-        bundles: bundles
+        bundles: bundlesWithQuantity,
       });
       expect(cartRepositoryMock.getCart).toHaveBeenCalledWith(identifier);
       expect(itemJunctionRepositoryMock.getManyByRelationshipId).toHaveBeenCalledWith('cart', 'cart123');
@@ -162,9 +163,9 @@ describe('CartService', () => {
       
       itemJunctionRepositoryMock.getOne.mockResolvedValue(null);
       
-      await service.updateItemQuantity(mockUserCart.id, bundleId, quantity);
+      await service.updateItemQuantity({ userId: mockUserCart.id }, { bundleId, quantity });
 
-      expect(itemJunctionRepositoryMock.getOne).toHaveBeenCalledWith(mockUserCart.id, bundleId);
+      expect(itemJunctionRepositoryMock.getOne).not.toHaveBeenCalled();
       expect(itemJunctionRepositoryMock.updateQuantity).not.toHaveBeenCalled();
     });
   });

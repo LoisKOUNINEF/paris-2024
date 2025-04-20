@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CartRepository, Cart } from '@paris-2024/server-data-access-cart';
-import { ItemJunction, ItemJunctionRepository } from '@paris-2024/server-data-access-item-junction';
-import { ICartModel, IItemJunctionModel } from '@paris-2024/shared-interfaces';
+import { CartRepository, Cart, AddToCartDto } from '@paris-2024/server-data-access-cart';
+import { CreateItemJunctionDto, ItemJunction, ItemJunctionRepository } from '@paris-2024/server-data-access-item-junction';
+import { ICartIdentifier, ICartModel, IItemJunctionModel } from '@paris-2024/shared-interfaces';
 import { DeleteResult } from 'typeorm';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class CartService {
 		private cartRepository: CartRepository,
 		private itemJunctionRepository: ItemJunctionRepository,	) {}
 
-	async getCartWithBundles(identifier: { userId?: string, guestToken?: string}): Promise<ICartModel | null> {
+	async getCartWithBundles(identifier: ICartIdentifier): Promise<ICartModel | null> {
 	  const cart = await this.cartRepository.getCart(identifier);
 	  
 	  if (!cart) {
@@ -23,7 +23,10 @@ export class CartService {
 	    return { ...cart, bundles: [] };
 	  }
 	  
-	  const bundles = junctions.map((junction: IItemJunctionModel) => junction.bundle);
+	  const bundles = junctions.map((junction: IItemJunctionModel) => ({
+		    bundle: junction.bundle,
+		    quantity: junction.quantity,
+		  }));
 	  
 	  return {
 	    ...cart,
@@ -61,12 +64,14 @@ export class CartService {
 	  return userCart;
 	}
 
-	async addToCart(cartId: Cart['id'], bundleId: string, quantity?: number): Promise<ItemJunction> {
-		const dto = {
-			cartId: cartId,
-			bundleId: bundleId,
-			quantity: quantity ? quantity : 1
-		}
+	async addToCart(
+		identifier: ICartIdentifier, 
+		dto: CreateItemJunctionDto,
+	): Promise<ItemJunction> {
+		const cart = await this.cartRepository.getCart(identifier);
+		
+		dto  = { ...dto, quantity: 1, cartId: cart?.id};
+		
 		return await this.itemJunctionRepository.create(dto);
 	}
 
@@ -79,19 +84,23 @@ export class CartService {
 		return null;
 	}
 
-	async updateItemQuantity(cartId: Cart['id'], bundleId: string, quantity: number): Promise<void> {
-		const itemJunction = await this.itemJunctionRepository.getOne(cartId, bundleId);
+	async updateItemQuantity(identifier: ICartIdentifier, dto: AddToCartDto): Promise<ItemJunction | null> {
+		const cart = await this.cartRepository.getCart(identifier);
+		if (!cart) return null;
+
+		const itemJunction = await this.itemJunctionRepository.getOne(cart.id, dto.bundleId);
 
 		if (itemJunction) {
-			this.itemJunctionRepository.updateQuantity(itemJunction.id, quantity)
+			return await this.itemJunctionRepository.updateQuantity(itemJunction.id, dto.quantity)
 		}
+		return null;
 	}
 
-	async createGuestCart(guestToken: string): Promise<Cart> {
-		return await this.cartRepository.createGuestCart(guestToken);
-	}
-
-	async createUserCart(userId: string): Promise<Cart> {
+	async createUserCart(userId: string): Promise<Cart | undefined> {
 		return await this.cartRepository.createUserCart(userId);
+	}
+
+	async createGuestCart(guestToken: string): Promise<Cart | undefined> {
+		return await this.cartRepository.createGuestCart(guestToken);	
 	}
 }
