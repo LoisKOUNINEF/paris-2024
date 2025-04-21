@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CartRepository, Cart, AddToCartDto } from '@paris-2024/server-data-access-cart';
+import { CartRepository, Cart, AddToCartDto, noIdentifierProvided } from '@paris-2024/server-data-access-cart';
 import { CreateItemJunctionDto, ItemJunction, ItemJunctionRepository } from '@paris-2024/server-data-access-item-junction';
 import { ICartIdentifier, ICartModel, IItemJunctionModel } from '@paris-2024/shared-interfaces';
 import { DeleteResult } from 'typeorm';
@@ -67,12 +67,20 @@ export class CartService {
 	async addToCart(
 		identifier: ICartIdentifier, 
 		dto: CreateItemJunctionDto,
-	): Promise<ItemJunction> {
-		const cart = await this.cartRepository.getCart(identifier);
-		
+	): Promise<ItemJunction | undefined> {
+		let cart = await this.cartRepository.getCart(identifier);
+		if (!cart) {
+	    if (identifier.userId) {
+	      cart = await this.cartRepository.createUserCart(identifier.userId);
+	    } else if (identifier.guestToken) {
+	      cart = await this.cartRepository.createGuestCart(identifier.guestToken);
+	    } else {
+	      noIdentifierProvided();
+	      return;
+    	}
 		dto  = { ...dto, quantity: 1, cartId: cart?.id};
-		
-		return await this.itemJunctionRepository.create(dto);
+		}
+		return await this.itemJunctionRepository.create(dto);	
 	}
 
 	async removeFromCart(cartId: Cart['id'], bundleId: string): Promise<DeleteResult | null> {

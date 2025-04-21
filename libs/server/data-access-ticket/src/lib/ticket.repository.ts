@@ -31,8 +31,8 @@ export class TicketRepository {
   async findAllFromUser(userId: string): Promise<Array<Ticket>> {
     return await this.ticketRepository
       .createQueryBuilder('junction')
-      .leftJoinAndSelect('user', 'user', 'junction.userId = user.id')
-      .where(`junction.userId = :id`, { id: userId })
+      .leftJoinAndSelect('user', 'user', 'junction.user_id = user.id')
+      .where(`junction.user_id = :id::uuid`, { id: userId })
       .getMany();
   }
 
