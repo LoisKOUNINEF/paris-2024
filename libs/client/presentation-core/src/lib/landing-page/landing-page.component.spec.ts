@@ -3,7 +3,7 @@ import { LandingPageComponent } from './landing-page.component';
 import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
 import { LandingSectionComponent } from './landing-section/landing-section.component';
 import { By } from '@angular/platform-browser';
-import { CONTESTS } from './landing-section/contests';
+import { CONTESTS } from './contests';
 
 describe('LandingPageComponent', () => {
   let component: LandingPageComponent;

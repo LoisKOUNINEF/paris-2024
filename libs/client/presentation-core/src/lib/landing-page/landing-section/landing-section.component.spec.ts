@@ -109,8 +109,8 @@ describe('LandingSectionComponent', () => {
       const imageElement: HTMLImageElement = fixture.nativeElement.querySelector('img');
 
       expect(detailsElement.textContent.trim()).toBe('Pas de description disponible');
-      expect(imageElement.src).toContain('assets/images/rings.avif');
-      expect(imageElement.alt).toContain('Anneaux olympiques sur une place parisienne');
+      expect(imageElement.src).toContain('assets/images/cheer.avif');
+      expect(imageElement.alt).toContain('Une basketteuse en fauteuil brandit un ballon devant la foule');
     });
   });
 });
