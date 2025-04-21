@@ -4,6 +4,7 @@
       type="button"
       class="px-2 py-1 text-lg bg-gray-100 hover:bg-gray-200"
       (click)="decreaseQuantity()"
+      [disabled]="quantityControl.value && quantityControl.value <= MIN_QUANTITY"
     >
       −
     </button>

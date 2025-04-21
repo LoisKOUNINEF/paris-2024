@@ -20,8 +20,8 @@ export interface ILandingSection {
   styleUrl: './landing-section.component.scss',
 })
 export class LandingSectionComponent {
-  imageUrl = 'assets/images/rings.avif';
-  imageAlt = 'Anneaux olympiques sur une place parisienne';
+  imageUrl = 'assets/images/cheer.avif';
+  imageAlt = 'Une basketteuse en fauteuil brandit un ballon devant la foule.';
   content = 'Pas de description disponible';
 
   @Input() section: ILandingSection;
