@@ -45,25 +45,15 @@ export class CartRepository {
   }
 
   async getGuestCart(guestToken: string): Promise<Cart | null> {
-    let cart = await this.cartRepository.findOne({
+    return await this.cartRepository.findOne({
       where: { guestToken },
     });
-
-    if (!cart) {
-      cart = await this.createGuestCart(guestToken);
-    }
-    return cart;
   }
 
   async getUserCart(userId: string): Promise<Cart | null> {
-    let cart = await this.cartRepository.findOne({
+    return await this.cartRepository.findOne({
       where: { userId },
     });
-
-    if (!cart) {
-      cart = await this.createUserCart(userId);
-    }
-    return cart;
   }
 
   async getCartById(id: Cart['id']): Promise<Cart | null> {
