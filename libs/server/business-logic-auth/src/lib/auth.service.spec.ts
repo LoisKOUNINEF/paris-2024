@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { User, UserRepository } from '@paris-2024/server-data-access-user';
 import * as bcrypt from 'bcrypt';
 import { Roles } from '@paris-2024/shared-interfaces';
-import { createEntityMock } from '@paris-2024/shared-utils';
+import { createEntityMock } from '@paris-2024/shared-mocks';
 
 const { mockEntity } = createEntityMock(User);
 

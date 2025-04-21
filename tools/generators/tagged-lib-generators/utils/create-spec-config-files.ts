@@ -27,14 +27,14 @@ export const regularJestConfigFileContent = (
   projectDirectory: INormalizedSchema['projectDirectory']
   ) => `/* eslint-disable */
 export default {
-  displayName: '${options.scope}-${options.name}',
-  preset: '../../../jest.preset.js',
+  displayName: '${options.scope}-${options.type}-${options.name}',
+  preset: '../../../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../../coverage/${projectDirectory}',
+  coverageDirectory: '../../../../coverage/${projectDirectory}',
 };
 `;
 
@@ -43,8 +43,8 @@ export const angularJestConfigFileContent = (
   projectDirectory: INormalizedSchema['projectDirectory']
   ) => `/* eslint-disable */
 export default {
-  displayName: '${options.scope}-${options.name}',
-  preset: '../../../jest.preset.js',
+  displayName: '${options.scope}-${options.type}-${options.name}',
+  preset: '../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
   testEnvironment: 'jsdom',
   transform: {
@@ -58,14 +58,14 @@ export default {
     'jest-preset-angular/build/serializers/html-comment',
   ],
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../../coverage/${projectDirectory}',
+  coverageDirectory: '../../../../coverage/${projectDirectory}',
 };
 `;
 
 const tsconfigSpecFileContent =`{
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../../dist/out-tsc",
+    "outDir": "../../../../dist/out-tsc",
     "module": "commonjs",
     "types": ["jest", "node"]
   },

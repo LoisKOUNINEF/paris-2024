@@ -1,0 +1,42 @@
+<div class="grid">
+	@if (cart) {
+		<table>
+			<tbody>
+				<tr>
+					<th>Offre</th>
+					<th>Prix</th>
+					<th>Quantité</th>
+					<th>Sous Total</th>
+				</tr>
+				@for (bundle of cart.bundles; track bundle) {
+					<tr>
+						<td>{{ bundle.bundle.name }}</td>
+						<td>{{ bundle.bundle.price | formatPrice | currency:'symbol':'€':'1.2-2' }}</td>
+						<td class="quantity">
+							<lib-add-to-cart
+								buttonContent='Modifier la quantité'
+								bundleId={{bundle.bundle.id}}
+							></lib-add-to-cart>
+						</td>
+						<td>
+							Sous-total: {{ (bundle.bundle.price * bundle.quantity) | formatPrice | currency:'symbol':'€':'1.2-2' }}
+						</td>
+					</tr>
+				}			
+				
+				<tr class="total">
+					<td colspan="2">Montant total</td>
+					<td>
+						{{ totalPrice() | formatPrice | currency:'symbol':'€':'1.2-2' }}
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	}
+	<button 
+		(click)=createOrder()
+		[disabled]="checkoutDisabled()"
+	>
+		Passer au paiement
+	</button>
+</div>

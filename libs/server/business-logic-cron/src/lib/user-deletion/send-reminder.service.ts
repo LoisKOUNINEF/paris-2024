@@ -24,7 +24,7 @@ export class SendReminderService {
   async sendReminderBeforeAnonymization() {
     const thresholdDate = subDays(new Date(), 1);
 
-    const usersToSendReminderTo = await this.userRepository.find({
+    const usersToSendReminderTo: Array<User> = await this.userRepository.find({
       where: {
         deletedAt: LessThan(thresholdDate),
         isAnonymized: false,
@@ -49,7 +49,7 @@ export class SendReminderService {
   async sendReminderToInactiveUsers() {
     const thresholdDate = subWeeks(subYears(new Date(), 2), 1);
 
-    const usersToSendReminderTo = await this.userRepository.find({
+    const usersToSendReminderTo: Array<User> = await this.userRepository.find({
       where: {
         lastLoginAt: LessThan(thresholdDate),
         deletedAt: undefined,

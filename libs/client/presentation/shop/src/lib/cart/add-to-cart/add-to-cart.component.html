@@ -1,0 +1,31 @@
+<div class="flex items-center gap-3">
+  <div class="flex items-center border rounded overflow-hidden">
+    <button
+      type="button"
+      class="px-2 py-1 text-lg bg-gray-100 hover:bg-gray-200"
+      (click)="decreaseQuantity()"
+      [disabled]="quantityControl.value && quantityControl.value <= MIN_QUANTITY"
+    >
+      −
+    </button>
+    <input
+      type="number"
+      class="w-12 text-center border-x"
+      [formControl]="quantityControl"
+      [min]="MIN_QUANTITY"
+      [max]="MAX_QUANTITY"
+    />
+    <button
+      type="button"
+      class="px-2 py-1 text-lg bg-gray-100 hover:bg-gray-200"
+      (click)="increaseQuantity()"
+      [disabled]="quantityControl.value && quantityControl.value >= MAX_QUANTITY"
+    >
+      +
+    </button>
+  </div>
+
+  <button (click)="addToCart()" class="button">
+    {{ isRemoveButton() ? 'Retirer du panier' : 'Ajouter au panier' }}
+  </button>
+</div>

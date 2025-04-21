@@ -19,10 +19,10 @@ export function normalizeOptions(tree: Tree, options: ITaggedLibGeneratorSchema)
   const libsDir = getWorkspaceLayout(tree).libsDir;
   const projectDirectory = options.directory
   ? options.directory
-  : `${libsDir}/${options.scope}/${options.name}`;
+  : `${libsDir}/${options.scope}/${options.type}/${options.name}`;
   const parsedTags = [createTag('scope', options.scope), createTag('type', options.type)];
   const libTag: ILibTag = { scope: options.scope, type: options.type };
-  const name = `${options.scope}-${options.name}`;
+  const name = `${options.scope}-${options.type}-${options.name}`;
 
   return {
     ...options,

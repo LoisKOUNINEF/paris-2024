@@ -4,7 +4,8 @@ import { PasswordResetRepository } from '@paris-2024/server-data-access-password
 import { User, UserRepository } from '@paris-2024/server-data-access-user';
 import { PasswordResetMailerService } from '@paris-2024/server-business-logic-mailer';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { createEntityMock } from '@paris-2024/shared-utils';
+import { passwordRegex } from '@paris-2024/shared-utils';
+import { createEntityMock } from '@paris-2024/shared-mocks';
 import { Roles } from '@paris-2024/shared-interfaces';
 
 const { mockEntity } = createEntityMock(User);
@@ -120,7 +121,7 @@ describe('PasswordResetService', () => {
 
   describe('reset()', () => {
     it('should throw if password does not match regex', async () => {
-      const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{10}$/;
+      const regex = passwordRegex;
       const badPwd = 'badpwd'
       expect(regex.test(badPwd)).toBe(false);
     });

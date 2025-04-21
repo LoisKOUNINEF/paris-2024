@@ -33,11 +33,23 @@
       "@paris-2024/client-data-access-auth": [
         "libs/client/data-access-auth/src/index.ts"
       ],
+      "@paris-2024/client-data-access-bundle": [
+        "libs/client/data-access/bundle/src/index.ts"
+      ],
+      "@paris-2024/client-data-access-cart": [
+        "libs/client/data-access/cart/src/index.ts"
+      ],
       "@paris-2024/client-data-access-core": [
         "libs/client/data-access-core/src/index.ts"
       ],
+      "@paris-2024/client-data-access-order": [
+        "libs/client/data-access/order/src/index.ts"
+      ],
       "@paris-2024/client-data-access-password-reset": [
         "libs/client/data-access-password-reset/src/index.ts"
+      ],
+      "@paris-2024/client-data-access-ticket": [
+        "libs/client/data-access/ticket/src/index.ts"
       ],
       "@paris-2024/client-data-access-user": [
         "libs/client/data-access-user/src/index.ts"
@@ -50,6 +62,9 @@
       ],
       "@paris-2024/client-presentation-password-reset": [
         "libs/client/presentation-password-reset/src/index.ts"
+      ],
+      "@paris-2024/client-presentation-shop": [
+        "libs/client/presentation/shop/src/index.ts"
       ],
       "@paris-2024/client-ui-form-building-blocks": [
         "libs/client/ui-form-building-blocks/src/index.ts"
@@ -68,6 +83,12 @@
       "@paris-2024/server-business-logic-auth": [
         "libs/server/business-logic-auth/src/index.ts"
       ],
+      "@paris-2024/server-business-logic-bundle": [
+        "libs/server/business-logic-bundle/src/index.ts"
+      ],
+      "@paris-2024/server-business-logic-cart": [
+        "libs/server/business-logic-cart/src/index.ts"
+      ],
       "@paris-2024/server-business-logic-cron": [
         "libs/server/business-logic-cron/src/index.ts"
       ],
@@ -77,14 +98,35 @@
       "@paris-2024/server-business-logic-mailer": [
         "libs/server/business-logic-mailer/src/index.ts"
       ],
+      "@paris-2024/server-business-logic-order": [
+        "libs/server/business-logic-order/src/index.ts"
+      ],
       "@paris-2024/server-business-logic-password-reset": [
         "libs/server/business-logic-password-reset/src/index.ts"
+      ],
+      "@paris-2024/server-business-logic-ticket": [
+        "libs/server/business-logic-ticket/src/index.ts"
       ],
       "@paris-2024/server-business-logic-user": [
         "libs/server/business-logic-user/src/index.ts"
       ],
+      "@paris-2024/server-data-access-bundle": [
+        "libs/server/data-access-bundle/src/index.ts"
+      ],
+      "@paris-2024/server-data-access-cart": [
+        "libs/server/data-access-cart/src/index.ts"
+      ],
+      "@paris-2024/server-data-access-item-junction": [
+        "libs/server/data-access-item-junction/src/index.ts"
+      ],
+      "@paris-2024/server-data-access-order": [
+        "libs/server/data-access-order/src/index.ts"
+      ],
       "@paris-2024/server-data-access-password-reset": [
         "libs/server/data-access-password-reset/src/index.ts"
+      ],
+      "@paris-2024/server-data-access-ticket": [
+        "libs/server/data-access-ticket/src/index.ts"
       ],
       "@paris-2024/server-data-access-user": [
         "libs/server/data-access-user/src/index.ts"
@@ -98,8 +140,20 @@
       "@paris-2024/server-presentation-auth": [
         "libs/server/presentation-auth/src/index.ts"
       ],
+      "@paris-2024/server-presentation-bundle": [
+        "libs/server/presentation-bundle/src/index.ts"
+      ],
+      "@paris-2024/server-presentation-cart": [
+        "libs/server/presentation-cart/src/index.ts"
+      ],
+      "@paris-2024/server-presentation-order": [
+        "libs/server/presentation-order/src/index.ts"
+      ],
       "@paris-2024/server-presentation-password-reset": [
         "libs/server/presentation-password-reset/src/index.ts"
+      ],
+      "@paris-2024/server-presentation-ticket": [
+        "libs/server/presentation-ticket/src/index.ts"
       ],
       "@paris-2024/server-presentation-user": [
         "libs/server/presentation-user/src/index.ts"
@@ -109,6 +163,7 @@
       ],
       "@paris-2024/server-utils": ["libs/server/utils/src/index.ts"],
       "@paris-2024/shared-interfaces": ["libs/shared/interfaces/src/index.ts"],
+      "@paris-2024/shared-mocks": ["libs/shared/mocks/src/index.ts"],
       "@paris-2024/shared-utils": ["libs/shared/utils/src/index.ts"],
       "@paris-2024/tagged-lib-generators": [
         "tools/generators/tagged-lib-generators"

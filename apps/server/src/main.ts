@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -7,7 +8,6 @@ import session from 'express-session';
 import passport from 'passport';
 import pgSession from 'connect-pg-simple';
 import pg from 'pg';
-import 'reflect-metadata';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { getEnvValue } from '@paris-2024/server-utils';
 import { OriginGuard } from '@paris-2024/server-security-guards';
@@ -42,7 +42,7 @@ async function bootstrap() {
 
   app.enableCors({
     methods: 'GET,POST,PATCH,PUT,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Accept, Origin, Set-Cookie',
+    allowedHeaders: 'Content-Type, Accept, Origin, Set-Cookie, X-Guest-Token',
     origin: allowedOrigins,
     credentials: true,
   });

@@ -1,0 +1,13 @@
+{
+  "name": "client-presentation-shop",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/client/presentation/shop/src",
+  "prefix": "lib",
+  "tags": [
+    "scope:client",
+    "type:presentation"
+  ],
+  "projectType": "library",
+  "// targets": "to see all targets run: nx show project client-presentation-shop --web",
+  "targets": {}
+}

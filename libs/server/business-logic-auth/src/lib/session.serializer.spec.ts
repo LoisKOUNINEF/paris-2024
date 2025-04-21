@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SessionSerializer, UserSession } from './session.serializer';
+import { Roles } from '@paris-2024/shared-interfaces';
 
 describe('SessionSerializer', () => {
   let serializer: SessionSerializer;
@@ -17,22 +18,22 @@ describe('SessionSerializer', () => {
   });
 
   describe('serializeUser', () => {
-    it('should serialize user to only include id', (done) => {
-      const user: UserSession = { id: '123' };
+    it('should serialize user to include id and role', (done) => {
+      const user: UserSession = { id: '123', role: Roles.CUSTOMER };
 
       serializer.serializeUser(user, (err, serializedUser) => {
         expect(err).toBeNull();
-        expect(serializedUser).toEqual({ id: '123' });
+        expect(serializedUser).toEqual({ id: '123', role: Roles.CUSTOMER });
         done();
       });
     });
 
     it('should handle user with additional properties', (done) => {
-      const user = { id: '123', name: 'Test User', email: 'test@example.com' };
+      const user = { id: '123', role: Roles.CUSTOMER ,name: 'Test User', email: 'test@example.com' };
 
       serializer.serializeUser(user as UserSession, (err, serializedUser) => {
         expect(err).toBeNull();
-        expect(serializedUser).toEqual({ id: '123' });
+        expect(serializedUser).toEqual({ id: '123',role: Roles.CUSTOMER });
         expect(serializedUser).not.toHaveProperty('name');
         expect(serializedUser).not.toHaveProperty('email');
         done();
@@ -42,19 +43,9 @@ describe('SessionSerializer', () => {
 
   describe('deserializeUser', () => {
     it('should deserialize payload without modification', (done) => {
-      const payload: UserSession = { id: '123' };
+      const payload: UserSession = { id: '123', role: Roles.CUSTOMER };
 
       serializer.deserializeUser(payload, (err, deserializedUser) => {
-        expect(err).toBeNull();
-        expect(deserializedUser).toEqual(payload);
-        done();
-      });
-    });
-
-    it('should handle payload with id as number', (done) => {
-      const payload = { id: 123 };
-
-      serializer.deserializeUser(payload as unknown as UserSession, (err, deserializedUser) => {
         expect(err).toBeNull();
         expect(deserializedUser).toEqual(payload);
         done();

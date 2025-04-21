@@ -23,7 +23,9 @@ export class OwnerGuard implements CanActivate {
 
     const owner = request.query;
 
-    if (request.user.role === 'admin' || request.user.id === owner.user.id) {
+    if (request.user.id === owner.user.id
+      || request.user.role === 'admin' 
+    ) {
       return true;
     }
     return false;

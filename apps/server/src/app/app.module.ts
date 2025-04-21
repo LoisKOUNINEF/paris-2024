@@ -13,6 +13,10 @@ import { BusinessLogicCronModule } from '@paris-2024/server-business-logic-cron'
 import { PresentationAuthModule } from '@paris-2024/server-presentation-auth';
 import { PresentationPasswordResetModule } from '@paris-2024/server-presentation-password-reset';
 import { PresentationUserModule } from '@paris-2024/server-presentation-user';
+import { PresentationCartModule } from '@paris-2024/server-presentation-cart';
+import { PresentationBundleModule } from '@paris-2024/server-presentation-bundle';
+import { PresentationTicketModule } from '@paris-2024/server-presentation-ticket';
+import { PresentationOrderModule } from '@paris-2024/server-presentation-order';
 
 @Module({
   imports: [
@@ -33,6 +37,10 @@ import { PresentationUserModule } from '@paris-2024/server-presentation-user';
     PresentationAuthModule,
     PresentationPasswordResetModule,
     PresentationUserModule,
+    PresentationCartModule,
+    PresentationBundleModule,
+    PresentationTicketModule,
+    PresentationOrderModule,
   ],
   controllers: [AppController],
   providers: [

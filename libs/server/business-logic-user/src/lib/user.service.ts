@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { Roles, RoleValue } from '@paris-2024/shared-interfaces';
+import { ICartIdentifier, Roles, RoleValue } from '@paris-2024/shared-interfaces';
 import { UserRepository, CreateUserDto, User } from '@paris-2024/server-data-access-user';
 import { WelcomeMailerService } from '@paris-2024/server-business-logic-mailer';
+import { CartService } from '@paris-2024/server-business-logic-cart';
+import { Cart } from '@paris-2024/server-data-access-cart';
 
 @Injectable()
 export class UserService {
 	constructor( 
 		private userRepository: UserRepository,
 		private welcomeMailerService: WelcomeMailerService,
+		private cartService: CartService,
 	) {}
 
 	async findAll(role?: RoleValue): Promise<Array<User>> {
@@ -22,30 +25,36 @@ export class UserService {
 		return this.userRepository.findOneById(id);
 	}
 
-	async create(createUserDto: CreateUserDto, isAdmin: boolean): Promise<User | undefined> {
+	async create(createUserDto: CreateUserDto, isAdmin: boolean, guestToken?: string): Promise<User | undefined> {
 		const role = isAdmin ? Roles.STAFF : Roles.CUSTOMER;
-
-		const cartId = this.linkCart();
-
 		const dto = { 
 			...createUserDto,
 			role: role,
-			cartId: cartId
 		};
 
 		const createdUser = await this.userRepository.create(dto);
 
 		if (!createdUser) { return }
 
+		if (!guestToken) {
+			const cart = await this.cartService.createUserCart(createdUser.id);
+			if (cart) {
+				dto.cartId = cart.id;
+			}
+		} else {
+			const cart = await this.cartService.getCart({guestToken});
+			if (cart) {
+				dto.cartId = cart.id;
+				this.linkCart({ userId: createdUser.id, guestToken: guestToken })
+			} 
+		}
+		
 		await this.welcomeMailerService.sendWelcome(createdUser.email);
 	
 		return createdUser;
 	}
 
-	private linkCart(): string {
-		// Fetch Cart here
-		const cart = { id: 'cartId'};
-
-		return cart.id;
+	private async linkCart(identifiers: Required<ICartIdentifier>): Promise<Cart | null> {
+		return await this.cartService.mergeGuestCartWithUserCart(identifiers);
 	}
 }

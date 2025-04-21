@@ -5,6 +5,7 @@ import { UserService } from "@paris-2024/server-business-logic-user";
 import { CreateUserDto, LoginDto, User } from "@paris-2024/server-data-access-user";
 import { AuthenticatedGuard, Admin, Staff } from '@paris-2024/server-business-logic-guards';
 import { LocalAuthGuard } from '@paris-2024/server-security-guards';
+import { RequestWithUser } from "@paris-2024/server-base-entity";
 
 @ApiTags('auth')
 @ApiInternalServerErrorResponse()
@@ -31,7 +32,7 @@ export class AuthController {
   @ApiBody({
     type: LoginDto,
   })
-	login(@Request() req: any, err?: Error) {
+	login(@Request() req: RequestWithUser, err?: Error) {
     if (!req.user) {
     	throw new HttpException('Login failed', HttpStatus.UNAUTHORIZED);
     }
@@ -42,7 +43,7 @@ export class AuthController {
 	}
 
   @Post('logout')
-  logout(@Request() req: any): any {
+  logout(@Request() req: RequestWithUser): any {
     return new Promise((resolve, reject) => {
       req.logout((err: Error) => {
         if (err) {

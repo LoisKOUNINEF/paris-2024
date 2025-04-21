@@ -1,0 +1,13 @@
+{
+  "name": "client-data-access-cart",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/client/data-access/cart/src",
+  "prefix": "lib",
+  "tags": [
+    "scope:client",
+    "type:data-access"
+  ],
+  "projectType": "library",
+  "// targets": "to see all targets run: nx show project client-data-access-cart --web",
+  "targets": {}
+}

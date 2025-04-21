@@ -7,9 +7,10 @@
 
 ## Usage
 
-"{lib-name}" can be added to the generator command; if not, will prompt for name.
+Argument for name can be added to the generator command; if not, it will prompt for name.                 
+*Library name will be {scope}-{type}-{name}*
 
-If 'directory' option prompt is left empty, library will be generated at: libs/{scope}/{name}.
+If 'directory' option prompt is left empty, library will be generated at: libs/{scope}/{type}/{name}.
 
 Test configuration files will also be generated.
 
