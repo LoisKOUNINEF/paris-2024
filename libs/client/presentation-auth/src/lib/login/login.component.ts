@@ -4,7 +4,7 @@ import { LoginFormComponent } from '@paris-2024/client-ui-forms';
 import { Subscription } from 'rxjs';
 import { UserDto, UserFormValue, User } from '@paris-2024/client-data-access-user';
 import { AuthService } from '@paris-2024/client-data-access-auth';
-import { SnackbarService } from '@paris-2024/client-utils';
+import { GuestTokenService, SnackbarService } from '@paris-2024/client-utils';
 
 @Component({
   selector: 'lib-login',
@@ -20,6 +20,7 @@ export class LoginComponent implements OnDestroy {
     private authService: AuthService,
     private router: Router,
     private snackbarService: SnackbarService,
+    private guestTokenService: GuestTokenService,
   ) { }
   
   ngOnDestroy() {
@@ -31,6 +32,7 @@ export class LoginComponent implements OnDestroy {
 
     return this.subscription = this.authService.login(user)
       .subscribe((res: User) => {
+        this.guestTokenService.clearGuestToken();
         this.snackbarService.showSuccess('Vous êtes connecté.').afterDismissed();
         if (this.authService.isAdmin()) {
           this.router.navigate(['admin']);

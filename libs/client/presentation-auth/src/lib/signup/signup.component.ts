@@ -4,7 +4,7 @@ import { filter, Subscription, switchMap } from 'rxjs';
 import { UserDto, UserFormValue, User } from '@paris-2024/client-data-access-user';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { FullUserFormComponent } from '@paris-2024/client-ui-forms';
-import { SnackbarService } from '@paris-2024/client-utils';
+import { GuestTokenService, SnackbarService } from '@paris-2024/client-utils';
 
 @Component({
   selector: 'lib-signup',
@@ -20,6 +20,7 @@ export class SignupComponent implements OnDestroy {
     private authService: AuthService,
     private router: Router,
     private snackbarService: SnackbarService,
+    private guestTokenService: GuestTokenService,
   ) { }
 
   ngOnDestroy() {
@@ -31,6 +32,7 @@ export class SignupComponent implements OnDestroy {
     return this.subscription = this.authService.signup(user)
       .pipe(filter(res => !!res))
       .subscribe((res: User) => {
+        this.guestTokenService.clearGuestToken()
         this.snackbarService.showSuccess('Compte créé.')
           .afterDismissed()
           .pipe(
