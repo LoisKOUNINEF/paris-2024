@@ -3,7 +3,7 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { errorInterceptor } from '@paris-2024/client-utils';
+import { errorInterceptor, guestTokenInterceptor } from '@paris-2024/client-utils';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 import localeFr from '@angular/common/locales/fr';
@@ -17,7 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(appRoutes, withComponentInputBinding()),
     provideHttpClient(
       withFetch(),
-      withInterceptors([errorInterceptor])
+      withInterceptors([guestTokenInterceptor, errorInterceptor])
     ),
     provideAnimations(), 
     {
