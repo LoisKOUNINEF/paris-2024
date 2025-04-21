@@ -1,0 +1,10 @@
+<div>
+		@for(bundle of bundles; track bundle) {
+			<lib-bundle-card
+			 [bundle]=bundle
+			></lib-bundle-card>
+			<lib-add-to-cart 
+				[bundleId]=bundle.id
+			></lib-add-to-cart>
+		}
+</div>

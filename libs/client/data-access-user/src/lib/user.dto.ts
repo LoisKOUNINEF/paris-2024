@@ -1,10 +1,11 @@
+import { IUser } from "@paris-2024/shared-interfaces";
 import { User } from "./user.model";
 
-export class UserDto {
-	email?: User['email'] | undefined;
-	firstName?: User['firstName'] | undefined;
-	lastName?: User['lastName'] | undefined;
-	password?: User['password'] | undefined;
+export class UserDto implements Partial<IUser> {
+	email?: User['email'];
+	firstName?: User['firstName'];
+	lastName?: User['lastName'];
+	password?: User['password'];
 
 	constructor(formValue: UserFormValue) {
 		this.email = formValue.email;
