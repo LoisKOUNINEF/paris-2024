@@ -7,7 +7,7 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "Name of library",
+      "description": "Name of library? will be prefixed with scope & type.",
       "$default": {
         "$source": "argv",
         "index": 0
@@ -48,7 +48,7 @@
     "directory": {
       "type": "string",
       "description": "A directory where the library is placed",
-      "x-prompt": "In which directory should the library be generated? Empty Defaults to 'libs/{scope}/{projectName}'"
+      "x-prompt": "In which directory should the library be generated? Empty Defaults to 'libs/{scope}/${type}/{projectName}'"
     }
   },
   "required": ["name", "scope", "type"]
