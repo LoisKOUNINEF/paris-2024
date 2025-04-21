@@ -117,7 +117,7 @@ describe('CartService', () => {
       cartRepositoryMock.getGuestCart.mockResolvedValue(null);
       cartRepositoryMock.createUserCart.mockResolvedValue(mockUserCart);
 
-      const result = await service.mergeGuestCartWithUserCart(mockUserCart.userId, mockGuestCart.guestToken);
+      const result = await service.mergeGuestCartWithUserCart({userId: mockUserCart.userId, guestToken: mockGuestCart.guestToken});
 
       expect(result).toEqual(mockUserCart);
       expect(cartRepositoryMock.getUserCart).toHaveBeenCalledWith(mockUserCart.userId);
@@ -129,7 +129,7 @@ describe('CartService', () => {
       cartRepositoryMock.getUserCart.mockResolvedValue(mockUserCart);
       cartRepositoryMock.getGuestCart.mockResolvedValue(null);
 
-      const result = await service.mergeGuestCartWithUserCart(mockUserCart.userId, mockGuestCart.guestToken);
+      const result = await service.mergeGuestCartWithUserCart({userId: mockUserCart.userId, guestToken: mockGuestCart.guestToken});
 
       expect(result).toEqual(mockUserCart);
       expect(cartRepositoryMock.getUserCart).toHaveBeenCalledWith(mockUserCart.userId);
@@ -144,7 +144,7 @@ describe('CartService', () => {
       cartRepositoryMock.getGuestCart.mockResolvedValue(mockGuestCart);
       cartRepositoryMock.update.mockResolvedValue(updatedCart);
 
-      const result = await service.mergeGuestCartWithUserCart(mockUserCart.userId, mockGuestCart.guestToken);
+      const result = await service.mergeGuestCartWithUserCart({userId: mockUserCart.userId, guestToken: mockGuestCart.guestToken});
 
       expect(result).toEqual(updatedCart);
       expect(cartRepositoryMock.getUserCart).toHaveBeenCalledWith(mockUserCart.userId);

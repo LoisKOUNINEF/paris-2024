@@ -82,7 +82,7 @@ describe('CartRepository', () => {
       expect(mockCartRepository.findOne).toHaveBeenCalledWith({
         where: { guestToken },
       });
-      expect(result).toBeUndefined();
+      expect(result).toBeNull();
     });
   });
 
@@ -141,7 +141,7 @@ describe('CartRepository', () => {
       expect(result).toEqual(mockUserCart);
     });
 
-    it('should create user cart when user cart does not exist', async () => {
+    it('should return null when user cart does not exist', async () => {
       const userId = 'non-existent-user';
       mockCartRepository.findOne.mockResolvedValue(null);
 
@@ -149,8 +149,8 @@ describe('CartRepository', () => {
       expect(mockCartRepository.findOne).toHaveBeenCalledWith({
         where: { userId },
       });
-      expect(mockCartRepository.create).toHaveBeenCalledWith({userId: userId})
-      expect(result).toBe(mockUserCart);
+      expect(mockCartRepository.create).not.toHaveBeenCalled();
+      expect(result).toBeNull();
     });
   });
 

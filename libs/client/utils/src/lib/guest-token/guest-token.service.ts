@@ -35,17 +35,4 @@ export class GuestTokenService {
     }
     sessionStorage.removeItem(GUEST_TOKEN_KEY);
   }
-
-  getSessionObject<T>(key: string): T | null {
-    const item = sessionStorage.getItem(key);
-    return item ? JSON.parse(item) : null;
-  }
-
-  setSessionObject(key: string, data: object): void {
-    sessionStorage.setItem(key, JSON.stringify(data));
-  }
-
-  removeSessionKey(key: string): void {
-    sessionStorage.removeItem(key);
-  }
 }
