@@ -6,11 +6,11 @@ import { Entity, Column, Index } from 'typeorm';
 @Entity()
 export class Order extends BaseEntity implements IOrderEntity {
   @ApiProperty()
-  @Column()
+  @Column('integer', { name: 'total_price' })
   totalPrice: number;
 
-  @Index('IDX_order_userId')
+  @Index('IDX_order_user_id')
   @ApiProperty()
-  @Column()
+  @Column('text', { name: 'user_id' })
   userId: string;
 }

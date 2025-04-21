@@ -9,7 +9,8 @@ export class PasswordReset extends BaseEntity {
   })
   @Column({
     type: 'text',
-    unique: true 
+    unique: true,
+    name: 'email' 
   })
   email: string;
 }

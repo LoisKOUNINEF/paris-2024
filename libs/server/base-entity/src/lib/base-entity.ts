@@ -12,14 +12,24 @@ export class BaseEntity implements IBase {
   id!: string;
 
   @ApiProperty()
-  @CreateDateColumn({ type: 'timestamptz' })
+  @CreateDateColumn({ 
+    type: 'timestamptz',
+    name: 'created_at' 
+  })
   createdAt!: Date;
 
   @ApiProperty()
-  @UpdateDateColumn({ type: 'timestamptz', nullable: true })
+  @UpdateDateColumn({ 
+    type: 'timestamptz',
+    name: 'updated_at',
+  })
   updatedAt!: Date;
 
   @ApiProperty()
-  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  @DeleteDateColumn({ 
+    type: 'timestamptz', 
+    nullable: true,
+    name: 'deleted_at' 
+  })
   deletedAt!: Date | null;
 }

@@ -5,24 +5,28 @@ import { IBundle } from '@paris-2024/shared-interfaces';
 
 @Entity()
 @Check('"price" > 0')
-@Check('"ticketAmount" > 0')
+@Check('"ticket_amount" > 0')
 export class Bundle extends BaseEntity implements IBundle {
   @ApiProperty()
   @Column({ 
     unique: true,
     type: 'text', 
+    name: 'name'
   })
   name: string;
 
   @ApiProperty()
-  @Column()
+  @Column('integer', { name: 'price' })
   price: number;
 
   @ApiProperty()
-  @Column()
+  @Column('integer', { name: 'ticket_amount' })
   ticketAmount: number;
 
   @ApiProperty()
-  @Column({ default: true })
+  @Column('boolean',{ 
+    default: true,
+    name: 'is_available' 
+  })
   isAvailable: boolean;
 }

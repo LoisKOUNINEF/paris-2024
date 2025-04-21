@@ -7,20 +7,23 @@ import { Column, Entity, Index } from 'typeorm';
 export class Ticket extends BaseEntity implements ITicket {
 
   @Index('IDX_ticket_qrCode')
-  @Column()
+  @Column('text', { name: 'qr_code' })
   @ApiProperty()
   qrCode: string;
 
   @ApiProperty()
-  @Column()
+  @Column('text', { name: 'order_id' })
   orderId: string;
 
   @Index('IDX_ticket_user')
   @ApiProperty()
-  @Column()
+  @Column('text', { name: 'user_id' })
   userId: string;
 
   @ApiProperty()
-  @Column()
+  @Column('boolean', { 
+    default: true,
+    name: 'is_valid' 
+  })
   isValid: boolean;
 }

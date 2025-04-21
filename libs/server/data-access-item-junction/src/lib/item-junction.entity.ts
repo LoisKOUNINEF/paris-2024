@@ -6,26 +6,31 @@ import { IItemJunction } from '@paris-2024/shared-interfaces';
 @Entity()
 export class ItemJunction extends BaseEntity implements IItemJunction {
   @ApiProperty()
-  @Column({ default: 1 })
+  @Column('integer', { 
+    default: 1,
+    name: 'quantity'
+  })
   quantity: number;
 
   @ApiProperty()
-  @Column()
+  @Column('text', { name: 'bundle_id' })
   bundleId: string;
 
   @ApiProperty()
   @Column({ 
     type: 'text', 
-    nullable: true
+    nullable: true,
+    name: 'cart_id',
   })
-  @Index('IDX_item_junction_cartId')
+  @Index('IDX_item_junction_cart_id')
   cartId: string;
 
   @ApiProperty()
   @Column({ 
     type: 'text', 
-    nullable: true
+    nullable: true,
+    name: 'order_id'
   })
-  @Index('IDX_item_junction_orderId')
+  @Index('IDX_item_junction_order_id')
   orderId: string;
 }

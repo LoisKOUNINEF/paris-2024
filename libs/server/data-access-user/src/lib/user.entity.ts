@@ -18,31 +18,42 @@ import { passwordRegex } from '@paris-2024/shared-utils';
 export class User extends BaseEntity implements IUserEntity {
   @Column({
     type: 'text',
-    select: false 
+    select: false,
+    name: 'secret_key'
   })
   @Generated('uuid')
   @Exclude({ toPlainOnly: true })
   @ApiProperty()
   secretKey: string;
 
-  @Column({ type: 'text' })
+  @Column({ 
+    type: 'text',
+    name: 'first_name' 
+  })
   @ApiProperty()
   firstName: string;
 
-  @Column({ type: 'text' })
+  @Column({ 
+    type: 'text',
+    name: 'last_name'
+  })
   @ApiProperty()
   lastName: string;
 
   @Column({
     type: 'text',
-    unique: true 
+    unique: true,
+    name: 'email'
   })
   @Index('IDX_user_email')
   @IsEmail()
   @ApiProperty()
   email: string;
 
-  @Column({ type: 'text' })
+  @Column({ 
+    type: 'text',
+    name: 'password'
+  })
   @Matches(passwordRegex)
   @Exclude({ toPlainOnly: true })
   @ApiProperty({ 
@@ -55,6 +66,7 @@ export class User extends BaseEntity implements IUserEntity {
     type: 'enum',
     enum: Roles,
     default: Roles.CUSTOMER,
+    name: 'role'
   })
   @ApiProperty({
     type: 'enum',
@@ -65,19 +77,24 @@ export class User extends BaseEntity implements IUserEntity {
 
   @Column({ 
     type: 'text',
-    default: 'cartId'
+    default: 'cart_id',
+    name: 'cart_id'
    })
   @ApiProperty()
   cartId: string;
 
   @Column({ 
     type: 'boolean',
-    default: false
+    default: false,
+    name: 'is_anonymized'
    })
   @ApiProperty()
   isAnonymized: boolean;
 
-  @Column({ type: 'timestamptz' })
+  @Column({ 
+    type: 'timestamptz',
+    name: 'last_login_at' 
+  })
   @ApiProperty()
   lastLoginAt: Date;
 
