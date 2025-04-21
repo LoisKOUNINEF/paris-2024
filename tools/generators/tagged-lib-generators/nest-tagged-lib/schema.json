@@ -38,10 +38,8 @@
           {"value": "business-logic", "label": "Business Logic"},
           {"value": "data-access", "label": "Data Access"},
           {"value": "presentation", "label": "Presentation"},
-          {"value": "ui", "label": "UI"},
           {"value": "util", "label": "Utility"},
           {"value": "types", "label": "Types"},
-          {"value": "api", "label": "API"}
         ]
       }
     },

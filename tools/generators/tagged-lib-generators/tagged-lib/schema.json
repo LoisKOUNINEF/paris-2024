@@ -31,7 +31,7 @@
     "type": {
       "type": "string",
       "description": "Type of the library",
-      "enum": ["business-logic", "data-access", "presentation", "ui", "util", "types", "api"],
+      "enum": ["business-logic", "data-access", "presentation", "ui", "util", "types", "feature"],
       "x-prompt": {
         "message": "What is the type of this library?",
         "type": "list",
@@ -42,7 +42,7 @@
           {"value": "ui", "label": "UI"},
           {"value": "util", "label": "Utility"},
           {"value": "types", "label": "Types"},
-          {"value": "api", "label": "API"}
+          {"value": "feature", "label": "Feature"}
         ]
       }
     },
