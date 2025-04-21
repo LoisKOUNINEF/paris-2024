@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Patch, Post, Query, Request } from "@nestjs/common";
+import { Body, Controller, Get, Headers, HttpException, HttpStatus, Patch, Post, Request } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { RequestWithUser } from "@paris-2024/server-base-entity";
 import { CartService } from "@paris-2024/server-business-logic-cart";
@@ -17,12 +17,12 @@ export class CartController {
   @Post()
   @ApiCreatedResponse({
     type: Cart,
-    description: 'creates new cart with userId or guestToken (query parameter)',
+    description: 'creates new cart with userId (request) or guestToken (header param)',
   })
   @ApiBadRequestResponse()
   createCart(
     @Request() req: RequestWithUser,
-    @Query('guestToken') guestToken: string,
+    @Headers('x-guest-token') guestToken: string,
   ): Promise<Cart | undefined> {
     const userId = req.user?.id;
     if(userId) {
@@ -42,7 +42,7 @@ export class CartController {
   })
   getCart(
     @Request() req: RequestWithUser, 
-    @Query('guestToken') guestToken: string,
+    @Headers('x-guest-token') guestToken: string,
   ): Promise<ICartModel | null> {
     const userId = req.user?.id;
     if (userId) {
@@ -61,7 +61,7 @@ export class CartController {
   @ApiBadRequestResponse()
   addToCart(
     @Request() req: RequestWithUser, 
-    @Query('guestToken') guestToken: string,
+    @Headers('x-guest-token') guestToken: string,
     @Body() dto: CreateItemJunctionDto, 
   ): Promise<ItemJunction | undefined> {
     const userId = req.user?.id;
@@ -81,7 +81,7 @@ export class CartController {
   @ApiBadRequestResponse()
   updateQuantity(
     @Request() req: RequestWithUser, 
-    @Query('guestToken') guestToken: string,
+    @Headers('x-guest-token') guestToken: string,
     @Body() dto: AddToCartDto
     ): Promise<ItemJunction | null> {
     const userId = req.user?.id;

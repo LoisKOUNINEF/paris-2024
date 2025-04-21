@@ -34,18 +34,18 @@ export class CartService {
 	  };
 	}
 
-	async mergeGuestCartWithUserCart(userId: string, guestToken: string): Promise<Cart | null> {
-	  const userCart = await this.cartRepository.getUserCart(userId);
+	async mergeGuestCartWithUserCart(identifiers: Required<ICartIdentifier>): Promise<Cart | null> {
+	  const userCart = await this.cartRepository.getUserCart(identifiers.userId);
 	  
-	  const guestCart = await this.cartRepository.getGuestCart(guestToken)
+	  const guestCart = await this.cartRepository.getGuestCart(identifiers.guestToken)
 
 	  if (!guestCart) {
-	    return userCart || await this.cartRepository.createUserCart(userId);
+	    return userCart || await this.cartRepository.createUserCart(identifiers.userId);
 	  }
 
 	  if (!userCart) {
 	  	const cartDto = {
-	    	userId: userId,
+	    	userId: identifiers.userId,
 	    	guestToken: undefined,
 	  	}
 	    return await this.cartRepository.update(guestCart.id, cartDto);
@@ -58,7 +58,7 @@ export class CartService {
 
 	  await this.cartRepository.update(guestCart.id, { 
 	  	guestToken: undefined, 
-	  	userId: userId, 
+	  	userId: identifiers.userId, 
 	  });
 
 	  return userCart;
@@ -102,5 +102,9 @@ export class CartService {
 
 	async createGuestCart(guestToken: string): Promise<Cart | undefined> {
 		return await this.cartRepository.createGuestCart(guestToken);	
+	}
+
+	async getCart(identifiers: ICartIdentifier): Promise<Cart | null> {
+		return await this.cartRepository.getCart(identifiers);
 	}
 }

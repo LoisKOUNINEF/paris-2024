@@ -6,8 +6,13 @@ export interface ICartEntity extends IBase {
   userId: string | null;
 }
 
+export interface ICartBundles {
+  bundle: IBundle;
+  quantity: number;
+}
+
 export interface ICartModel extends IBase {
-  bundles: Array<{ bundle: IBundle, quantity: number }>;
+  bundles: Array<ICartBundles>;
 }
 
 export interface ICartIdentifier {

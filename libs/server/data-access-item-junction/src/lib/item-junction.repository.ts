@@ -154,4 +154,20 @@ export class ItemJunctionRepository {
 
     return await this.itemJunctionRepository.delete(itemJunction.id);
   }
+
+  async switchRelationship(ids: Array<ItemJunction['id']>, orderId: string): Promise<Array<ItemJunction> | null> {
+    const updateResult = await this.itemJunctionRepository
+      .createQueryBuilder()
+      .update(ItemJunction)
+      // TODO: remove 'as any' bypass
+      .set({ cartId: null as any, orderId: orderId })
+      .whereInIds(ids)
+      .execute();
+    
+    if (updateResult.affected && updateResult.affected > 0) {
+      return await this.itemJunctionRepository.findByIds(ids);
+    }
+    
+    return [];
+    }
 }

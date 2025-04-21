@@ -5,13 +5,13 @@ import { Bundle, CreateBundleDto, UpdateBundleDto } from "@paris-2024/server-dat
 import { IBundleSales } from "@paris-2024/shared-interfaces";
 import { Admin } from '@paris-2024/server-business-logic-guards'
 
-@ApiTags('bundle')
+@ApiTags('bundles')
 @ApiInternalServerErrorResponse()
-@Controller('bundle')
+@Controller('bundles')
 export class BundleController {
   constructor(private bundleService: BundleService) {}
 
-  @Admin(true)
+  // @Admin(true)
   @Post()
   @ApiCreatedResponse({
     type: Bundle,
