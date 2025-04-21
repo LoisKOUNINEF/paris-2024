@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { User } from '@paris-2024/client-data-access-user';
-import { CommonFormComponent } from '../common-form.component';
+import { CommonFormComponent } from '../../common-form.component';
 import { RevealPasswordPipe, PwdCheckboxTextPipe } from '@paris-2024/client-utils';
 import { passwordRegex } from '@paris-2024/shared-utils';
 import { validatePasswords } from '../validators/validate-passwords.validator';

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonFormComponent } from '../common-form.component';
+import { CommonFormComponent } from '../../common-form.component';
 import { User } from '@paris-2024/client-data-access-user';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
