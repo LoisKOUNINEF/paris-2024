@@ -48,13 +48,14 @@ jobs:
           REPO_LOWER: ${{ env.REPO_LOWER }}
           PROJECT_LOWER: ${{ env.PROJECT_LOWER }}
           STACK_NAME: ${{ env.STACK_NAME }}
+          ENCRYPTION_PASSWORD: ${{ env.ENCRYPTION_PASSWORD }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASS }}
           port: ${{ secrets.SSH_PORT }}
-          envs: DOCKER_AUTH,REPO_LOWER,PROJECT_LOWER,STACK_NAME
+          envs: DOCKER_AUTH,REPO_LOWER,PROJECT_LOWER,STACK_NAME,ENCRYPTION_PASSWORD
           script: |
             cd $PROJECT_LOWER
 

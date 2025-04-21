@@ -1,0 +1,17 @@
+<div class="form-container">
+	<form 
+		[formGroup]="editUserForm" 
+		(ngSubmit)="onSubmit()"
+	>
+		<lib-email-form
+			formGroupName="email"
+		></lib-email-form>
+		<lib-user-infos-form 
+			formGroupName="userInfos"
+		></lib-user-infos-form>
+		<lib-submit-button
+			content="Valider les modifications"
+			[isDisabled]=!editUserForm.valid
+		></lib-submit-button>
+	</form>
+</div>

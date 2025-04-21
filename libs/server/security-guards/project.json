@@ -1,0 +1,12 @@
+{
+  "name": "server-security-guards",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/server/security-guards/src",
+  "projectType": "library",
+  "tags": [
+    "scope:server",
+    "type:data-access"
+  ],
+  "// targets": "to see all targets run: nx show project server-security-guards --web",
+  "targets": {}
+}

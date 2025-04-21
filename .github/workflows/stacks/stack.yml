@@ -3,6 +3,7 @@ services:
     image: ghcr.io/${REPO_LOWER}-server:image-placeholder
     networks:
       - traefik-public
+      - mail-deliver
       - default
     environment:
       NODE_ENV: production
@@ -15,6 +16,7 @@ services:
       SENDGRID_KEY_FILE: /run/secrets/sendgrid_key
       SENDGRID_SENDER_FILE: /run/secrets/sendgrid_sender
       ADMIN_EMAIL_FILE: /run/secrets/admin_email
+      SMTP_HOST_FILE: /run/secrets/smtp_host
     healthcheck:
       test: ["CMD-SHELL", "node /usr/src/app/scripts/healthcheck/index.cjs || exit 1"]
       interval: 30s
@@ -27,7 +29,7 @@ services:
         parallelism: 1
         order: stop-first
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
@@ -101,7 +103,7 @@ services:
         parallelism: 1
         order: stop-first
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
@@ -120,9 +122,9 @@ services:
     networks:
       - default
     environment:
-      POSTGRES_USER_FILE: /run/secrets/db_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-      POSTGRES_DB_FILE: /run/secrets/db_name
+      POSTGRES_USER_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_password
+      POSTGRES_DB_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_name
     volumes:
       - ${PROJECT_LOWER}-${STACK_NAME}-pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -136,7 +138,7 @@ services:
       placement:
         constraints: [node.role == manager]
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
@@ -144,7 +146,6 @@ services:
       - ${PROJECT_LOWER}_${STACK_NAME}_db_password
       - ${PROJECT_LOWER}_${STACK_NAME}_db_user
       - ${PROJECT_LOWER}_${STACK_NAME}_db_name
-      - encryption_password
 
 volumes:
   ${PROJECT_LOWER}-${STACK_NAME}-pgdata:
@@ -152,6 +153,9 @@ volumes:
 networks:
   traefik-public:
     external: true
+  mail-deliver:
+    external: true
+    name: mail-deliver
   default:
     driver: overlay
 
@@ -172,5 +176,5 @@ secrets:
     external: true
   admin_email:
     external: true
-  encryption_password:
+  smtp_host:
     external: true

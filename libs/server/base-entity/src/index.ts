@@ -1,1 +1,1 @@
-export * from './lib/server-base-entity';
+export * from './lib/base-entity';

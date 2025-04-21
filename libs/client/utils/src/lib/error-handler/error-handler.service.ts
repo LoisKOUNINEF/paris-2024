@@ -51,12 +51,12 @@ export class ErrorHandlerService {
       case 401:
         return {
           type: ErrorType.AUTHENTICATION,
-          displayMessage: 'Please log in to continue.'
+          displayMessage: 'Email or password in incorrect.'
         };
       case 403:
         return {
           type: ErrorType.AUTHORIZATION,
-          displayMessage: apiError.msg
+          displayMessage: 'Please log in to continue.'
         };
       case 404:
         return {

@@ -18,13 +18,21 @@
         "inlineStyleLanguage": "scss",
         "stylePreprocessorOptions": {
           "includePaths": [
-            "libs/client/ui-shared/src/lib/styles"
+            "libs/client/ui-shared/src/lib/styles",
+            "libs/client/ui-forms/src/lib",
+            "libs/client/ui-form-building-blocks/src/lib"
           ]
         },
         "assets": [
+          "apps/client/src/assets",
           {
             "glob": "**/*",
             "input": "apps/client/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "apps/client/src/assets",
+            "output": "/assets"
           }
         ],
         "styles": ["apps/client/src/styles.scss"],

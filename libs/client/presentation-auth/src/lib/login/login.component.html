@@ -1,0 +1,20 @@
+<main class="container">
+	<h2 class="form-title">
+		Se connecter
+	</h2>
+   <p class="form-aside">Si vous n'avez pas encore de profil, vous pouvez en&nbsp;
+   	<a (click)="goToSignup()" role="button">
+   		<strong><u>créer un</u></strong>
+   	</a>
+  </p>
+  <lib-login-form
+  	(submitted)=login($event)
+  ></lib-login-form>
+	<p (click)="goToResetPassword()" class="form-aside">
+		(Mot de passe oublié ?&nbsp;
+		<a class="forgotten-password">
+			<u>Cliquez ici</u>
+		</a>
+		&nbsp;)
+	</p>
+</main>

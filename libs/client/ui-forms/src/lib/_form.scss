@@ -1,0 +1,11 @@
+@use "mixins";
+
+.form-container {
+  @include mixins.flexCenter;
+  margin: 0;
+  width: 100%;
+}
+
+form {
+  @include mixins.form
+}

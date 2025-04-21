@@ -1,0 +1,90 @@
+@use "mixins";
+@use "functions";
+@use "variables" as *;
+
+nav {
+	display: flex;
+	justify-content: flex-end;
+	min-height: 3em;
+	background-color: $primary-color;
+  
+  @include mixins.mobile {
+  	display: flex;
+  	justify-content: flex-end;
+  	align-items: center;
+  	position: relative;
+  	width: 100%;
+  	min-height: 5em;
+  }
+}
+
+.links-container {
+	background-color: $primary-color;
+	box-shadow: -.1em 0 .1em rgba($background-dark, .25);
+	border-radius: .5em;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+  transition: .7s ease-out;
+
+	@include mixins.mobile {
+		flex-direction: column;
+		align-items: flex-start;
+		position: fixed;
+		top: 0;
+		right: -100%;
+		z-index: 10;
+		width: 60%;
+	}
+}
+
+.home {
+	margin-right: auto;
+	@include mixins.mobile {
+		padding-top: functions.padding(medium);
+		padding-bottom: functions.padding(medium);
+	}
+}
+
+nav svg {
+	fill: $primary-color;
+}
+
+#navbar-active {
+	display: none;
+}
+
+.open-navbar-button {
+	@include mixins.mobile {
+		background-color: $primary-color;
+		border-radius: .5em;
+		position: fixed;
+		top: 0;
+		right: 0;
+		margin-top: functions.margin(smallest);
+	}
+}
+
+.open-navbar-button, .close-navbar-button {
+	display: none;
+
+	@include mixins.mobile {
+		display: block;
+		padding: functions.padding(small);
+	}
+}
+
+#navbar-active:checked  ~ .links-container {
+	right: 0;
+}
+
+#navbar-active:checked  ~ #overlay {
+	height: 100%;
+	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 9;
+}

@@ -1,0 +1,13 @@
+{
+  "name": "client-ui-form-building-blocks",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/client/ui-form-building-blocks/src",
+  "prefix": "lib",
+  "tags": [
+    "scope:client",
+    "type:ui"
+  ],
+  "projectType": "library",
+  "// targets": "to see all targets run: nx show project client-ui-form-building-blocks --web",
+  "targets": {}
+}
