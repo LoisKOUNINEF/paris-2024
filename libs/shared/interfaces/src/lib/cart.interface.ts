@@ -1,5 +1,6 @@
 import { IBase } from "./base.interface";
 import { IBundle } from "./bundle.interface";
+import { IItemJunctionModel } from "./item-junction.interface";
 
 export interface ICartEntity extends IBase {
   guestToken: string | null;
@@ -12,7 +13,7 @@ export interface ICartBundles {
 }
 
 export interface ICartModel extends IBase {
-  bundles: Array<ICartBundles>;
+  bundles: Array<IItemJunctionModel>;
 }
 
 export interface ICartIdentifier {
