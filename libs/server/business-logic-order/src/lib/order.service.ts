@@ -36,7 +36,7 @@ export class OrderService {
     const user = await this.userService.findOne(userId);
 
     if(!cart || !user) {
-      //TODO: exception / error
+      throw new Error('no cart or no user')
       return;
     }
 
@@ -50,7 +50,7 @@ export class OrderService {
     };
     const newOrder = await this.orderRepository.create(orderDto);
     const junctionIds = junctionItems.reduce((acc: Array<string>, junction: IItemJunctionModel) => {
-      acc.push(junction.id);
+      acc.push(junction.junction);
       return acc;
     }, [])
     await this.junctionRepository.switchRelationship(junctionIds, newOrder.id);
@@ -81,13 +81,13 @@ export class OrderService {
 
   private computeTotalTicketAmount(itemJunctions: Array<IItemJunctionModel>): number {
     return itemJunctions.reduce((acc: number, junction: IItemJunctionModel) => {
-      return (acc += junction.quantity * junction.bundle.ticketAmount)
+      return (acc += junction.quantity * junction.amount)
     }, 0)
   }
 
   private computeTotalPrice(itemJunctions: Array<IItemJunctionModel>): number {
     return itemJunctions.reduce((acc: number, junction: IItemJunctionModel) => {
-      return acc += junction.quantity * junction.bundle.price;
+      return acc += junction.quantity * junction.price;
     }, 0)
   }
 }

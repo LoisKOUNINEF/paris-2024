@@ -12,25 +12,19 @@ export class CartService {
 
 	async getCartWithBundles(identifier: ICartIdentifier): Promise<ICartModel | null> {
 	  const cart = await this.cartRepository.getCart(identifier);
-	  
 	  if (!cart) {
 	    return null;
 	  }
 	  
-	  const junctions: Array<IItemJunctionModel> = await this.itemJunctionRepository.getManyByRelationshipId('cart', cart.id);
-	  
-	  if (junctions.length === 0) {
-	    return { ...cart, bundles: [] };
+	  const bundles: Array<IItemJunctionModel> = await this.itemJunctionRepository.getManyByRelationshipId('cart', cart.id);
+
+	  if (bundles.length === 0) {
+	    return {...cart, bundles: [] };
 	  }
-	  
-	  const bundles = junctions.map((junction: IItemJunctionModel) => ({
-		    bundle: junction.bundle,
-		    quantity: junction.quantity,
-		  }));
 	  
 	  return {
 	    ...cart,
-	    bundles: bundles
+	    bundles
 	  };
 	}
 
@@ -46,7 +40,7 @@ export class CartService {
 	  if (!userCart) {
 	  	const cartDto = {
 	    	userId: identifiers.userId,
-	    	guestToken: undefined,
+	    	guestToken: null,
 	  	}
 	    return await this.cartRepository.update(guestCart.id, cartDto);
 	  }
@@ -54,12 +48,9 @@ export class CartService {
 	  const guestJunctions = await this.itemJunctionRepository.getManyByRelationshipId('cart', guestCart.id);
 	  const userJunctions = await this.itemJunctionRepository.getManyByRelationshipId('cart', userCart.id);
 
-	  await this.itemJunctionRepository.mergeJunctions(guestJunctions, userJunctions);
+	  await this.itemJunctionRepository.mergeJunctions(userCart.id, guestJunctions, userJunctions);
 
-	  await this.cartRepository.update(guestCart.id, { 
-	  	guestToken: undefined, 
-	  	userId: identifiers.userId, 
-	  });
+	  await this.cartRepository.delete(guestCart.id);
 
 	  return userCart;
 	}
@@ -78,8 +69,8 @@ export class CartService {
 	      noIdentifierProvided();
 	      return;
     	}
-		dto  = { ...dto, quantity: 1, cartId: cart?.id};
 		}
+		dto  = { ...dto, cartId: cart.id};
 		return await this.itemJunctionRepository.create(dto);	
 	}
 
@@ -112,7 +103,7 @@ export class CartService {
 		return await this.cartRepository.createGuestCart(guestToken);	
 	}
 
-	async getCart(identifiers: ICartIdentifier): Promise<Cart | null> {
-		return await this.cartRepository.getCart(identifiers);
-	}
+	// async getCart(identifiers: ICartIdentifier): Promise<Cart | null> {
+	// 	return await this.cartRepository.getCart(identifiers);
+	// }
 }

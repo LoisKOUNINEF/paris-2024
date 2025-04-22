@@ -6,20 +6,22 @@ import { Column, Entity, Index } from 'typeorm';
 @Entity()
 export class Cart extends BaseEntity implements ICartEntity {
   @Column({ 
-    type: 'text',
+    type: 'uuid',
     nullable: true,
     name: 'guest_token'
   })
+  // @Unique('UQ_cart_guest', ['guest_token'])
   @Index('IDX_cart_guest_token')
   @ApiProperty()
-  guestToken: string;
+  guestToken: string | null;
 
   @Column({ 
-    type: 'text',
+    type: 'uuid',
     nullable: true,
     name: 'user_id'
   })
+  // @Unique('UQ_cart_user', ['user_id'])
   @Index('IDX_cart_user_id')
   @ApiProperty()
-  userId: string;
+  userId: string | null;
 }

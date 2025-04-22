@@ -14,32 +14,37 @@ export class CartRepository {
   ) {}
 
   async getCart(identifier: ICartIdentifier): Promise<Cart | null> {
-
-    if (!identifier.userId && !identifier.guestToken) {
-      noIdentifierProvided();
-      return null;
-    }
-
     if (identifier.userId) {
       const userCart = await this.getUserCart(identifier.userId)
       if (userCart) {
         return userCart;
+      } else {
+        return this.createUserCart(identifier.userId);
       }
     }
 
     if (identifier.guestToken) {
-      return this.getGuestCart(identifier.guestToken);
+      return await this.getGuestCart(identifier.guestToken);
     }
 
+    noIdentifierProvided();
     return null;
   }
 
   async createGuestCart(guestToken: string): Promise<Cart> {
+    const alreadyExists = await this.getGuestCart(guestToken);
+    if (alreadyExists) {
+      return alreadyExists;
+    };
     const cart = this.cartRepository.create({ guestToken });
     return this.cartRepository.save(cart);
   }
 
   async createUserCart(userId: string): Promise<Cart> {
+    const alreadyExists = await this.getUserCart(userId);
+    if (alreadyExists) {
+      return alreadyExists;
+    }
     const cart = this.cartRepository.create({ userId });
     return this.cartRepository.save(cart);
   }
@@ -73,5 +78,9 @@ export class CartRepository {
 
     await this.cartRepository.save(Object.assign(cart, cartDto));
     return cart;
+  }
+
+  async delete(id: string) {
+    return await this.cartRepository.delete(id);
   }
 }

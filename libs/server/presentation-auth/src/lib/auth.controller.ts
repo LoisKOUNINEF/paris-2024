@@ -1,17 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Body, Controller, Get, HttpException, HttpStatus, Post, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Request, UseGuards, Headers } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UserService } from "@paris-2024/server-business-logic-user";
 import { CreateUserDto, LoginDto, User } from "@paris-2024/server-data-access-user";
 import { AuthenticatedGuard, Admin, Staff } from '@paris-2024/server-business-logic-guards';
 import { LocalAuthGuard } from '@paris-2024/server-security-guards';
 import { RequestWithUser } from "@paris-2024/server-base-entity";
+import { CartService } from "@paris-2024/server-business-logic-cart";
 
 @ApiTags('auth')
 @ApiInternalServerErrorResponse()
 @Controller('auth')
 export class AuthController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService, 
+    private cartService: CartService,
+  ) {}
 
   @Post('signup')
   @ApiCreatedResponse({
@@ -23,7 +27,10 @@ export class AuthController {
     description: 'Json structure for User object',
   })
   @ApiBadRequestResponse()
-  createUser(@Body() userDto: CreateUserDto): Promise<User | undefined> {
+  createUser(
+    @Body() userDto: CreateUserDto,
+    @Headers('x-guest-token') guestToken: string,
+    ): Promise<User | undefined> {
     return this.userService.create(userDto, false);
   }
 
@@ -32,12 +39,19 @@ export class AuthController {
   @ApiBody({
     type: LoginDto,
   })
-	login(@Request() req: RequestWithUser, err?: Error) {
+	async login(
+    @Request() req: RequestWithUser, 
+    @Headers('x-guest-token') guestToken: string,
+    err?: Error
+  ) {
     if (!req.user) {
     	throw new HttpException('Login failed', HttpStatus.UNAUTHORIZED);
     }
     if (err) {
       return err.message;
+    }
+    if (req.user.id){
+      await this.cartService.mergeGuestCartWithUserCart({ userId: req.user?.id, guestToken })
     }
     return { message: 'Login successful', user: req.user };
 	}
