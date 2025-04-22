@@ -1,6 +1,8 @@
 import { 
   Component, 
+  ElementRef, 
   EventEmitter, 
+  HostListener, 
   Input, 
   Output 
 } from '@angular/core';
@@ -13,7 +15,7 @@ import { Router } from '@angular/router';
   styleUrl: './route-button.component.scss',
 })
 export class RouteButtonComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private elRef: ElementRef) {}
 
   @Input() content = '';
   @Input() path = '';
@@ -22,5 +24,11 @@ export class RouteButtonComponent {
   goToPage(): void {
     this.router.navigate([this.path]);
     this.buttonClicked.emit();
+  }
+
+  @HostListener('keydown.enter')
+  @HostListener('keydown.space')
+  handleKeydown() {
+    this.elRef.nativeElement.querySelector('button')?.click();
   }
 }
