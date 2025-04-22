@@ -60,6 +60,15 @@ form {
   @include mixins.form;
 }
 
+button:disabled {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+  a {
+    cursor: not-allowed !important;
+  }
+}
+
 // Angular Material
 // snackbar
 .error-snackbar {
