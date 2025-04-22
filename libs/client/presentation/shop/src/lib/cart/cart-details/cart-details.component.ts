@@ -3,11 +3,12 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { Cart, CartService } from '@paris-2024/client-data-access-cart';
 import { OrderService } from '@paris-2024/client-data-access-order';
-import { FormatPricePipe, GuestTokenService, SortArrayPipe } from '@paris-2024/client-utils';
+import { FormatPricePipe, GuestTokenService } from '@paris-2024/client-utils';
 import { Subscription } from 'rxjs';
-import { AddToCartComponent } from '../add-to-cart/add-to-cart.component';
-import { ICartBundles } from '@paris-2024/shared-interfaces';
+import { ModifyQuantityComponent } from '../modify-quantity/modify-quantity.component';
+import { IItemJunctionModel } from '@paris-2024/shared-interfaces';
 import { Router } from '@angular/router';
+import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
 
 @Component({
   selector: 'lib-cart-details',
@@ -15,14 +16,14 @@ import { Router } from '@angular/router';
   imports: [
     CurrencyPipe, 
     FormatPricePipe, 
-    SortArrayPipe,
-    AddToCartComponent,
+    ModifyQuantityComponent,
+    RouteButtonComponent
   ],
   templateUrl: './cart-details.component.html',
   styleUrl: './cart-details.component.scss',
 })
 export class CartDetailsComponent implements OnInit, OnDestroy {
-  cart!: Cart;
+  cart: Cart;
   initialSubscription: Subscription = new Subscription;
   updateSubscription: Subscription = new Subscription;
   removeSubscription: Subscription = new Subscription;
@@ -54,8 +55,8 @@ export class CartDetailsComponent implements OnInit, OnDestroy {
   }
 
   totalPrice() {
-    return this.cart.bundles.reduce((acc: any, bundle: ICartBundles) => {
-      return (acc += (bundle.quantity * bundle.bundle.price));
+    return this.cart.bundles.reduce((acc: any, bundle: IItemJunctionModel) => {
+      return (acc += (bundle.quantity * bundle.price));
     }, 0);
   }
 
@@ -67,7 +68,7 @@ export class CartDetailsComponent implements OnInit, OnDestroy {
   }
 
   checkoutDisabled(): boolean {
-    if (this.cart && this.cart.bundles.length === 1) {
+    if (this.cart && this.cart.bundles.length < 1) {
       return true;
     }
     return false;

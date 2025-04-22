@@ -24,17 +24,19 @@
 @mixin tableStyle {
 	table {
 	  border-collapse: collapse;
+	  table-layout: fixed;
 	  width: 100%;
 	}
 	th, td {
-	  border: 1px solid $accent-green;
 	  padding: 1rem;
 	}
+
 	th {
 	  background-color: rgba($primary-color, .5);
 	}
-	tr:nth-child(even) {
-	  background-color: $background-light;
+
+	td {
+	  border: 1px solid $accent-green;
 	}
 }
 

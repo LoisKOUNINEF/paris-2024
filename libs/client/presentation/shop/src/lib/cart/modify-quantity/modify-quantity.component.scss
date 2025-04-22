@@ -1,0 +1,61 @@
+@use "mixins";
+@use "functions";
+@use "variables" as *;
+
+.container {
+	@include mixins.flexCenter;
+	justify-content: left;
+	@include mixins.mobile {
+		justify-content: center;
+		align-items: center;
+	}
+}
+
+.button {
+	justify-self: center;
+	align-self: center;
+	background-color: $accent-green;
+	color: $background-light;
+	border-radius: 1em;
+	border: 1px solid $accent-green;
+	padding: .2em;
+	font-size: functions.font-size(medium);
+	font-weight: bold;
+	margin-left: functions.margin(smallest);
+	transition: all 0.5s ease-out;
+	&:hover {
+		background-color: $accent-yellow;
+		color: $text-color;
+	}
+
+	@include mixins.mobile {
+		font-size: functions.font-size(small);
+		font-weight: normal;
+	}
+}
+
+.quantity-button {
+  padding: functions.padding(smallest);
+  font-size: functions.font-size(medium);
+  width: 3rem;
+  height: 3rem;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.update {
+	font-size: 1rem;
+	font-style: none;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
