@@ -7,7 +7,7 @@ import { Order } from './order.model';
   providedIn: 'root'
 })
 export class OrderService {
-  private readonly orderUrl: string = '/order';
+  private readonly orderUrl: string = '/orders';
 
   constructor(private apiRequestService: ApiRequestService) { }
 
