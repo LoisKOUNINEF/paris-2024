@@ -23,7 +23,7 @@ export const passwordResetRoutes: Routes = [
 				component: PasswordResetLinkSentComponent,
 			},
 			{
-				path: 'reset-password', 
+				path: 'reset-password/:token', 
 				title: 'Reset password',
 				component: ResetPasswordComponent,
 			},

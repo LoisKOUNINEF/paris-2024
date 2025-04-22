@@ -13,7 +13,7 @@ export class PasswordResetMailerService {
   public async sendResetLink(pwdReset: PasswordReset) {
     const email = pwdReset.email;
     const token = pwdReset.id;
-    const url = `${this.mailerParams.mainUrl}/reset-password/${token}`;
+    const url = `${this.mailerParams.mainUrl}/password-reset/reset-password/${token}`;
 
     return await this.mailerService.sendMail({
       to: pwdReset.email,
