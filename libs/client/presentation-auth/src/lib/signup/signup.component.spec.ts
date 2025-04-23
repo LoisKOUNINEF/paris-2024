@@ -8,7 +8,6 @@ import { FullUserFormComponent } from '@paris-2024/client-ui-forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarService } from '@paris-2024/client-utils';
 
-
 describe('SignupComponent', () => {
   let component: SignupComponent;
   let fixture: ComponentFixture<SignupComponent>;

@@ -1,0 +1,27 @@
+<div [formGroup]="emailForm">
+	<mat-form-field class="form-class">
+		<label for="email" class="label">
+			E-Mail
+		</label>
+		<input 
+			matInput
+			name="email"
+			type="email" 
+			id="email" 
+			placeholder="E-Mail" 
+			class="form-input" 
+			formControlName=email
+			autofocus
+			required
+		>
+		@if(
+			emailForm.controls['email'].touched 
+			&& (emailForm.controls['email'].hasError('required') 
+			|| emailForm.controls['email'].invalid)
+		) {
+			<mat-error class="error-message">
+				Email requis.
+			</mat-error>
+		}
+	</mat-form-field>
+</div>

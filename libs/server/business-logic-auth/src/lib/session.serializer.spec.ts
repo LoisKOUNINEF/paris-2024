@@ -51,5 +51,15 @@ describe('SessionSerializer', () => {
         done();
       });
     });
+
+    it('should handle payload with id as number', (done) => {
+      const payload = { id: 123 };
+
+      serializer.deserializeUser(payload as unknown as UserSession, (err, deserializedUser) => {
+        expect(err).toBeNull();
+        expect(deserializedUser).toEqual(payload);
+        done();
+      });
+    });
   });
 });

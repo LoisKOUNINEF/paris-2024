@@ -28,7 +28,6 @@ describe('PasswordResetExpirationService', () => {
     service = module.get<PasswordResetExpirationService>(PasswordResetExpirationService);
     
     loggerSpy = jest.spyOn(Logger.prototype, 'log');
-    
     jest.clearAllMocks();
   });
 
