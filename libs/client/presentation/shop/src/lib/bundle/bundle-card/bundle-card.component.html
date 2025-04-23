@@ -1,0 +1,11 @@
+<div>
+	<div>
+		{{ bundle.name }}
+	</div>
+	<div>
+		Nombre de tickets: {{ bundle.ticketAmount }}
+	</div>
+	<div>
+		{{ bundle.price | formatPrice  | currency }}
+	</div>
+</div>

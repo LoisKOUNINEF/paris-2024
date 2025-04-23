@@ -5,47 +5,54 @@ import {
   Column,
   Entity,
   Generated,
+  Index,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { IsEmail, Matches } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import { Roles, IUser } from '@paris-2024/shared-interfaces';
+import { Roles, IUserEntity } from '@paris-2024/shared-interfaces';
 import { BaseEntity } from '@paris-2024/server-base-entity';
-
-export const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{10}$/;
+import { passwordRegex } from '@paris-2024/shared-utils';
 
 @Entity()
-export class User extends BaseEntity implements IUser {
+export class User extends BaseEntity implements IUserEntity {
   @Column({
     type: 'text',
-    select: false 
+    select: false,
+    name: 'secret_key'
   })
   @Generated('uuid')
   @Exclude({ toPlainOnly: true })
   @ApiProperty()
   secretKey: string;
-
-  @Column({ type: 'text' })
+  @Column({ 
+    type: 'text',
+    name: 'first_name' 
+  })
   @ApiProperty()
   firstName: string;
 
-  @Column({ type: 'text' })
+  @Column({ 
+    type: 'text',
+    name: 'last_name'
+  })
   @ApiProperty()
   lastName: string;
 
   @Column({
     type: 'text',
-    unique: true 
+    unique: true,
+    name: 'email'
   })
+  @Index('IDX_user_email')
   @IsEmail()
   @ApiProperty()
   email: string;
 
-  @Column({ type: 'text' })
-  /*
-  ensures a minimum length of 10 characters 
-  and at least 1 special character, 1 number, 1 lowercase & 1 uppercase.
-  */
+  @Column({ 
+    type: 'text',
+    name: 'password'
+  })
   @Matches(passwordRegex)
   @Exclude({ toPlainOnly: true })
   @ApiProperty({ 
@@ -58,6 +65,7 @@ export class User extends BaseEntity implements IUser {
     type: 'enum',
     enum: Roles,
     default: Roles.CUSTOMER,
+    name: 'role'
   })
   @ApiProperty({
     type: 'enum',
@@ -68,19 +76,24 @@ export class User extends BaseEntity implements IUser {
 
   @Column({ 
     type: 'text',
-    default: 'cartId'
+    default: 'cart_id',
+    name: 'cart_id'
    })
   @ApiProperty()
   cartId: string;
 
   @Column({ 
     type: 'boolean',
-    default: false
+    default: false,
+    name: 'is_anonymized'
    })
   @ApiProperty()
   isAnonymized: boolean;
 
-  @Column({ type: 'timestamptz' })
+  @Column({ 
+    type: 'timestamptz',
+    name: 'last_login_at' 
+  })
   @ApiProperty()
   lastLoginAt: Date;
 

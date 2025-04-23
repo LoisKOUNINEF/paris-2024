@@ -88,3 +88,7 @@ nav svg {
 	left: 0;
 	z-index: 9;
 }
+
+.route-button {
+	@include mixins.routeButton;
+}

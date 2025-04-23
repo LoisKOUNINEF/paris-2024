@@ -1,0 +1,11 @@
+<main class="payment-form">
+  <div id="card-element" class="card-element"></div>
+  <button 
+    (click)="createPaymentIntent(amount)"
+    class=""
+  >Payer {{ amount | formatPrice | currency:'symbol':'€':'1.2-2' }}
+  </button>
+  @if(error) {
+ 	  <div class="error">{{ error }}</div>
+	}
+</main>

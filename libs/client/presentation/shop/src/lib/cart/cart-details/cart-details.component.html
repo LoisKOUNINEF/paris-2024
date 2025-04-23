@@ -1,0 +1,56 @@
+<main class="grid">
+	@if(cart.bundles.length > 0) {
+	<table>
+		<tbody>
+			<tr>
+				<th>Offre</th>
+				<th>Prix</th>
+				<th>Quantité</th>
+				<th>Sous Total</th>
+			</tr>
+			@for (bundle of cart.bundles; track bundle) {
+				<tr>
+					<td>{{ bundle.name }}</td>
+					<td>{{ bundle.price | formatPrice | currency:'symbol':'€':'1.2-2' }}</td>
+					<td class="quantity">
+						{{ bundle.quantity }}
+						<lib-modify-quantity
+							[quantity]="bundle.quantity"
+							bundleId={{bundle.id}}
+						></lib-modify-quantity>
+					</td>
+					<td>
+						Sous-total: {{ (bundle.price * bundle.quantity) | formatPrice | currency:'symbol':'€':'1.2-2' }}
+					</td>
+				</tr>
+			}			
+			
+			<tr class="total">
+				<td colspan="2">Montant total</td>
+				<td>
+					{{ totalPrice() | formatPrice | currency:'symbol':'€':'1.2-2' }}
+				</td>
+				<td>
+					<button 
+						class="checkout-btn"
+						(click)=createOrder()
+						[disabled]="checkoutDisabled()"
+					>
+						Passer au paiement
+					</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+} @else {
+	<div class="cart-empty">
+		<p>
+			Votre panier est vide 🥲
+		</p>
+		<lib-route-button
+			content="A la boutique !"
+			path="/shop"
+		></lib-route-button>
+	</div>
+}
+</main>

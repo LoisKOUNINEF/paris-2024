@@ -49,7 +49,7 @@ describe('RouteButtonComponent', () => {
     component.content = 'Go to Example Page';
     fixture.detectChanges();
 
-    const buttonText = fixture.debugElement.query(By.css('a')).nativeElement.textContent;
+    const buttonText = fixture.debugElement.query(By.css('button')).nativeElement.textContent;
     expect(buttonText).toContain('Go to Example Page');
   });
 });

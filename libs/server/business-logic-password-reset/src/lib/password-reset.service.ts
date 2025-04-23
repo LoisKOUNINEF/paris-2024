@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { passwordRegex, passwordNotAppropriate, tokenNotFound, User, userNotFound, UserRepository } from '@paris-2024/server-data-access-user';
+import { passwordNotAppropriate, tokenNotFound, User, userNotFound, UserRepository } from '@paris-2024/server-data-access-user';
 import { PasswordResetRepository } from '@paris-2024/server-data-access-password-reset';
 import { PasswordResetMailerService } from '@paris-2024/server-business-logic-mailer';
+import { passwordRegex } from '@paris-2024/shared-utils';
 
 @Injectable()
 export class PasswordResetService {

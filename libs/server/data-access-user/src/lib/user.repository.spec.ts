@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User } from './user.entity';
-import { createEntityMock } from '@paris-2024/shared-utils';
+import { createEntityMock } from '@paris-2024/shared-mocks';
 import { Roles } from '@paris-2024/shared-interfaces';
 
 const { mockEntity } = createEntityMock(User);

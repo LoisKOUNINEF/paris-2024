@@ -7,7 +7,7 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "Name of library",
+      "description": "Name of library? will be prefixed with scope & type.",
       "$default": {
         "$source": "argv",
         "index": 0
@@ -32,23 +32,22 @@
       "description": "Type of the library",
       "enum": ["business-logic", "data-access", "presentation", "ui", "util", "types", "api"],
       "x-prompt": {
-        "message": "What is the type of this library?",
+        "message": "What is the type of this library? Will be prefixed with scope-type-",
         "type": "list",
         "items": [
           {"value": "business-logic", "label": "Business Logic"},
-          {"value": "data-access", "label": "Data Access"},
-          {"value": "presentation", "label": "Presentation"},
+          {"value": "presentation", "label": "presentation"},
           {"value": "ui", "label": "UI"},
+          {"value": "data-access", "label": "Data Access"},
           {"value": "util", "label": "Utility"},
           {"value": "types", "label": "Types"},
-          {"value": "api", "label": "API"}
         ]
       }
     },
     "directory": {
       "type": "string",
       "description": "A directory where the library is placed",
-      "x-prompt": "In which directory should the library be generated? Empty Defaults to 'libs/{scope}/{projectName}'"
+      "x-prompt": "In which directory should the library be generated? Empty Defaults to 'libs/{scope}/${type}/{projectName}'"
     }
   },
   "required": ["name", "scope", "type"]

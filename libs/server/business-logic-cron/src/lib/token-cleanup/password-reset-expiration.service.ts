@@ -1,21 +1,36 @@
-import { Injectable } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PasswordReset } from '@paris-2024/server-data-access-password-reset';
-import { Repository } from 'typeorm';
+import { subHours } from 'date-fns';
+import { LessThan, Repository } from 'typeorm';
 
 @Injectable()
 export class PasswordResetExpirationService {
+  private readonly logger = new Logger(PasswordResetExpirationService.name);
+
   constructor(
     @InjectRepository(PasswordReset)
     private readonly passwordResetRepository: Repository<PasswordReset>,
   ) {}
 
   @Cron(
-    new Date(Date.now() + 60 * 60 * 1000), 
-    { name: 'delete-expired-password-reset' }
+    CronExpression.EVERY_HOUR,
+    { name: 'delete-old-pwd-reset-tokens' }
   )
-  scheduleTokenDeletion(token: PasswordReset['id']) {
-    this.passwordResetRepository.delete(token);
+  async deleteExpiredTokens() {
+    const treshold = subHours(new Date(), 1);
+
+    const expired: Array<PasswordReset> = await this.passwordResetRepository.find({
+      where: { createdAt: LessThan(treshold) },
+    });
+
+    if (expired.length === 0) {
+      this.logger.log('No tokens to remove.');
+      return;
+    }
+
+    await this.passwordResetRepository.remove(expired);
+    this.logger.log('Old tokens have been removed.');
   }
 }

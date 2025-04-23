@@ -1,0 +1,9 @@
+@use "mixins";
+@use "variables" as *;
+
+.button {
+	@include mixins.routeButton;
+	background-color: $accent-green;
+	color: $background-light;
+	border: 1px solid $accent-green;
+}

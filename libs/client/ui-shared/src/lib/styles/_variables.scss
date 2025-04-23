@@ -26,14 +26,14 @@ $font-sizes: (
 	"smallest": .5em,
 	"small": .8em,
 	"medium": 1.2em,
-	"large": 1.5em,
-	"largest": 2em,
+	"large": 2em,
+	"largest": 3em,
 	"title": 5em,
 );
 
 // responsive variables
 $small: 800px!default;
-$medium: 1050px!default;
+$medium: 1100px!default;
 $large: 1200px!default;
 
 $media-small: "only screen and (max-width: #{$small})";

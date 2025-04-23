@@ -60,6 +60,15 @@ form {
   @include mixins.form;
 }
 
+button:disabled {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+  a {
+    cursor: not-allowed !important;
+  }
+}
+
 // Angular Material
 // snackbar
 .error-snackbar {
@@ -86,6 +95,16 @@ form {
   .mat-simple-snackbar-action {
     color: white;
   }
+}
+
+.snackbar-success {
+  background-color: $accent-green;
+  color: $background-light;
+}
+
+.snackbar-info {
+  background-color: $primary-color;
+  color: $background-light;
 }
 
 // Mat Form 

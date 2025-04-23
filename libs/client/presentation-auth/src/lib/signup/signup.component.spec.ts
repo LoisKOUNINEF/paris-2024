@@ -5,12 +5,16 @@ import { AuthService } from '@paris-2024/client-data-access-auth';
 import { UserDto, User } from '@paris-2024/client-data-access-user';
 import { SignupComponent } from './signup.component';
 import { FullUserFormComponent } from '@paris-2024/client-ui-forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarService } from '@paris-2024/client-utils';
 
 describe('SignupComponent', () => {
   let component: SignupComponent;
   let fixture: ComponentFixture<SignupComponent>;
   let authServiceMock: any;
   let routerMock: any;
+  let snackbarMock: jest.Mocked<MatSnackBar>;
+  let snackbarServiceMock: any;
 
   beforeEach(() => {
     authServiceMock = {
@@ -22,11 +26,23 @@ describe('SignupComponent', () => {
       navigate: jest.fn(),
     };
 
+    snackbarServiceMock = {
+      showSuccess: jest.fn(() => ({
+        afterDismissed: () => of({ dismissedByAction: false })
+      })),
+    };
+
+    snackbarMock = {
+      open: jest.fn()
+    } as any;
+
     TestBed.configureTestingModule({
       imports: [FullUserFormComponent, SignupComponent],
       providers: [
         { provide: AuthService, useValue: authServiceMock },
         { provide: Router, useValue: routerMock },
+        { provide: SnackbarService, useValue: snackbarServiceMock },
+        { provide: MatSnackBar, useValue: snackbarMock },
       ],
     }).compileComponents();
 
@@ -53,8 +69,12 @@ describe('SignupComponent', () => {
     component.signup(userFormValue);
 
     expect(authServiceMock.signup).toHaveBeenCalledWith(new UserDto(userFormValue));
-    expect(authServiceMock.login).toHaveBeenCalled();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['shop']);
+    snackbarServiceMock.showSuccess('done')
+      .afterDismissed()
+      .subscribe(() => {
+        expect(authServiceMock.login).toHaveBeenCalled();
+        expect(routerMock.navigate).toHaveBeenCalledWith(['shop']);
+    })
   });
 
   it('should navigate to login on goToLogin', () => {

@@ -52,7 +52,7 @@ describe('WelcomeMailerService', () => {
       template: 'user-mailer/password-reset-mailer/password-reset-mailer',
       context: {
         email: pwdReset.email,
-        url: `${mockMailerParams.mainUrl}/#/reset-password/${pwdReset.id}`,
+        url: `${mockMailerParams.mainUrl}/password-reset/reset-password/${pwdReset.id}`,
       },
     });
 

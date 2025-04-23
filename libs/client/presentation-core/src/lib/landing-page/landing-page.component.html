@@ -2,7 +2,7 @@
 	<h1>Jeux Olympiques de Paris 2024</h1>
 	<img 
 		class="landing-image"
-		src="assets/images/flags.avif" 
+		src="assets/images/flags.avif"
 		alt="Drapeaux sur la place du Pont-Neuf, avec  la statue équestre d'Henry IV"
 	/>
 	<div class="container">
@@ -15,10 +15,17 @@
         [imagePosition]="e ? 'right' : 'left'"
 	    ></lib-landing-section>
 	  }
+	  <h2>Les Epreuves</h2>
+ 		@for (contest of contests; track contest.title; let e = $even) {
+      <lib-landing-section 
+        [section]="contest"
+        [imagePosition]="e ? 'left' : 'right'"
+	    ></lib-landing-section>
+	  }
 		<div class="shop-button">
 			<lib-route-button 
 				content="Aller à la boutique" 
-				path="shop/offers"
+				path="shop"
 			></lib-route-button>
 		</div>
 	<lib-olympic-rings></lib-olympic-rings>

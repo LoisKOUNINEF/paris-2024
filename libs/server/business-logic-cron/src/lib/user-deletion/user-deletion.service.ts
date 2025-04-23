@@ -29,7 +29,7 @@ export class UserDeletionService {
   async anonymizeDeletedAccounts() {
     const thresholdDate = subDays(new Date(), 7);
 
-    const usersToAnonymize = await this.userRepository.find({
+    const usersToAnonymize: Array<User> = await this.userRepository.find({
       where: {
         deletedAt: LessThan(thresholdDate),
         isAnonymized: false,
@@ -58,7 +58,7 @@ export class UserDeletionService {
   async softDeleteInactiveAccounts() {
     const thresholdDate = subYears(new Date(), 2);
 
-    const usersToSoftDelete = await this.userRepository.find({
+    const usersToSoftDelete: Array<User> = await this.userRepository.find({
       where: {
         lastLoginAt: LessThan(thresholdDate),
         deletedAt: undefined,
