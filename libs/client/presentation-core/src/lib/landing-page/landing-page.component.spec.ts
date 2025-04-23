@@ -36,7 +36,7 @@ describe('LandingPageComponent', () => {
     it('should render shop route button with correct properties', () => {
       const routeButton = fixture.nativeElement.querySelector('lib-route-button');
       expect(routeButton.getAttribute('content')).toBe('Aller à la boutique');
-      expect(routeButton.getAttribute('path')).toBe('shop/offers');
+      expect(routeButton.getAttribute('path')).toBe('shop');
     });
 
     it('should maintain correct structure with wrapper and container', () => {
