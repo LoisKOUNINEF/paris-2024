@@ -8,7 +8,10 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 
 import localeFr from '@angular/common/locales/fr';
 import { registerLocaleData } from '@angular/common';
+import { provideNgxStripe } from 'ngx-stripe';
 registerLocaleData(localeFr);
+
+const STRIPE_PUBLIC = 'pk_test_51RGkDRFbzLUVwZpTJzmYSedGqjGowEpNrejVRIt5tWwYTJOEkWKbugiIs8nWrjnaGFTEBCaSlPIsCeXwn8UOE4DQ00DbLPhpew';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,9 +20,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(appRoutes, withComponentInputBinding()),
     provideHttpClient(
       withFetch(),
-      withInterceptors([guestTokenInterceptor, errorInterceptor])
+      withInterceptors([errorInterceptor, guestTokenInterceptor])
     ),
-    provideAnimations(), 
+    provideAnimations(),
+    provideNgxStripe(STRIPE_PUBLIC), 
     {
       provide: LOCALE_ID, 
       useValue: "fr-FR" 

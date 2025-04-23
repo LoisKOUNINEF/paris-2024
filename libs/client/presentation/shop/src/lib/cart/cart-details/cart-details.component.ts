@@ -2,7 +2,6 @@ import { CurrencyPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { Cart, CartService } from '@paris-2024/client-data-access-cart';
-import { OrderService } from '@paris-2024/client-data-access-order';
 import { FormatPricePipe, GuestTokenService } from '@paris-2024/client-utils';
 import { Subscription } from 'rxjs';
 import { ModifyQuantityComponent } from '../modify-quantity/modify-quantity.component';
@@ -31,7 +30,6 @@ export class CartDetailsComponent implements OnInit, OnDestroy {
 
   constructor(
     private cartService: CartService,
-    private orderService: OrderService,
     private guestTokenService: GuestTokenService,
     private authService: AuthService,
     private router: Router,
@@ -55,7 +53,7 @@ export class CartDetailsComponent implements OnInit, OnDestroy {
   }
 
   totalPrice() {
-    return this.cart.bundles.reduce((acc: any, bundle: IItemJunctionModel) => {
+    return this.cart.bundles.reduce((acc: number, bundle: IItemJunctionModel) => {
       return (acc += (bundle.quantity * bundle.price));
     }, 0);
   }
@@ -63,8 +61,12 @@ export class CartDetailsComponent implements OnInit, OnDestroy {
   createOrder() { 
     if (this.guestTokenService.getGuestToken()) {
       this.router.navigate(['auth/login']);
-    }
-    this.orderService.newOrder().subscribe();
+      return;
+    }      
+    const totalPrice = this.totalPrice();
+    this.router.navigate(['shop/checkout'], {
+      queryParams: { total: totalPrice }
+    })
   }
 
   checkoutDisabled(): boolean {
