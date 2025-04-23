@@ -17,6 +17,7 @@ import { PresentationCartModule } from '@paris-2024/server-presentation-cart';
 import { PresentationBundleModule } from '@paris-2024/server-presentation-bundle';
 import { PresentationTicketModule } from '@paris-2024/server-presentation-ticket';
 import { PresentationOrderModule } from '@paris-2024/server-presentation-order';
+import { StripeModule } from '@paris-2024/server-business-logic-stripe';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { PresentationOrderModule } from '@paris-2024/server-presentation-order';
       inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),
+    StripeModule.forRootAsync(),
     BusinessLogicCronModule,
     PresentationAuthModule,
     PresentationPasswordResetModule,

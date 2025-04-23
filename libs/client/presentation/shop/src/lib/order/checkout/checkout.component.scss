@@ -1,0 +1,18 @@
+@use "mixins";
+
+h2 {
+	@include mixins.formTitle;
+	min-width: 50%;
+	@include mixins.mobile {
+		width: 100%;
+	}
+}
+
+.container {
+	@include mixins.flexCenter;
+	@include mixins.form;
+	min-height: 50%;
+	max-height: 100%;
+	min-width: 50%;
+	max-width: 100%;
+}

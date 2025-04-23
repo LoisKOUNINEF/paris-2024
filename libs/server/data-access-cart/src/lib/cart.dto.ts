@@ -2,10 +2,10 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 
 export class CartDto {
   @ApiProperty()
-  guestToken?: string;
+  guestToken?: string | null;
 
   @ApiProperty()
-  userId?: string;
+  userId?: string | null;
 }
 
 export class UpdateCartDto extends PartialType(CartDto) { }

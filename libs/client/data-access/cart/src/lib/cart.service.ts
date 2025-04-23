@@ -18,15 +18,10 @@ export class CartService {
   }
 
   addToCart(dto: CartDto): Observable<Cart> {
-    return this.apiRequestService.post<Cart>(this.addToCartUrl, dto)
+    return this.apiRequestService.post<Cart>(this.addToCartUrl, dto);
   }
 
-// No API endpoints yet
-  // removeFromCart(bundleId: string): Observable<Cart> {
-  //   return this.apiRequestService.delete<Cart>(`${this.handleCartUrl}/${bundleId}`)
-  // }
-
-  // emptyCart(): Observable<Cart> {
-  //   return this.apiRequestService.delete<Cart>(this.emptyCartUrl)
-  // }
+  updateQuantity(dto: CartDto): Observable<Cart> {
+    return this.apiRequestService.patch<Cart>(this.addToCartUrl, dto);
+  }
 }

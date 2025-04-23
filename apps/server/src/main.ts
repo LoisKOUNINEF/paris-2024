@@ -8,6 +8,7 @@ import session from 'express-session';
 import passport from 'passport';
 import pgSession from 'connect-pg-simple';
 import pg from 'pg';
+import * as bodyParser from 'body-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { getEnvValue } from '@paris-2024/server-utils';
 import { OriginGuard } from '@paris-2024/server-security-guards';
@@ -16,6 +17,9 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule,{
     logger: ['error', 'warn', 'debug'],
   });
+
+  app.use(bodyParser.json({ limit: '10mb' }));
+  app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
   const isProduction = process.env.NODE_ENV === 'production';
 

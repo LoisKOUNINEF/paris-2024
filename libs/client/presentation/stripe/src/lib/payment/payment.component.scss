@@ -1,0 +1,45 @@
+@use "mixins";
+@use "functions";
+@use "variables" as *;
+
+button {
+	@include mixins.routeButton;
+	font-size: functions.font-size(large);
+	background-color: $accent-green;
+	min-width: 30%;
+	margin-top: functions.margin(medium);
+	padding: functions.padding(small);
+	@include mixins.mobile {
+		width: 70vw;
+		font-size: functions.font-size(medium);
+	}
+}
+
+.payment-form {
+	@include mixins.flexCenter;
+	flex-direction: column;
+	padding-top: functions.padding(largest);
+	width: 50vw;
+	height: 50vh;
+	@include mixins.mobile {
+		width: 90vw;
+	}
+	@include mixins.mediumScreen {
+		width: 90vw;
+	}
+}
+
+.card-element {
+	display: block;
+	padding: functions.padding(medium);
+	margin: functions.margin(large);
+	font-weight: bold;
+	border: 1px solid $primary-color;
+	border-radius: 1em;
+	background-color: rgba($primary-color, .2);
+	min-width: 60%;
+	max-width: 100%;
+	@include mixins.mobile {
+		width: 100%;
+	}
+}

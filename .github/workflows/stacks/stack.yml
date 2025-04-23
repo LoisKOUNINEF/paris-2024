@@ -12,9 +12,8 @@ services:
       DB_USER_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_user
       DB_PASSWORD_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_password
       DB_NAME_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_db_name
+      STRIPE_SECRET_KEY_FILE: /run/secrets/stripe_secret_key
       SESSION_SECRET_FILE: /run/secrets/${PROJECT_LOWER}_${STACK_NAME}_session_secret
-      SENDGRID_KEY_FILE: /run/secrets/sendgrid_key
-      SENDGRID_SENDER_FILE: /run/secrets/sendgrid_sender
       ADMIN_EMAIL_FILE: /run/secrets/admin_email
       SMTP_HOST_FILE: /run/secrets/smtp_host
     healthcheck:
@@ -53,8 +52,7 @@ services:
       - ${PROJECT_LOWER}_${STACK_NAME}_db_password
       - ${PROJECT_LOWER}_${STACK_NAME}_db_name
       - ${PROJECT_LOWER}_${STACK_NAME}_session_secret
-      - sendgrid_key
-      - sendgrid_sender
+      - stripe_secret_key
       - admin_email
 
   ${PROJECT_LOWER}-${STACK_NAME}-migrations:
@@ -170,9 +168,7 @@ secrets:
     external: true
   ${PROJECT_LOWER}_${STACK_NAME}_session_secret:
     external: true
-  sendgrid_key:
-    external: true
-  sendgrid_sender:
+  stripe_secret_key:
     external: true
   admin_email:
     external: true

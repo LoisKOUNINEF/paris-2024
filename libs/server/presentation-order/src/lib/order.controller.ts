@@ -21,7 +21,7 @@ export class OrderController {
     return this.orderService.getAll();
   }
 
-  @Get('user-order')
+  @Get('user-orders')
   @Owner(true)
   @ApiOkResponse({
     type: Order,

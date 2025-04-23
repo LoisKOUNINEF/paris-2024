@@ -1,5 +1,4 @@
-@if (loading) {
-	<lib-loading-spinner></lib-loading-spinner>
-} 
+<lib-loading-spinner *ngIf="loading"></lib-loading-spinner>
+
 <lib-navbar></lib-navbar>
 <router-outlet></router-outlet>

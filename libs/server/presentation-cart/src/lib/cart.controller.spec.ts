@@ -47,16 +47,12 @@ describe('CartController', () => {
     bundles: [
       {
         quantity: 2,
-        bundle: {
+        junction: 'junctionId',
           id: 'bundle-1',
           name: 'Test Bundle',
           price: 100,
-          ticketAmount: 2,
-          isAvailable: true,
-			    createdAt: new Date(),
-			    updatedAt: new Date(),
-			    deletedAt: null,
-        }
+          amount: 2,
+        
       }
     ]
   };

@@ -1,5 +1,4 @@
 import { IBase } from "./base.interface";
-import { IBundle } from "./bundle.interface";
 
 export interface IItemJunction extends IBase {
   quantity: number;
@@ -11,6 +10,11 @@ export interface IItemJunctionEntity extends IItemJunction {
   orderId?: string;
 }
 
-export interface IItemJunctionModel extends IItemJunction {
-  bundle: IBundle;
+export interface IItemJunctionModel {
+  junction: string,
+  quantity: number;
+  name: string;
+  id: string;
+  amount: number;
+  price: number;
 }

@@ -30,13 +30,13 @@ export class OnOrderMailerService {
     return await this.mailerService.sendMail({
       to: params.email,
       subject: 'Merci pour votre commande !',
-      template: 'shop-mailer/send-tickets-mailer/send-tickets-mailer',
+      template: 'shop-mailer/on-order-mailer/on-order-mailer',
       context: context,
     });
   }
 
   private async parseParams(params: OnOrderMailParams): Promise<OnOrderMailContext> {
-    const orderDetailsUrl = `${this.mailerParams.mainUrl}/shop/orders/${params.orderId}`;
+    const orderDetailsUrl = `${this.mailerParams.mainUrl}/shop/orders/order/${params.orderId}`;
     const qrCodes: Array<SafeString> = [];
 
     for (const qrCode of params.qrCodes) {
