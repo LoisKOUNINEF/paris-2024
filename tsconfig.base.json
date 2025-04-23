@@ -66,6 +66,9 @@
       "@paris-2024/client-presentation-shop": [
         "libs/client/presentation/shop/src/index.ts"
       ],
+      "@paris-2024/client-presentation-stripe": [
+        "libs/client/presentation/stripe/src/index.ts"
+      ],
       "@paris-2024/client-ui-form-building-blocks": [
         "libs/client/ui-form-building-blocks/src/index.ts"
       ],
@@ -103,6 +106,9 @@
       ],
       "@paris-2024/server-business-logic-password-reset": [
         "libs/server/business-logic-password-reset/src/index.ts"
+      ],
+      "@paris-2024/server-business-logic-stripe": [
+        "libs/server/business-logic/stripe/src/index.ts"
       ],
       "@paris-2024/server-business-logic-ticket": [
         "libs/server/business-logic-ticket/src/index.ts"

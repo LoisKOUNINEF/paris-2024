@@ -30,13 +30,13 @@
     "type": {
       "type": "string",
       "description": "Type of the library",
-      "enum": ["business-logic", "data-access", "feature", "ui", "util", "types", "api"],
+      "enum": ["business-logic", "data-access", "presentation", "ui", "util", "types", "api"],
       "x-prompt": {
-        "message": "What is the type of this library?",
+        "message": "What is the type of this library? Will be prefixed with scope-type-",
         "type": "list",
         "items": [
           {"value": "business-logic", "label": "Business Logic"},
-          {"value": "feature", "label": "Feature"},
+          {"value": "presentation", "label": "presentation"},
           {"value": "ui", "label": "UI"},
           {"value": "data-access", "label": "Data Access"},
           {"value": "util", "label": "Utility"},
