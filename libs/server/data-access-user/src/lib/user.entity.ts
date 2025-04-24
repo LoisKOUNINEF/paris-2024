@@ -25,6 +25,7 @@ export class User extends BaseEntity implements IUserEntity {
   @Exclude({ toPlainOnly: true })
   @ApiProperty()
   secretKey: string;
+  
   @Column({ 
     type: 'text',
     name: 'first_name' 
