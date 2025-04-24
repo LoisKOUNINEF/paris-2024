@@ -42,7 +42,7 @@ export class CartDetailsComponent implements OnDestroy, OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.cartService.findUserCart()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((cart: Cart) => this.cart = cart);      
+      .subscribe((cart: Cart) => this.cart = cart);   
   }
 
   ngOnDestroy(): void {
