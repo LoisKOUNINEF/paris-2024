@@ -1,9 +1,9 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, OnDestroy, AfterViewInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { Cart, CartService } from '@paris-2024/client-data-access-cart';
 import { FormatPricePipe, GuestTokenService } from '@paris-2024/client-utils';
-import { Subscription } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { ModifyQuantityComponent } from '../modify-quantity/modify-quantity.component';
 import { IItemJunctionModel } from '@paris-2024/shared-interfaces';
 import { Router } from '@angular/router';
@@ -21,34 +21,30 @@ import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
   templateUrl: './cart-details.component.html',
   styleUrl: './cart-details.component.scss',
 })
-export class CartDetailsComponent implements AfterViewInit, OnDestroy {
+export class CartDetailsComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   cart: Cart;
-  initialSubscription: Subscription = new Subscription;
-  updateSubscription: Subscription = new Subscription;
-  removeSubscription: Subscription = new Subscription;
-  subscriptions: Array<Subscription> = [];
 
   constructor(
     private cartService: CartService,
     private guestTokenService: GuestTokenService,
     private authService: AuthService,
     private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     if (!this.authService.isAuth()) {
       this.guestTokenService.getOrCreateGuestToken();
     }
     this.cartService.findUserCart()
-      .subscribe((cart: Cart) => {
-        this.cart = cart;
-    });
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((cart: Cart) => this.cart = cart);
   }
 
   ngOnDestroy(): void {
-    for (const subscription of this.subscriptions) {
-      subscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   totalPrice() {
@@ -74,5 +70,20 @@ export class CartDetailsComponent implements AfterViewInit, OnDestroy {
     }
     return false;
   }
+
+  onQuantityChange(bundleId: string, newQuantity: number) {
+    const index = this.cart.bundles.findIndex(b => b.id === bundleId);
+
+    if (index !== -1) {
+      if (newQuantity === 0) {
+        this.cart.bundles.splice(index, 1);
+        this.cart.bundles = [...this.cart.bundles];
+      } else {
+        this.cart.bundles[index].quantity = newQuantity;
+      }
+    }
+    this.cdr.markForCheck()
+  }
+
 
 }
