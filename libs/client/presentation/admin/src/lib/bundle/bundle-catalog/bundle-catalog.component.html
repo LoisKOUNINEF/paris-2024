@@ -1,0 +1,27 @@
+<main class="grid">
+	<table>
+		<tbody>
+			<tr>
+				<th>Offre</th>
+				<th>Prix</th>
+				<th>Nombre de ventes</th>
+			</tr>
+			@for (bundle of bundles; track bundle) {
+				<tr>
+					<td>{{ bundle.bundle.name }}</td>
+					<td>
+						{{ bundle.bundle.price | formatPrice | currency:'symbol':'€':'1.2-2' }}
+					</td>
+					<td>
+						{{ bundle.sales }}
+					</td>
+					<td>
+						<a (click)=editBundle(bundle.bundle.id)>
+							Modifier
+						</a>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</main>

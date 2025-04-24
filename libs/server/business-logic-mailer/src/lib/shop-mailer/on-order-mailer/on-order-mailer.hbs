@@ -40,21 +40,32 @@
               </tr>
 
               <tr>
-                <td align="center" style="font-family: 'Roboto', Helvetica, sans-serif; text-align: center; color: #000; mso-line-height-rule: exactly; line-height: 30px;">
+                <td align="center" style="font-family: 'Roboto', Helvetica, sans-serif; font-size:35px; text-align: center; color: #11998E; mso-line-height-rule: exactly; line-height: 25px;">
                   {{ firstName }}, <br/>
                   Voici vos tickets.<br/>
+                </td>
+              </tr>
+
+              <tr>
+                <td height="30" style="font-size:30px; line-height: 30px;">
+                  &nbsp;
+                </td>
+              </tr>
+
+              {{#each qrCodes }}
+              <tr>
+                <td align="center" style="font-family: 'Roboto', Helvetica, sans-serif; text-align: center; color: #000; mso-line-height-rule: exactly; line-height: 30px;">
                   <tr>
-                    {{#each qrCodes }}
                     <td>
                       Ticket
                     </td>
                     <td> 
                       <img src="{{ this }}" alt="qrCode">
                     </td>
-                    {{/each }}
                   </tr>
                 </td>
               </tr>
+              {{/each }}
 
               <tr>
                 <td height="30" style="font-size:30px; line-height: 30px;">

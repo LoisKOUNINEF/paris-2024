@@ -11,7 +11,7 @@ import { Admin } from '@paris-2024/server-business-logic-guards'
 export class BundleController {
   constructor(private bundleService: BundleService) {}
 
-  // @Admin(true)
+  @Admin(true)
   @Post()
   @ApiCreatedResponse({
     type: Bundle,

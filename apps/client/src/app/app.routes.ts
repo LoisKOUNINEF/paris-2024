@@ -21,6 +21,10 @@ export const appRoutes: Routes = [
 		loadChildren: () => import('@paris-2024/client-presentation-password-reset').then(m => m.passwordResetRoutes)
 	},
 	{
+		path: 'admin',
+		loadChildren: () => import('@paris-2024/client-presentation-admin').then(m => m.adminRoutes)
+	},
+	{
 		path: '**',
 		pathMatch: 'full',
 		title: '404',
