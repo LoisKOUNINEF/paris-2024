@@ -11,7 +11,6 @@ import { Subscription } from 'rxjs';
   imports: [
     BundleCardComponent,
     AddToCartComponent,
-    SortArrayPipe,
   ],
   providers: [SortArrayPipe],
   templateUrl: './bundle-catalog.component.html',

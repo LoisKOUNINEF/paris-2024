@@ -8,7 +8,7 @@
 				<th>Quantité</th>
 				<th>Sous Total</th>
 			</tr>
-			@for (bundle of cart.bundles; track bundle) {
+			@for (bundle of cart.bundles; track bundle.id) {
 				<tr>
 					<td>{{ bundle.name }}</td>
 					<td>{{ bundle.price | formatPrice | currency:'symbol':'€':'1.2-2' }}</td>
@@ -17,6 +17,7 @@
 						<lib-modify-quantity
 							[quantity]="bundle.quantity"
 							bundleId={{bundle.id}}
+							(quantityChanged)="onQuantityChange(bundle.id, $event)"
 						></lib-modify-quantity>
 					</td>
 					<td>

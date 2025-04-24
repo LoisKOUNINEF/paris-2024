@@ -1,11 +1,19 @@
-<div>
-	<div>
-		{{ bundle.name }}
-	</div>
-	<div>
-		Nombre de tickets: {{ bundle.ticketAmount }}
-	</div>
-	<div>
-		{{ bundle.price | formatPrice  | currency }}
+<div 
+	class="container"
+>
+	<div 
+		class="bundle"
+	>
+	  <div class="bundle-image">
+ 		 <h3>{{ bundle.name }}</h3>
+		</div>
+		<div class="bundle-content">
+	  	<img 
+	  		src={{imageUrl}} 
+	  		alt={{imageAlt}}
+	  	/>
+	  	<p>{{ bundle.ticketAmount }} Tickets.</p>
+	  	<p>Prix: {{ bundle.price | formatPrice | currency:'symbol':'€':'1.2-2' }}</p>
+		</div>
 	</div>
 </div>

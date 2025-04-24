@@ -1,8 +1,8 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Cart, CartDto, CartFormValue, CartService } from '@paris-2024/client-data-access-cart';
 import { SnackbarService } from '@paris-2024/client-utils';
-import { filter, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -13,6 +13,7 @@ import { filter, Subscription } from 'rxjs';
   styleUrl: './modify-quantity.component.scss',
 })
 export class ModifyQuantityComponent implements OnInit, OnDestroy {
+  @Output() quantityChanged = new EventEmitter<number>();
   subscription: Subscription = new Subscription;
   @Input({ required: true }) bundleId: string;
   @Input({ required: true }) quantity: number;
@@ -43,11 +44,13 @@ export class ModifyQuantityComponent implements OnInit, OnDestroy {
 
     const cartDto = new CartDto(dto as CartFormValue);
 
-    this.subscription = this.cartService.updateQuantity(cartDto)
-      .pipe(filter(res => !!res))
-      .subscribe((res: Cart) => {
+    this.subscription = this.cartService.updateQuantity(cartDto).subscribe({
+      next: (res: Cart) => {
+        this.quantityChanged.emit(this.quantityControl.value)
         this.snackbarService.showInfo('Quantité mise à jour.');
-      })
+      },
+      error: () => this.snackbarService.showError('Échec de la mise à jour.')
+    });
   }
 
   increaseQuantity(): void {
@@ -66,10 +69,8 @@ export class ModifyQuantityComponent implements OnInit, OnDestroy {
 
   isButtonDisabled(): boolean {
     if (this.quantityControl.value && this.quantityControl.value !== this.quantity) {
-    console.log('false')
       return false;
     }
-    console.log('true')
     return true;
   }
 
