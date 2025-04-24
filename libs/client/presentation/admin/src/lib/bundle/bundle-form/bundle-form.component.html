@@ -1,0 +1,73 @@
+<div [formGroup]=bundleForm>
+	<mat-form-field class="form-class name">
+		<label class="label">
+			Nom de l'offre
+		</label>
+		<input 
+			matInput
+			type="text" 
+			id="name" 
+			placeholder="Nom de l'offre" 
+			class="form-input" 
+			formControlName="name"
+			autofocus
+			required
+		>
+		@if(
+			bundleForm.controls['name'].touched 
+			&& bundleForm.controls['name'].hasError('required')
+		) {
+			<mat-error>
+				Nom requis.
+			</mat-error>
+		}
+	</mat-form-field>
+	<mat-form-field class="form-class price">
+		<label class="label">
+			Prix
+		</label>
+		<input 
+			matInput
+		  type="text"
+		  inputmode="numeric"
+		  pattern="^[0-9]*$"
+			id="price" 
+			class="form-input" 
+			formControlName="price"
+			required
+		>
+		@if(
+			bundleForm.controls['price'].touched 
+			&& (bundleForm.controls['price'].hasError('required') 
+			|| bundleForm.controls['price'].hasError('min')
+			|| bundleForm.controls['ticketAmount'].hasError('pattern'))
+		) {
+			<mat-error>
+				Le prix doit être supérieur à 0.
+			</mat-error>
+		}
+	</mat-form-field>
+	<mat-form-field class="form-class ticketAmount">
+		<label class="label">
+			Nombre de tickets
+		</label>
+		<input 
+			mayInput
+		  type="number"
+			id="ticketAmount"
+			class="form-input" 
+			formControlName="ticketAmount"
+			required
+		>
+		@if(
+			bundleForm.controls['ticketAmount'].touched 
+			&& (bundleForm.controls['ticketAmount'].hasError('required') 
+			|| bundleForm.controls['ticketAmount'].hasError('min')
+			|| bundleForm.controls['ticketAmount'].hasError('pattern'))
+		) {
+			<mat-error>
+				L'offre doit proposer au moins 1 ticket.
+			</mat-error>
+		}
+	</mat-form-field>
+</div>

@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, AfterViewInit } from '@angular/core';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { Cart, CartService } from '@paris-2024/client-data-access-cart';
 import { FormatPricePipe, GuestTokenService } from '@paris-2024/client-utils';
@@ -21,7 +21,7 @@ import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
   templateUrl: './cart-details.component.html',
   styleUrl: './cart-details.component.scss',
 })
-export class CartDetailsComponent implements OnInit, OnDestroy {
+export class CartDetailsComponent implements AfterViewInit, OnDestroy {
   cart: Cart;
   initialSubscription: Subscription = new Subscription;
   updateSubscription: Subscription = new Subscription;
@@ -35,15 +35,14 @@ export class CartDetailsComponent implements OnInit, OnDestroy {
     private router: Router,
   ) {}
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     if (!this.authService.isAuth()) {
       this.guestTokenService.getOrCreateGuestToken();
     }
-    this.initialSubscription = this.cartService.findUserCart()
+    this.cartService.findUserCart()
       .subscribe((cart: Cart) => {
         this.cart = cart;
     });
-    this.subscriptions.push(this.initialSubscription);
   }
 
   ngOnDestroy(): void {

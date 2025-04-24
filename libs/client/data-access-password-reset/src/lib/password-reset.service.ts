@@ -19,6 +19,6 @@ export class PasswordResetService {
 
   public resetPwd(userDto: UserDto, token: string): Observable<any> {
     return this.apiRequestService
-      .post<Partial<User>>(`${this.pwdResetUrl}?token=${token}`, userDto);
+      .post<Partial<User>>(`${this.pwdResetUrl}/${token}`, userDto);
   }
 }
