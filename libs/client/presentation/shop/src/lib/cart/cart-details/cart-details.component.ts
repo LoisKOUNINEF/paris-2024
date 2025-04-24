@@ -33,7 +33,7 @@ export class CartDetailsComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     if (!this.authService.isAuth()) {
       this.guestTokenService.getOrCreateGuestToken();
     }
