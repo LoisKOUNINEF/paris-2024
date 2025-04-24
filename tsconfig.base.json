@@ -54,6 +54,9 @@
       "@paris-2024/client-data-access-user": [
         "libs/client/data-access-user/src/index.ts"
       ],
+      "@paris-2024/client-presentation-admin": [
+        "libs/client/presentation/admin/src/index.ts"
+      ],
       "@paris-2024/client-presentation-auth": [
         "libs/client/presentation-auth/src/index.ts"
       ],
