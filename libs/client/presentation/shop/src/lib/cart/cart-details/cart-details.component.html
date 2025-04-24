@@ -1,4 +1,5 @@
 <main class="grid">
+	@if(cart) {
 	@if(cart.bundles.length > 0) {
 	<table>
 		<tbody>
@@ -43,7 +44,7 @@
 			</tr>
 		</tbody>
 	</table>
-} @else {
+}} @else {
 	<div class="cart-empty">
 		<p>
 			Votre panier est vide 🥲

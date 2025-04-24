@@ -45,6 +45,7 @@ tr:last-child td:nth-last-child(1) {
 }
 
 .cart-empty {
+	text-align: center;
 	flex-direction: column;
 	align-items: center;
 	font-size: functions.font-size(large);
