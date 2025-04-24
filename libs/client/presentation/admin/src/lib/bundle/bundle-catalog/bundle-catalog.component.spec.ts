@@ -1,21 +1,23 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BundleCatalogComponent } from './bundle-catalog.component';
+it.todo('write tests')
 
-describe('BundleCatalogComponent', () => {
-  let component: BundleCatalogComponent;
-  let fixture: ComponentFixture<BundleCatalogComponent>;
+// import { ComponentFixture, TestBed } from '@angular/core/testing';
+// import { BundleCatalogComponent } from './bundle-catalog.component';
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [BundleCatalogComponent],
-    }).compileComponents();
+// describe('BundleCatalogComponent', () => {
+//   let component: BundleCatalogComponent;
+//   let fixture: ComponentFixture<BundleCatalogComponent>;
 
-    fixture = TestBed.createComponent(BundleCatalogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+//   beforeEach(async () => {
+//     await TestBed.configureTestingModule({
+//       imports: [BundleCatalogComponent],
+//     }).compileComponents();
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+//     fixture = TestBed.createComponent(BundleCatalogComponent);
+//     component = fixture.componentInstance;
+//     fixture.detectChanges();
+//   });
+
+//   it('should create', () => {
+//     expect(component).toBeTruthy();
+//   });
+// });

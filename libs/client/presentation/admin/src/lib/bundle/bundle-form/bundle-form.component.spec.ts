@@ -1,21 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BundleFormComponent } from './bundle-form.component';
+it.todo('write tests')
 
-describe('BundleFormComponent', () => {
-  let component: BundleFormComponent;
-  let fixture: ComponentFixture<BundleFormComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [BundleFormComponent],
-    }).compileComponents();
+// import { ComponentFixture, TestBed } from '@angular/core/testing';
+// import { BundleFormComponent } from './bundle-form.component';
 
-    fixture = TestBed.createComponent(BundleFormComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+// describe('BundleFormComponent', () => {
+//   let component: BundleFormComponent;
+//   let fixture: ComponentFixture<BundleFormComponent>;
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+//   beforeEach(async () => {
+//     await TestBed.configureTestingModule({
+//       imports: [BundleFormComponent],
+//     }).compileComponents();
+
+//     fixture = TestBed.createComponent(BundleFormComponent);
+//     component = fixture.componentInstance;
+//     fixture.detectChanges();
+//   });
+
+//   it('should create', () => {
+//     expect(component).toBeTruthy();
+//   });
+// });

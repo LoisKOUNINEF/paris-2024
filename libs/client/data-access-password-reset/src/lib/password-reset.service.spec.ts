@@ -55,7 +55,7 @@ describe('PasswordResetService', () => {
         expect(response).toEqual(mockResponse);
       });
 
-      expect(apiRequestServiceMock.post).toHaveBeenCalledWith('/password-reset?token=reset-token', mockUserDto);
+      expect(apiRequestServiceMock.post).toHaveBeenCalledWith('/password-reset/reset-token', mockUserDto);
     });
   });
 });
