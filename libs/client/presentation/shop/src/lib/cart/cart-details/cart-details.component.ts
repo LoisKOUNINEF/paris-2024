@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { Cart, CartService } from '@paris-2024/client-data-access-cart';
 import { FormatPricePipe, GuestTokenService } from '@paris-2024/client-utils';
@@ -21,7 +21,7 @@ import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
   templateUrl: './cart-details.component.html',
   styleUrl: './cart-details.component.scss',
 })
-export class CartDetailsComponent implements OnInit, OnDestroy {
+export class CartDetailsComponent implements OnDestroy {
   private destroy$ = new Subject<void>();
   cart: Cart;
 
