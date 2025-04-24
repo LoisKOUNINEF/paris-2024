@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { Cart, CartService } from '@paris-2024/client-data-access-cart';
 import { FormatPricePipe, GuestTokenService } from '@paris-2024/client-utils';
@@ -21,7 +21,7 @@ import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
   templateUrl: './cart-details.component.html',
   styleUrl: './cart-details.component.scss',
 })
-export class CartDetailsComponent implements OnDestroy {
+export class CartDetailsComponent implements OnDestroy, OnInit, AfterViewInit {
   private destroy$ = new Subject<void>();
   cart: Cart;
 
@@ -33,13 +33,16 @@ export class CartDetailsComponent implements OnDestroy {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     if (!this.authService.isAuth()) {
       this.guestTokenService.getOrCreateGuestToken();
     }
+  }
+
+  ngAfterViewInit(): void {
     this.cartService.findUserCart()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((cart: Cart) => this.cart = cart);
+      .subscribe((cart: Cart) => this.cart = cart);      
   }
 
   ngOnDestroy(): void {
@@ -82,7 +85,7 @@ export class CartDetailsComponent implements OnDestroy {
         this.cart.bundles[index].quantity = newQuantity;
       }
     }
-    this.cdr.markForCheck()
+    this.cdr.markForCheck();
   }
 
 
