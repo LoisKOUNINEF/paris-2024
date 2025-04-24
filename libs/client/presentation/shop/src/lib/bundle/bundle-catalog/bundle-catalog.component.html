@@ -1,10 +1,11 @@
-<div>
-		@for(bundle of bundles; track bundle) {
+<main class="container">
+	<h2>Les Offres</h2>
+		@for(bundle of bundles; track bundle; let e = $even) {
 			<lib-bundle-card
-			 [bundle]=bundle
+			 [bundle]=bundle		 
 			></lib-bundle-card>
 			<lib-add-to-cart 
 				[bundleId]=bundle.id
 			></lib-add-to-cart>
 		}
-</div>
+</main>

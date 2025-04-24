@@ -1,0 +1,30 @@
+@use "mixins";
+@use "functions";
+@use "variables" as *;
+
+h2 {
+  text-align: center;
+  font-weight: bold;
+  padding-top: functions.padding(smallest);
+  font-size: functions.font-size(largest);
+
+  @include mixins.mobile {
+    font-size: functions.font-size(largest);
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction:column;
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+  margin: 0 auto;
+  padding: functions.padding(small);
+  max-width: 90vw;
+
+  @include mixins.mobile {
+    width: 100%;
+    max-width: 100vw; 
+  }
+}
