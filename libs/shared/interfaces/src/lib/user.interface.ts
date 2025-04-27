@@ -16,7 +16,3 @@ export interface IUser extends IBase {
   password: string;
   role: Roles;
 }
-
-export interface IUserEntity extends IUser {
-  cartId: string;
-}

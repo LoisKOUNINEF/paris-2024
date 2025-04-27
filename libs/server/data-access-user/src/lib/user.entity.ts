@@ -6,18 +6,20 @@ import {
   Entity,
   Generated,
   Index,
+  Unique,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { IsEmail, Matches } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import { Roles, IUserEntity } from '@paris-2024/shared-interfaces';
+import { Roles, IUser } from '@paris-2024/shared-interfaces';
 import { BaseEntity } from '@paris-2024/server-base-entity';
 import { passwordRegex } from '@paris-2024/shared-utils';
 
 @Entity()
-export class User extends BaseEntity implements IUserEntity {
+@Unique('UQ_user_email', ['email'])
+export class User extends BaseEntity implements IUser {
   @Column({
-    type: 'text',
+    type: 'uuid',
     select: false,
     name: 'secret_key'
   })
@@ -74,14 +76,6 @@ export class User extends BaseEntity implements IUserEntity {
     default: Roles.CUSTOMER,
   })
   role: Roles;
-
-  @Column({ 
-    type: 'text',
-    default: 'cart_id',
-    name: 'cart_id'
-   })
-  @ApiProperty()
-  cartId: string;
 
   @Column({ 
     type: 'boolean',

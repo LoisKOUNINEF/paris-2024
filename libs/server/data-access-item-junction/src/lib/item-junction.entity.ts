@@ -13,12 +13,12 @@ export class ItemJunction extends BaseEntity implements IItemJunction {
   quantity: number;
 
   @ApiProperty()
-  @Column('text', { name: 'bundle_id' })
+  @Column('uuid', { name: 'bundle_id' })
   bundleId: string;
 
   @ApiProperty()
   @Column({ 
-    type: 'text', 
+    type: 'uuid', 
     nullable: true,
     name: 'cart_id',
   })
@@ -27,7 +27,7 @@ export class ItemJunction extends BaseEntity implements IItemJunction {
 
   @ApiProperty()
   @Column({ 
-    type: 'text', 
+    type: 'uuid', 
     nullable: true,
     name: 'order_id'
   })

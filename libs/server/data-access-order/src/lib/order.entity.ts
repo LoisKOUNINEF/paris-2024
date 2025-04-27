@@ -11,6 +11,6 @@ export class Order extends BaseEntity implements IOrderEntity {
 
   @Index('IDX_order_user_id')
   @ApiProperty()
-  @Column('text', { name: 'user_id' })
+  @Column('uuid', { name: 'user_id' })
   userId: string;
 }
