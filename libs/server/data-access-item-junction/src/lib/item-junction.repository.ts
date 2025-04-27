@@ -70,7 +70,7 @@ export class ItemJunctionRepository {
       .andWhere('item_junction.order_id != null')
       .getMany();
 
-    const sales = itemJunctions.reduce((acc: any, sale: ItemJunction) => {
+    const sales = itemJunctions.reduce((acc: number, sale: ItemJunction) => {
       return acc += sale.quantity
     }, 0);
 
@@ -124,6 +124,7 @@ export class ItemJunctionRepository {
     await this.itemJunctionRepository.save(Object.assign(itemJunction, { quantity: quantity }));
     return itemJunction;
   }
+
   async mergeJunctions(
     userCartId: string,
     guestJunctions: Array<IItemJunctionModel>, 
@@ -154,35 +155,13 @@ export class ItemJunctionRepository {
       await this.delete(guestJunction.junction);
     }
   }
-  // async mergeJunctions(
-  //   userCartId: string,
-  //   guestJunctions: Array<IItemJunctionModel>, 
-  //   userJunctions: Array<IItemJunctionModel>,
-  // ): Promise<void> {
-  //   const userJunctionMap = new Map<string, IItemJunctionModel>();
-  //   userJunctions.forEach((junction: IItemJunctionModel) => {
-  //     userJunctionMap.set(junction.id, junction);
-  //   });
-    
-  //   for (const junction of guestJunctions) {
-  //     const userJunction = userJunctionMap.get(junction.id);
 
-  //     if(userJunction) {
-  //       const quantity = userJunction.quantity + junction.quantity;
-  //       const dto = {
-  //         cartId: userCartId,
-  //         quantity: quantity,
-  //       }
-  //       await this.update(userJunction.junction, dto);
-  //     }
-  //   }
-  // }
-
-  async create(dto: CreateItemJunctionDto): Promise<ItemJunction> {
+  async create(dto: CreateItemJunctionDto): Promise<ItemJunction | null> {
     if (dto.cartId) {
       const alreadyExists = await this.getOne(dto.cartId, dto.bundleId);
       if (alreadyExists) {
-        await this.updateQuantity(alreadyExists.id, dto.quantity)
+        const updatedQuantity = dto.quantity + alreadyExists.quantity;
+        return await this.updateQuantity(alreadyExists.id, updatedQuantity);
       }
     }
     

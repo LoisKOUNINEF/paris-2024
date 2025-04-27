@@ -58,7 +58,7 @@ export class CartService {
 	async addToCart(
 		identifier: ICartIdentifier, 
 		dto: CreateItemJunctionDto,
-	): Promise<ItemJunction | undefined> {
+	): Promise<ItemJunction |  null> {
 		let cart = await this.cartRepository.getCart(identifier);
 		if (!cart) {
 	    if (identifier.userId) {
@@ -67,7 +67,7 @@ export class CartService {
 	      cart = await this.cartRepository.createGuestCart(identifier.guestToken);
 	    } else {
 	      noIdentifierProvided();
-	      return;
+	      return null;
     	}
 		}
 		dto  = { ...dto, cartId: cart.id};
