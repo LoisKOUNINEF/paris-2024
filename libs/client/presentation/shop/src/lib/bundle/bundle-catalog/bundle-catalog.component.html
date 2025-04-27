@@ -1,11 +1,15 @@
 <main class="container">
 	<h2>Les Offres</h2>
 		@for(bundle of bundles; track bundle; let e = $even) {
-			<lib-bundle-card
-			 [bundle]=bundle		 
-			></lib-bundle-card>
-			<lib-add-to-cart 
-				[bundleId]=bundle.id
-			></lib-add-to-cart>
+			<div class="bundle">
+				<lib-bundle-card
+				 [bundle]=bundle
+				></lib-bundle-card>
+				<div class="bundle-button">
+					<lib-add-to-cart
+						[bundleId]=bundle.id
+					></lib-add-to-cart>
+				</div>
+			</div>
 		}
 </main>

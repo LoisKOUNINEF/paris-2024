@@ -12,7 +12,7 @@
 	  		src={{imageUrl}} 
 	  		alt={{imageAlt}}
 	  	/>
-	  	<p>{{ bundle.ticketAmount }} Tickets.</p>
+	  	<p>{{ bundle.ticketAmount }} {{ bundle.ticketAmount > 1 ? 'Tickets' : 'Ticket'}}.</p>
 	  	<p>Prix: {{ bundle.price | formatPrice | currency:'symbol':'€':'1.2-2' }}</p>
 		</div>
 	</div>
