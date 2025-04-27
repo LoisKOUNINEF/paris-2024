@@ -23,7 +23,7 @@ Migrations are generated in libs/server/data-source/src/migrations
 
 - Generate new migration `nx run server-data-source:migration-generate --name=MigrationName`
 
-- Rename Constraints (`"PK_[tablename]"`, `"UQ_[tablename]_[columnname]"`...)
+- Rename Constraints (`"PK_[tablename]"`, `"UQ_[tablename]_[columnname]"`...) if not already named in entity.ts file.
 
 - If there are relations, add constraints in migration file:
 
