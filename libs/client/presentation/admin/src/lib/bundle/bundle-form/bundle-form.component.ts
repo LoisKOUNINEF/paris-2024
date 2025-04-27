@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
   templateUrl: './bundle-form.component.html',
   styleUrl: './bundle-form.component.scss',
 })
-export class BundleFormComponent  extends CommonFormComponent implements OnInit {
+export class BundleFormComponent extends CommonFormComponent implements OnInit {
   bundleForm!: FormGroup;
 
   ngOnInit(): void {
@@ -44,4 +44,3 @@ export class BundleFormComponent  extends CommonFormComponent implements OnInit 
     )
   }
 }
-

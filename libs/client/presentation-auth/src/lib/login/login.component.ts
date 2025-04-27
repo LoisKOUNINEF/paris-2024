@@ -34,8 +34,9 @@ export class LoginComponent implements OnDestroy {
       .subscribe((res: User) => {
         this.guestTokenService.clearGuestToken();
         this.snackbarService.showSuccess('Vous êtes connecté.').afterDismissed();
+        
         if (this.authService.isAdmin()) {
-          this.router.navigate(['admin']);
+          this.router.navigate(['/admin']);
         } else {
           this.router.navigate(['shop']);
         };

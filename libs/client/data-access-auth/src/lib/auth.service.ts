@@ -40,7 +40,7 @@ export class AuthService {
       .pipe(
       filter(res => !!res),
       map((response: any) => {
-        if(response.role === 'admin') {
+        if(response.user.role === 'admin') {
           this.isAdmin.set(true);
         }
         this.isAuth.set(true);

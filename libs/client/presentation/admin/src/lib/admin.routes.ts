@@ -1,6 +1,6 @@
 import { Routes } from "@angular/router";
 import { DashboardComponent } from "./dashboard/dashboard.component";
-import { BundleCreateComponent } from "./bundle/bundle-create/bundle-create.component";
+import { BundleValuesComponent } from "./bundle/bundle-values/bundle-values.component";
 import { BundleCatalogComponent } from "./bundle/bundle-catalog/bundle-catalog.component";
 
 export const adminRoutes: Routes = [
@@ -10,12 +10,7 @@ export const adminRoutes: Routes = [
 			{
 				path: '',
 				pathMatch: 'full',
-				redirectTo: 'Dashboard'
-			},
-			{
-				path: 'dashnoard', 
-				title: 'Dashboard',
-				component: DashboardComponent,
+				redirectTo: 'bundles/sales'
 			},
 			{
 				path: 'bundles/sales', 
@@ -25,7 +20,17 @@ export const adminRoutes: Routes = [
 			{
 				path: 'bundles/create', 
 				title: 'New Bundle',
-				component: BundleCreateComponent,
+				component: BundleValuesComponent,
+			},
+			{
+				path: 'bundles/update/:id', 
+				title: 'Update Bundle',
+				component: BundleValuesComponent,
+			},
+			{
+				path: 'dashnoard', 
+				title: 'Dashboard',
+				component: DashboardComponent,
 			},
 		]
 	},
