@@ -18,7 +18,6 @@ const mockUser: User = {
   email: 'john.doe@example.com',
   password: '10Characters+',
   role: Roles.CUSTOMER,
-  cartId: 'cart-id',
   isAnonymized: false,
   lastLoginAt: new Date(),
   deletedAt: null,

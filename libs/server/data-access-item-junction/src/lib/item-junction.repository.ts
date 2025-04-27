@@ -27,8 +27,6 @@ export class ItemJunctionRepository {
         'b.ticket_amount AS amount',
         'b.price AS price',
       ])
-      // .leftJoinAndSelect('bundle', 'b', 'item_junction.bundle_id::uuid = b.id')
-      // .addSelect(['b.id', 'b.name', 'b.ticket_amount'])
       .where(`item_junction.${relationshipType}_id::uuid = :relationshipId::uuid`, { relationshipId })
       .getRawMany();
 
@@ -64,7 +62,7 @@ export class ItemJunctionRepository {
 
   async getOneWithSales(bundleId: string): Promise<number> {
     const itemJunctions = await this.itemJunctionRepository
-      .createQueryBuilder('junction')
+      .createQueryBuilder('item_junction')
       .select('item_junction')
       .where('item_junction.bundle_id = :id::uuid', { id: bundleId })
       .andWhere('item_junction.order_id != null')
@@ -83,9 +81,9 @@ export class ItemJunctionRepository {
     }
 
     const itemJunctions = await this.itemJunctionRepository
-      .createQueryBuilder('junction')
+      .createQueryBuilder('item_junction')
       .select(['item_junction.bundle_id', 'item_junction.quantity'])
-      .where('item_junction.bundle_id IN (:...ids)::uuid', { ids: bundleIds })
+      .where('item_junction.bundle_id IN (:...ids)', { ids: bundleIds })
       .andWhere('item_junction.order_id IS NOT NULL')
       .getRawMany();
 

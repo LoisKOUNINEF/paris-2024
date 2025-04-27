@@ -35,7 +35,6 @@ describe('LocalStrategy', () => {
         lastName: 'User',
         email: 'test@example.com',
         role: Roles.CUSTOMER,
-        cartId: '',
         isAnonymized: false,
         deletedAt: null,
       };
