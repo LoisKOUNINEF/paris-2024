@@ -57,8 +57,6 @@ export class OrderRepository {
     };
   }
 
-
-
   async findByUserId(userId: string): Promise<Array<Order>> {
     return await this.orderRepository.find({
       where: { userId: userId }
@@ -66,7 +64,7 @@ export class OrderRepository {
   }
 
   async create(dto: CreateOrderDto): Promise<Order> {
-    const newOrder = await this.orderRepository.create(dto);
+    const newOrder = this.orderRepository.create(dto);
     return await this.orderRepository.save(newOrder);
   }
 

@@ -1,10 +1,11 @@
-import { Controller, Get, UseGuards, Request, HttpException, HttpStatus, Param, Post } from "@nestjs/common";
+import { Controller, Get, UseGuards, Request, HttpException, HttpStatus, Post } from "@nestjs/common";
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { OrderService } from "@paris-2024/server-business-logic-order";
-import { Admin, AuthenticatedGuard, Owner } from '@paris-2024/server-business-logic-guards';
+import { Admin, AuthenticatedGuard, Owner, CurrentUser, CurrentEntity, OwnerGuard, OwnerCheck } from '@paris-2024/server-business-logic-guards';
 import { Order } from "@paris-2024/server-data-access-order";
 import { RequestWithUser } from "@paris-2024/server-base-entity";
 import { IOrderTickets } from "@paris-2024/shared-interfaces";
+// import { IOrderTickets } from "@paris-2024/shared-interfaces";
 
 @ApiTags('orders')
 @Controller('orders')
@@ -23,7 +24,7 @@ export class OrderController {
   }
 
   @Get('user-orders')
-  @Owner(true)
+  // @Owner(true)
   @ApiOkResponse({
     type: Order,
     isArray: true,
@@ -38,13 +39,23 @@ export class OrderController {
   }
 
   @Get(':id')
-  // @Owner(true)
   @ApiOkResponse({
     type: Order,
     description: 'returns designated order',
+  })  
+  @Owner({
+    paramKey: 'id',
+    entityService: OrderService,
+    findMethod: 'findOneById',
+    ownershipField: 'userId',
   })
-  getOne(@Param('id') orderId: Order['id']): Promise<IOrderTickets | null> {
-    return this.orderService.findOneById(orderId);
+  @OwnerCheck(true)
+  @UseGuards(OwnerGuard)
+  getOrder(
+    @CurrentUser() user: RequestWithUser["user"],
+    @CurrentEntity() order: Order,
+  ): IOrderTickets {
+    return order as unknown as IOrderTickets;
   }
 
   @Post()

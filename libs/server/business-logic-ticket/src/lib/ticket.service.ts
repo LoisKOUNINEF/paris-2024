@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import * as qrCode from 'qrcode';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { failedToGenerateQrCode, Ticket, TicketDto, TicketRepository } from '@paris-2024/server-data-access-ticket';
 
 @Injectable()
@@ -9,6 +9,7 @@ export class TicketService {
 
   async createTicket(dto: TicketDto): Promise<Ticket | undefined> {
     const ticketSecret = uuidv4();
+    if(!dto.userSecret) { throw new BadRequestException('No user secret key' )}
     const concatenatedSecrets = dto.userSecret + ticketSecret;
     
     const qrCode = await this.generateQrCode(concatenatedSecrets);

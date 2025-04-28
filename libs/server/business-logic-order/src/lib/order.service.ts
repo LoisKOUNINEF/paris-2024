@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CartService } from '@paris-2024/server-business-logic-cart';
 import { OnOrderMailerService } from '@paris-2024/server-business-logic-mailer';
 import { TicketService } from '@paris-2024/server-business-logic-ticket';
@@ -33,11 +33,10 @@ export class OrderService {
 
   async create(userId: string): Promise<Order | undefined> {
     const cart = await this.cartService.getCartWithBundles({ userId });
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.getUserWithSecret(userId);
 
     if(!cart || !user) {
-      throw new Error('no cart or no user')
-      return;
+      throw new NotFoundException('no cart or no user')
     }
 
     const junctionItems = await this.junctionRepository.getManyByRelationshipId('cart', cart.id);
@@ -48,14 +47,20 @@ export class OrderService {
       userId: user.id,
       totalPrice,
     };
+
     const newOrder = await this.orderRepository.create(orderDto);
     const junctionIds = junctionItems.reduce((acc: Array<string>, junction: IItemJunctionModel) => {
       acc.push(junction.junction);
       return acc;
-    }, [])
+    }, []);
     await this.junctionRepository.switchRelationship(junctionIds, newOrder.id);
-    const ticketDto = { userId: userId, orderId: newOrder.id, 
-      userSecret: user.secretKey }
+
+    const ticketDto = { 
+      userId: userId, 
+      orderId: newOrder.id, 
+      userSecret: user.secretKey 
+    };
+    
     const tickets = await this.generateTickets(ticketAmount, ticketDto);
     const qrCodes = tickets.map((ticket: Ticket) => ticket.qrCode);
 
