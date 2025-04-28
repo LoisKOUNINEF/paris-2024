@@ -2,7 +2,7 @@ export interface IBase {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  deletedAt: Date | null;
+  deletedAt?: Date | null;
 }
 
 export type XOR<T, U> = ( T | U ) extends object

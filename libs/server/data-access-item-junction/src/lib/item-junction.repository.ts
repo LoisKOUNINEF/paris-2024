@@ -46,8 +46,8 @@ export class ItemJunctionRepository {
   async getOneWithBundle(id: ItemJunction['id']): Promise<IItemJunctionModel | undefined> {
     return await this.itemJunctionRepository
       .createQueryBuilder('item_junction')
-      .leftJoinAndSelect('bundle', 'bundle', 'junction.bundle_id::uuid = bundle.id')
-      .where('junction.id = :id::uuid', { id })
+      .leftJoinAndSelect('bundle', 'bundle', 'item_junction.bundle_id::uuid = bundle.id')
+      .where('item_junction.id = :id::uuid', { id })
       .getOne() as unknown as IItemJunctionModel;
   }
 
