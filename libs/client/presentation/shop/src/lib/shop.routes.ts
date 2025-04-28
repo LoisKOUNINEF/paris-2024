@@ -30,12 +30,12 @@ export const shopRoutes: Routes = [
 				component: CheckoutComponent,
 			},
 			{
-				path: 'order-success	', 
+				path: 'order-success', 
 				title: 'Order Confirmed',
 				component: OrderSuccessComponent,
 			},
 			{
-				path: 'order/:id	', 
+				path: 'order/:id', 
 				title: 'Order Details',
 				component: OrderDetailsComponent,
 			},
