@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { BundleService } from "@paris-2024/server-business-logic-bundle";
 import { Bundle, CreateBundleDto, UpdateBundleDto } from "@paris-2024/server-data-access-bundle";
@@ -36,16 +36,6 @@ export class BundleController {
   }
 
   @Admin(true)
-  @Patch(':id')
-  @ApiBody({
-    type: UpdateBundleDto,
-  })
-  @ApiBadRequestResponse()
-  updateBundle(@Body() dto: UpdateBundleDto, @Param('id') id: string): Promise<Bundle | null> {
-    return this.bundleService.updateBundle(id, dto);
-  }
-
-  @Admin(true)
   @Get('sales')
   @ApiResponse({
     status: 200,
@@ -63,5 +53,34 @@ export class BundleController {
   })
   getOneSales(@Param('id') id: string): Promise<IBundleSales | undefined> {
     return this.bundleService.getOneWithSales(id);
+  }
+
+  @Get(':id')
+  @ApiResponse({
+    status: 200,
+    description: 'returns a specific bundle',
+  })
+  getBundle(@Param('id') id: Bundle['id']): Promise<Bundle | null> {
+    return this.bundleService.getOneById(id);
+  }
+
+  @Admin(true)
+  @Patch(':id')
+  @ApiBody({
+    type: UpdateBundleDto,
+  })
+  @ApiBadRequestResponse()
+  updateBundle(@Body() dto: UpdateBundleDto, @Param('id') id: string): Promise<Bundle | null> {
+    return this.bundleService.updateBundle(id, dto);
+  }
+
+  @Admin(true)
+  @Delete(':id')
+  @ApiBody({
+    type: UpdateBundleDto,
+  })
+  @ApiBadRequestResponse()
+  deleteBundle(@Param('id') id: string): Promise<Bundle | undefined> {
+    return this.bundleService.remove(id);
   }
 }

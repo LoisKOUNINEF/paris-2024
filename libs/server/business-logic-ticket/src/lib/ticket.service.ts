@@ -26,7 +26,7 @@ export class TicketService {
 
   private async generateQrCode(data: string): Promise<string | undefined> {
     try {
-      const appUrl = 'https://studi-exam-jo.lois-kouninef.eu';
+      const appUrl = 'https://studi-exam-jo.lois-kouninef.eu/tickets';
       const qrCodeData = `${appUrl}/${data}`
       const qrCodeDataURL = await qrCode.toDataURL(qrCodeData);
       return qrCodeDataURL;

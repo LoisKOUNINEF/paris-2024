@@ -22,16 +22,6 @@ export class TicketController {
 		return this.ticketService.getAllTickets();
 	}
 
-	@Get(':id')
-	@Owner(true)
-	@ApiOkResponse({
-		type: Ticket,
-		description: 'returns a ticket by its ID'
-	})
-	getOneById(@Param('id') id: Ticket['id']): Promise<Ticket | undefined> {
-		return this.ticketService.findOneById(id)
-	}
-
 	@Get('tickets')
 	@Owner(true)
 	@ApiOkResponse({
@@ -44,6 +34,16 @@ export class TicketController {
 			throw new HttpException('You must be logged in to gain access to this page.', HttpStatus.BAD_REQUEST)
 		}
 		return this.ticketService.getUsersTickets(userId);
+	}
+
+	@Get(':id')
+	@Owner(true)
+	@ApiOkResponse({
+		type: Ticket,
+		description: 'returns a ticket by its ID'
+	})
+	getOneById(@Param('id') id: Ticket['id']): Promise<Ticket | undefined> {
+		return this.ticketService.findOneById(id)
 	}
 
 	@Post()

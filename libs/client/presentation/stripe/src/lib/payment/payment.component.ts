@@ -72,9 +72,7 @@ export class PaymentComponent implements AfterViewInit {
       .subscribe({
         next: (response) => {
           this.paymentIntent = response.clientSecret;
-          // setTimeout(() => {
             this.confirmPayment();
-          // }, 500);
         },
         error: (err) => {
           console.error('Payment Intent Error:', err);
@@ -111,7 +109,7 @@ export class PaymentComponent implements AfterViewInit {
 
   completeCheckout() {
     this.orderService.newOrder().subscribe({
-      next: () => this.router.navigate(['shop/order-success']),
+      next: () => this.router.navigate(['/shop/order-success']),
       error: (err) => {
         console.error('Checkout Error:', err);
         this.error = 'Failed to complete checkout. Please try again.';

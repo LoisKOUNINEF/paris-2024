@@ -12,12 +12,12 @@ export class Ticket extends BaseEntity implements ITicket {
   qrCode: string;
 
   @ApiProperty()
-  @Column('text', { name: 'order_id' })
+  @Column('uuid', { name: 'order_id' })
   orderId: string;
 
   @Index('IDX_ticket_user')
   @ApiProperty()
-  @Column('text', { name: 'user_id' })
+  @Column('uuid', { name: 'user_id' })
   userId: string;
 
   @ApiProperty()

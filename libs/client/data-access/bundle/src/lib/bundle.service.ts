@@ -3,6 +3,7 @@ import { ApiRequestService } from '@paris-2024/client-data-access-core';
 import { BundleDto } from './bundle.dto';
 import { Observable } from 'rxjs';
 import { Bundle } from './bundle.model';
+import { IBundleSales } from '@paris-2024/shared-interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -34,5 +35,9 @@ export class BundleService {
 
   delete(bundleId: Bundle['id']): Observable<any> {
     return this.apiRequestService.delete<Bundle>(`${this.bundlesUrl}/${bundleId}`);
+  }
+
+  getWithSales(): Observable<Array<IBundleSales>> {
+    return this.apiRequestService.get<Array<IBundleSales>>(`${this.bundlesUrl}/sales`);
   }
 }
