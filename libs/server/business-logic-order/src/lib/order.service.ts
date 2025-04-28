@@ -6,7 +6,7 @@ import { UserService } from '@paris-2024/server-business-logic-user';
 import { ItemJunctionRepository } from '@paris-2024/server-data-access-item-junction';
 import { Order, OrderRepository } from '@paris-2024/server-data-access-order';
 import { Ticket, TicketDto } from '@paris-2024/server-data-access-ticket';
-import { IItemJunctionModel } from '@paris-2024/shared-interfaces';
+import { IItemJunctionModel, IOrderTickets } from '@paris-2024/shared-interfaces';
 
 @Injectable()
 export class OrderService {
@@ -19,7 +19,7 @@ export class OrderService {
     private userService: UserService,
   ) {}
 
-  async findOneById(id: Order['id']): Promise<Order | null> {
+  async findOneById(id: Order['id']): Promise<IOrderTickets | null> {
     return await this.orderRepository.findOneById(id);
   }
 

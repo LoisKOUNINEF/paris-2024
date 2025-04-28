@@ -39,6 +39,14 @@ describe('OriginGuard', () => {
       expect(guard.canActivate(mockContext)).toBe(true);
     });
 
+    it('should allow access for main domain origin with www. prefix', () => {
+      mockRequest.headers = {
+        origin: 'https://www.studi-exam-jo.lois-kouninef.eu/some-path'
+      };
+      
+      expect(guard.canActivate(mockContext)).toBe(true);
+    });
+
     it('should allow access for staging domain origin', () => {
       mockRequest.headers = {
         origin: 'https://studi-exam-jo-staging.lois-kouninef.eu/some-path'

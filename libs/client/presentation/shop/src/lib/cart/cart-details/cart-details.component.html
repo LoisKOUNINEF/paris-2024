@@ -1,6 +1,5 @@
 <main class="grid">
-	@if(cart) {
-	@if(cart.bundles.length > 0) {
+	@if(cart && cart.bundles.length > 0) {
 	<table>
 		<tbody>
 			<tr>
@@ -26,7 +25,6 @@
 					</td>
 				</tr>
 			}			
-			
 			<tr class="total">
 				<td colspan="2">Montant total</td>
 				<td>
@@ -44,10 +42,10 @@
 			</tr>
 		</tbody>
 	</table>
-}} @else {
+} @else {
 	<div class="cart-empty">
 		<p>
-			Votre panier est vide 🥲
+			🥲Votre panier est vide
 		</p>
 		<lib-route-button
 			content="A la boutique !"

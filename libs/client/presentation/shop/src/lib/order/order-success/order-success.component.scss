@@ -1,0 +1,24 @@
+@use "variables" as *;
+@use "mixins";
+@use "functions";
+
+h2 {
+  margin-bottom: 1rem;
+  font-weight: bold;
+  text-align: center;
+	font-size: functions.font-size(largest);
+}
+
+.container {
+	@include mixins.flexCenter;
+	flex-direction: column;
+	font-size: functions.font-size(large);
+	text-align: center;
+	margin-top: functions.margin(medium);
+}
+
+.info {
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+	color: $accent-green;
+}

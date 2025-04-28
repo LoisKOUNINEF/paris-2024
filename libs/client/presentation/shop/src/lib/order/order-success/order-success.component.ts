@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
 
 @Component({
   selector: 'lib-order-success',
   standalone: true,
-  imports: [CommonModule],
+  imports: [RouteButtonComponent],
   templateUrl: './order-success.component.html',
   styleUrl: './order-success.component.scss',
 })

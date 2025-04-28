@@ -27,8 +27,6 @@ export class ItemJunctionRepository {
         'b.ticket_amount AS amount',
         'b.price AS price',
       ])
-      // .leftJoinAndSelect('bundle', 'b', 'item_junction.bundle_id::uuid = b.id')
-      // .addSelect(['b.id', 'b.name', 'b.ticket_amount'])
       .where(`item_junction.${relationshipType}_id::uuid = :relationshipId::uuid`, { relationshipId })
       .getRawMany();
 
@@ -48,8 +46,8 @@ export class ItemJunctionRepository {
   async getOneWithBundle(id: ItemJunction['id']): Promise<IItemJunctionModel | undefined> {
     return await this.itemJunctionRepository
       .createQueryBuilder('item_junction')
-      .leftJoinAndSelect('bundle', 'bundle', 'junction.bundle_id::uuid = bundle.id')
-      .where('junction.id = :id::uuid', { id })
+      .leftJoinAndSelect('bundle', 'bundle', 'item_junction.bundle_id::uuid = bundle.id')
+      .where('item_junction.id = :id::uuid', { id })
       .getOne() as unknown as IItemJunctionModel;
   }
 
@@ -64,13 +62,13 @@ export class ItemJunctionRepository {
 
   async getOneWithSales(bundleId: string): Promise<number> {
     const itemJunctions = await this.itemJunctionRepository
-      .createQueryBuilder('junction')
+      .createQueryBuilder('item_junction')
       .select('item_junction')
       .where('item_junction.bundle_id = :id::uuid', { id: bundleId })
       .andWhere('item_junction.order_id != null')
       .getMany();
 
-    const sales = itemJunctions.reduce((acc: any, sale: ItemJunction) => {
+    const sales = itemJunctions.reduce((acc: number, sale: ItemJunction) => {
       return acc += sale.quantity
     }, 0);
 
@@ -83,9 +81,9 @@ export class ItemJunctionRepository {
     }
 
     const itemJunctions = await this.itemJunctionRepository
-      .createQueryBuilder('junction')
+      .createQueryBuilder('item_junction')
       .select(['item_junction.bundle_id', 'item_junction.quantity'])
-      .where('item_junction.bundle_id IN (:...ids)::uuid', { ids: bundleIds })
+      .where('item_junction.bundle_id IN (:...ids)', { ids: bundleIds })
       .andWhere('item_junction.order_id IS NOT NULL')
       .getRawMany();
 
@@ -124,6 +122,7 @@ export class ItemJunctionRepository {
     await this.itemJunctionRepository.save(Object.assign(itemJunction, { quantity: quantity }));
     return itemJunction;
   }
+
   async mergeJunctions(
     userCartId: string,
     guestJunctions: Array<IItemJunctionModel>, 
@@ -154,35 +153,13 @@ export class ItemJunctionRepository {
       await this.delete(guestJunction.junction);
     }
   }
-  // async mergeJunctions(
-  //   userCartId: string,
-  //   guestJunctions: Array<IItemJunctionModel>, 
-  //   userJunctions: Array<IItemJunctionModel>,
-  // ): Promise<void> {
-  //   const userJunctionMap = new Map<string, IItemJunctionModel>();
-  //   userJunctions.forEach((junction: IItemJunctionModel) => {
-  //     userJunctionMap.set(junction.id, junction);
-  //   });
-    
-  //   for (const junction of guestJunctions) {
-  //     const userJunction = userJunctionMap.get(junction.id);
 
-  //     if(userJunction) {
-  //       const quantity = userJunction.quantity + junction.quantity;
-  //       const dto = {
-  //         cartId: userCartId,
-  //         quantity: quantity,
-  //       }
-  //       await this.update(userJunction.junction, dto);
-  //     }
-  //   }
-  // }
-
-  async create(dto: CreateItemJunctionDto): Promise<ItemJunction> {
+  async create(dto: CreateItemJunctionDto): Promise<ItemJunction | null> {
     if (dto.cartId) {
       const alreadyExists = await this.getOne(dto.cartId, dto.bundleId);
       if (alreadyExists) {
-        await this.updateQuantity(alreadyExists.id, dto.quantity)
+        const updatedQuantity = dto.quantity + alreadyExists.quantity;
+        return await this.updateQuantity(alreadyExists.id, updatedQuantity);
       }
     }
     

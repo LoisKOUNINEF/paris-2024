@@ -15,7 +15,6 @@ const mockUser: User = {
   email: 'john.doe@example.com',
   password: '10Characters+',
   role: Roles.CUSTOMER,
-  cartId: 'cart-id',
   isAnonymized: false,
   lastLoginAt: new Date(),
   deletedAt: null,
@@ -83,7 +82,6 @@ describe('AuthService', () => {
         lastName: 'Doe',
         email: 'john.doe@example.com',
         role: Roles.CUSTOMER,
-        cartId: 'cart-id',
         isAnonymized: false,
       }));
       expect(userRepository.findOneByEmail).toHaveBeenCalledWith('john.doe@example.com');

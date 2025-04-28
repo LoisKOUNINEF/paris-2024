@@ -63,7 +63,7 @@ export class CartController {
     @Request() req: RequestWithUser, 
     @Headers('x-guest-token') guestToken: string,
     @Body() dto: CreateItemJunctionDto, 
-  ): Promise<ItemJunction | undefined> {
+  ): Promise<ItemJunction | null> {
     const userId = req.user?.id;
     if (userId) {
       return this.cartService.addToCart({ userId }, dto);

@@ -6,17 +6,17 @@
 				<th>Prix</th>
 				<th>Nombre de ventes</th>
 			</tr>
-			@for (bundle of bundles; track bundle) {
+			@for (bundleSale of bundleSales; track bundleSale) {
 				<tr>
-					<td>{{ bundle.bundle.name }}</td>
+					<td>{{ bundleSale.bundle.name }}</td>
 					<td>
-						{{ bundle.bundle.price | formatPrice | currency:'symbol':'€':'1.2-2' }}
+						{{ bundleSale.bundle.price | formatPrice | currency:'symbol':'€':'1.2-2' }}
 					</td>
 					<td>
-						{{ bundle.sales }}
+						{{ bundleSale.sales }}
 					</td>
 					<td>
-						<a (click)=editBundle(bundle.bundle.id)>
+						<a (click)=editBundle(bundleSale.bundle.id)>
 							Modifier
 						</a>
 					</td>
@@ -24,4 +24,8 @@
 			}
 		</tbody>
 	</table>
+	<lib-route-button
+		content="Créer une nouvelle offre"
+		path="admin/bundles/create"
+	></lib-route-button>
 </main>

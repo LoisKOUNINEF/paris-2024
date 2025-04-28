@@ -1,0 +1,6 @@
+@use "mixins";
+@import 'form';
+
+.form-title {
+	@include mixins.formTitle
+}

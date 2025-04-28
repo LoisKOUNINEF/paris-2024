@@ -1,0 +1,19 @@
+<div class="form-container">
+  <h2 class="form-title">
+    {{ bundle ? 'Modifier une offre' : 'Ajouter une nouvelle offre' }}
+  </h2>
+  
+  <form
+    [formGroup]="createBundleForm"
+    (ngSubmit)="onSubmit()"
+  >
+    <lib-bundle-form formGroupName="bundle"></lib-bundle-form>
+    <lib-submit-button
+      [content]="bundle ? 'Mettre à jour l\'offre' : 'Ajouter l\'offre'"
+      [isDisabled]="!createBundleForm.valid"
+    ></lib-submit-button>
+  </form>
+  @if(bundle) {
+    <button (click)="deleteBundle(bundle.id)">Supprimer</button>
+  }
+</div>

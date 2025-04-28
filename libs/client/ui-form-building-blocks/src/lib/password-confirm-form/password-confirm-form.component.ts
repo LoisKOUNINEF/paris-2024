@@ -6,6 +6,7 @@ import { RevealPasswordPipe, PwdCheckboxTextPipe } from '@paris-2024/client-util
 import { validatePasswords } from '../validators/validate-passwords.validator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { passwordRegex } from '@paris-2024/shared-utils';
 
 @Component({
   selector: 'lib-password-confirm-form',
@@ -29,13 +30,7 @@ export class PasswordConfirmFormComponent extends CommonFormComponent implements
     this.passwordConfirmForm.addControl<User['password']>('password',
       this.formBuilder.control<User['password']>('', [
         Validators.required,
-        Validators.pattern(
-/*
-  ensures at least 10 characters (1 lowercase & 1 uppercase),
-  1 number, 1 special character (@#$%^&+=)
-*/
-        '^(?=.{10,})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=]).*$'
-      )]
+        Validators.pattern(passwordRegex)]
     ));
     this.passwordConfirmForm.addControl<User['password']>('passwordConfirm',
       this.formBuilder.control<User['password']>('', 
