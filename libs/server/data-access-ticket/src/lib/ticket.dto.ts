@@ -9,6 +9,9 @@ export class TicketDto {
 
   @ApiProperty()
   orderId: string;
+
+  @ApiProperty()
+  tokenHash: string;
 }
 
 export class QrCodeTicketDto extends TicketDto {

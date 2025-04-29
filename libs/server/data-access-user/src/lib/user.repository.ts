@@ -40,6 +40,20 @@ export class UserRepository {
     return user;
   }
 
+  async getUserWithSecret(userId: string): Promise<User | undefined> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      select: ['id', 'firstName', 'email', 'secretKey']
+    });
+    
+    if (!user) {
+      userNotFound();
+      return;
+    }
+
+    return user;
+  }
+
   async findOneByEmail(email: User['email']): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { email: email },

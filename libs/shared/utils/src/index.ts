@@ -1,1 +1,1 @@
-export * from './lib/password-regex/password-regex';
+export * from './lib/regexes/regexes';

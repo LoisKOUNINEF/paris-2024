@@ -1,4 +1,4 @@
-import { passwordRegex } from "./password-regex";
+import { passwordRegex } from "./regexes";
 
 describe('Password regex', () => {
 	it('should return false if length is under 10 characters', () => {

@@ -69,6 +69,9 @@
       "@paris-2024/client-presentation-shop": [
         "libs/client/presentation/shop/src/index.ts"
       ],
+      "@paris-2024/client-presentation-staff": [
+        "libs/client/presentation/staff/src/index.ts"
+      ],
       "@paris-2024/client-presentation-stripe": [
         "libs/client/presentation/stripe/src/index.ts"
       ],

@@ -25,6 +25,10 @@ export const appRoutes: Routes = [
 		loadChildren: () => import('@paris-2024/client-presentation-admin').then(m => m.adminRoutes)
 	},
 	{
+		path: 'staff',
+		loadChildren: () => import('@paris-2024/client-presentation-staff').then(m => m.staffRoutes)
+	},
+	{
 		path: '**',
 		pathMatch: 'full',
 		title: '404',

@@ -4,6 +4,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { QrCodeTicketDto } from "./ticket.dto";
 import { ticketDoesntExist } from "./ticket.exceptions";
+import { TicketValidity } from "@paris-2024/shared-interfaces";
 
 @Injectable()
 export class TicketRepository {
@@ -42,11 +43,28 @@ export class TicketRepository {
     })
   }
 
-  async isValid(qrCode: Ticket['qrCode']): Promise<boolean> {
-    const isValid = await this.ticketRepository.findOne({
-      where: { qrCode: qrCode }
-    });
-    return isValid ? true : false;
+  async isValid(userId: string, hashedToken: string): Promise<TicketValidity | null> {
+    const result = await this.ticketRepository
+      .createQueryBuilder('ticket')
+      .leftJoin('user', 'user', 'ticket.user_id::uuid = user.id')
+      .select([
+        'ticket.is_valid AS "isValid"',
+        'user.first_name AS "firstName"',
+        'user.last_name AS "lastName"'
+      ])
+      .where('ticket.hashed_token = :hashedToken', { hashedToken })
+      .andWhere('ticket.user_id::uuid = :userId::uuid', { userId })
+      .getRawOne();
+    
+    if (!result) {
+      ticketDoesntExist();
+      return null;
+    }
+    
+    return {
+      isValid: result.isValid,
+      userFullName: `${result.firstName} ${result.lastName}`
+    };
   }
 
   async findAll(): Promise<Array<Ticket>> {

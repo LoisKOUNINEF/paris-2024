@@ -4,4 +4,6 @@ export * from './lib/staff/staff.guard';
 export * from './lib/staff/staff.decorator';
 export * from './lib/owner/owner.guard';
 export * from './lib/owner/owner.decorator';
+export * from './lib/owner/current-user.decorator';
+export * from './lib/owner/current-entity.decorator';
 export * from './lib/authenticated/authenticated.guard';
