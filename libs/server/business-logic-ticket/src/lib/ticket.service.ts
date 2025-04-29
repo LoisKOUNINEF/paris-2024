@@ -2,6 +2,8 @@ import { v4 as uuidv4 } from 'uuid';
 import * as qrCode from 'qrcode';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { failedToGenerateQrCode, Ticket, TicketDto, TicketRepository } from '@paris-2024/server-data-access-ticket';
+import { TicketValidity } from '@paris-2024/shared-interfaces';
+import { hash } from '@paris-2024/shared-utils';
 
 @Injectable()
 export class TicketService {
@@ -9,8 +11,10 @@ export class TicketService {
 
   async createTicket(dto: TicketDto): Promise<Ticket | undefined> {
     const ticketSecret = uuidv4();
-    if(!dto.userSecret) { throw new BadRequestException('No user secret key' )}
-    const concatenatedSecrets = dto.userSecret + ticketSecret;
+    if(!dto.userSecret) { 
+      throw new BadRequestException('No user secret key')
+    }
+    const concatenatedSecrets = dto.userSecret + ':' + ticketSecret;
     
     const qrCode = await this.generateQrCode(concatenatedSecrets);
 
@@ -53,7 +57,9 @@ export class TicketService {
     return await this.ticketRepository.findValids();
   }
 
-  async isValid(qrCode: Ticket['qrCode']): Promise<boolean> {
-    return await this.ticketRepository.isValid(qrCode);
+  async isValid(qrCode: Ticket['qrCode']): Promise<TicketValidity | null> {
+    const [userId, ticketToken] = qrCode.split(':');
+    const hashedToken = hash(ticketToken);
+    return await this.ticketRepository.isValid(userId, hashedToken);
   }
 }
