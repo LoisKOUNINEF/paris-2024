@@ -23,11 +23,6 @@ export const CONTESTS = [
     content: content,
   },
   {
-    title: 'Basketball',
-    date: new Date(2024, 7, 22),
-    content: content,
-  },
-  {
     title: 'Saut à la perche',
     date: new Date(2024, 7, 18),
     imageUrl: 'assets/images/pole-vault.avif',
@@ -35,21 +30,17 @@ export const CONTESTS = [
     content: content,
   },
   {
-    title: 'Escrime',
+    title: 'Escrime Fauteuil',
     date: new Date(2024, 7, 20),
     imageUrl: 'assets/images/fencing.avif',
     imageAlt: 'Deux escrimeurs en fauteuil roulant s\'affrontant',
     content: content,
   },
   {
-    title: 'Skateboard',
-    date: new Date(2024, 7, 20),
-  },
-  {
-    title: '100 mètres haie',
+    title: 'Paracyclisme',
     date: new Date(2024, 7, 23),
-    imageUrl: 'assets/images/running.avif',
-    imageAlt: 'Deux coureuses courant sur une piste',
+    imageUrl: 'assets/images/cycle.avif',
+    imageAlt: 'Un athlète sur un tricycle',
     content: content,
   },
   {
@@ -62,6 +53,11 @@ export const CONTESTS = [
   {
     title: 'Handball',
     date: new Date(2024, 7, 22),
+    content: content,
+  },
+  {
+    title: 'Basketball',
+    date: new Date(2024, 7, 19),
     content: content,
   },
 ];
