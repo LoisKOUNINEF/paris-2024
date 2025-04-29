@@ -9,10 +9,10 @@ export const CONTESTS = [
     content: content,
   },
   {
-    title: 'Curling',
-    date: new Date(2024, 6, 16),
-    imageUrl: 'assets/images/curling.avif',
-    imageAlt: 'Das balais de Curling en cercle sur la glace',
+    title: 'Paracyclisme',
+    date: new Date(2024, 7, 23),
+    imageUrl: 'assets/images/cycle.avif',
+    imageAlt: 'Un athlète sur un tricycle',
     content: content,
   },
   {
@@ -23,24 +23,10 @@ export const CONTESTS = [
     content: content,
   },
   {
-    title: 'Saut à la perche',
-    date: new Date(2024, 7, 18),
-    imageUrl: 'assets/images/pole-vault.avif',
-    imageAlt: 'Un perchiste se préparant à sauter',
-    content: content,
-  },
-  {
     title: 'Escrime Fauteuil',
     date: new Date(2024, 7, 20),
     imageUrl: 'assets/images/fencing.avif',
     imageAlt: 'Deux escrimeurs en fauteuil roulant s\'affrontant',
-    content: content,
-  },
-  {
-    title: 'Paracyclisme',
-    date: new Date(2024, 7, 23),
-    imageUrl: 'assets/images/cycle.avif',
-    imageAlt: 'Un athlète sur un tricycle',
     content: content,
   },
   {
