@@ -1,0 +1,11 @@
+<main class="container">
+	@if(ticket && ticket.isValid) {
+		<div class="valid">
+			<h2>Ticket valide.</h2>
+			<p>Nom de la réservation:</p>
+			<p>{{ ticket.userFullName }}</p>
+		</div>
+	} @else {
+		<h2 class="invalid">Ticket invalide ou inexistant.</h2>
+	}
+</main>

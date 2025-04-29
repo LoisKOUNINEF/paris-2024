@@ -6,3 +6,8 @@ export interface ITicket extends IBase {
   orderId: string;
   userId: string;
 }
+
+export interface TicketValidity {
+  isValid: boolean;
+  userFullName: string;
+}

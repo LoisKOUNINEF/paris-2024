@@ -25,6 +25,10 @@ export class UserService {
 		return this.userRepository.findOneById(id);
 	}
 
+	async getUserWithSecret(id: string): Promise<User | undefined> {
+		return this.userRepository.getUserWithSecret(id);
+	}
+
 	async create(createUserDto: CreateUserDto, isAdmin: boolean, guestToken?: string): Promise<User | undefined> {
 		const role = isAdmin ? Roles.STAFF : Roles.CUSTOMER;
 		const dto = { 

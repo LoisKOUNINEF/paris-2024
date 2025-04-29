@@ -1,15 +1,21 @@
 import { v4 as uuidv4 } from 'uuid';
 import * as qrCode from 'qrcode';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { failedToGenerateQrCode, Ticket, TicketDto, TicketRepository } from '@paris-2024/server-data-access-ticket';
+import { TicketValidity } from '@paris-2024/shared-interfaces';
+import { hash } from '@paris-2024/server-utils';
 
 @Injectable()
 export class TicketService {
   constructor(private ticketRepository: TicketRepository) {}
 
-  async createTicket(dto: TicketDto): Promise<Ticket | undefined> {
-    const ticketSecret = uuidv4();
-    const concatenatedSecrets = dto.userSecret + ticketSecret;
+  async createTicket(dto: Pick<TicketDto, 'userId' | 'userSecret' | 'orderId'>): Promise<Ticket | undefined> {
+    const token = uuidv4();
+    const tokenHash = hash(token);
+    if(!dto.userSecret) { 
+      throw new BadRequestException('No user secret key')
+    }
+    const concatenatedSecrets = dto.userSecret + ':' + token;
     
     const qrCode = await this.generateQrCode(concatenatedSecrets);
 
@@ -18,7 +24,7 @@ export class TicketService {
     }
 
     const newTicket = await this.ticketRepository.create({
-      ...dto, qrCode
+      ...dto, qrCode, tokenHash,
     })
 
     return newTicket;
@@ -52,7 +58,9 @@ export class TicketService {
     return await this.ticketRepository.findValids();
   }
 
-  async isValid(qrCode: Ticket['qrCode']): Promise<boolean> {
-    return await this.ticketRepository.isValid(qrCode);
+  async isValid(qrCode: Ticket['qrCode']): Promise<TicketValidity | null> {
+    const [userId, ticketToken] = qrCode.split(':');
+    const hashedToken = hash(ticketToken);
+    return await this.ticketRepository.isValid(userId, hashedToken);
   }
 }

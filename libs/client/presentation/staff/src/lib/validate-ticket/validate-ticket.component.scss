@@ -1,0 +1,22 @@
+@use "functions";
+@use "variables" as *;
+
+.container {
+	font-size: functions.font-size(large);
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: functions.margin(large);
+}
+
+.valid {
+	h2 {
+		color: $primary-color;
+	}
+}
+
+.invalid {
+	h2 {
+		color: $secondary-color;
+	}
+}

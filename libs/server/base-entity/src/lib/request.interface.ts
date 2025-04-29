@@ -6,4 +6,5 @@ export interface RequestWithUser extends Request {
     id?: string;
     role: Roles;
   };
+  entity?: any;
 }
