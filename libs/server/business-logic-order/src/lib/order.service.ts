@@ -74,7 +74,7 @@ export class OrderService {
     return newOrder;
   }
 
-  private async generateTickets(ticketAmount: number, ticketDto: TicketDto): Promise<Array<Ticket>> {
+  private async generateTickets(ticketAmount: number, ticketDto: Pick<TicketDto, 'userId' | 'userSecret' | 'orderId'>): Promise<Array<Ticket>> {
     const tickets: Array<Ticket> = [];
 
     for (let i = 0; i < ticketAmount; i++) {
