@@ -8,7 +8,7 @@ export class TicketHashedTokenMigration1745964371807 implements MigrationInterfa
             DROP INDEX "public"."IDX_ticket_qrCode"
         `);
         await queryRunner.query(`
-            ALTER TABLE "ticket" ADD "token_hash" text NOT NULL,
+            ALTER TABLE "ticket" ADD "token_hash" text NOT NULL
         `);
         await queryRunner.query(`
             CREATE INDEX "IDX_ticket_tokenHash" ON "ticket" ("token_hash")

@@ -57,11 +57,12 @@ export class UserRepository {
   async findOneByEmail(email: User['email']): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { email: email },
+      withDeleted: true,
     });
     return user;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User | undefined> {
+  async create(createUserDto: CreateUserDto): Promise<User | null> {
     if (createUserDto.role === 'admin') {
       createAdminIsForbidden();
     };
@@ -77,24 +78,24 @@ export class UserRepository {
       return newUser;
     };
 
-    if(userExists && createUserDto.role === Roles.STAFF) {
-      this.update(userExists.id, createUserDto);
-    }
-
-    if (userExists.deletedAt !== null) {
+    if (userExists && userExists.deletedAt !== null) {
       return this.restore(userExists, createUserDto);
     };
 
+    if(userExists && createUserDto.role === Roles.STAFF) {
+      return this.update(userExists.id, createUserDto);
+    };
+
     userAlreadyExists();
-    return;
+    return null;
   }
 
-  async update(id: User['id'], updateUserDto: UpdateUserDto): Promise<User | undefined> {
+  async update(id: User['id'], updateUserDto: UpdateUserDto): Promise<User | null> {
     const user = await this.findOneById(id);
 
     if (!user) {
       userNotFound();
-      return;
+      return null;
     }
 
     await this.userRepository.save(Object.assign(user, updateUserDto));
@@ -126,12 +127,19 @@ export class UserRepository {
     ));
   }
 
-  private async restore(user: User, userDto: UpdateUserDto): Promise<User> {
-    return await this.userRepository.save(
-      Object.assign(user, {
-        deletedAt: null,
-        ...userDto,
-      }),
-    );
+  private async restore(user: User, dto: CreateUserDto): Promise<User | null> {
+    await this.userRepository.restore(user.id);
+
+    const restored = await this.userRepository.findOne({
+      where: { id: user.id },
+      withDeleted: false,
+    });
+    if (!restored) return null;
+
+    restored.password = dto.password;
+
+    restored.lastLoginAt = new Date();
+
+    return this.userRepository.save(restored);
   }
 }

@@ -21,7 +21,7 @@ export class PasswordResetController {
     description: 'email to send token to',
   })
   @ApiBadRequestResponse()
-  async sendToken(@Body('email') email: PasswordReset['email']) {
+  async sendToken(@Body('email') email: PasswordReset['email']): Promise<{ msg: string }> {
     await this.passwordResetService.sendLink(email);
     return { msg: 'Reset link sent to your email.' };
   }
@@ -31,7 +31,7 @@ export class PasswordResetController {
     type: PasswordResetBody,
     description: 'updated password',
   })
-  async resetPassword(@Param('id') id: PasswordReset['id'], @Body() body: PasswordResetBody) {
+  async resetPassword(@Param('id') id: PasswordReset['id'], @Body() body: PasswordResetBody): Promise<{ msg: string }> {
     await this.passwordResetService.reset(id, body.password);
     return { msg: 'Password successfully updated' };
   }

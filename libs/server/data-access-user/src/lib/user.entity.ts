@@ -95,7 +95,10 @@ export class User extends BaseEntity implements IUser {
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
-    if (this.password && !this.password.startsWith('$2b$')) {
+    if (
+      this.password &&
+      !/^\$2[aby]\$[0-9]{2}\$.+/.test(this.password)
+    ) {
       this.password = await bcrypt.hash(this.password, Number(10));
     }
   }
