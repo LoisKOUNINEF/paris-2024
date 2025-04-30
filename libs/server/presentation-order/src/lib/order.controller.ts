@@ -24,14 +24,24 @@ export class OrderController {
   }
 
   @Get('user-orders')
-  // @Owner(true)
   @ApiOkResponse({
     type: Order,
     isArray: true,
     description: 'returns all orders from user',
   })
-  getUserOrders(@Request() req: RequestWithUser): Promise<Array<Order> | undefined> {
-    const userId = req.user?.id;
+  @Owner({
+    entityService: OrderService,
+    findMethod: 'findAll',
+    findByUserMethod: 'getAllFromUser',
+    ownershipField: 'userId',
+    useCurrentUser: true,
+  })
+  @OwnerCheck(true)
+  @UseGuards(OwnerGuard)
+  getUserOrders(
+    @CurrentUser() user: RequestWithUser["user"],
+  ): Promise<Array<Order> | undefined> {
+    const userId = user?.id;
     if (!userId) {
       throw new HttpException('You must be logged in to gain access to this page', HttpStatus.BAD_REQUEST);
     }

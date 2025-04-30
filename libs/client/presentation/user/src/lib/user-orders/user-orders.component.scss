@@ -1,0 +1,19 @@
+@use "mixins";
+@use "functions";
+@use "variables" as *;
+
+@include mixins.tableStyle;
+
+h2 {
+	@include mixins.formTitle;
+	margin-bottom: functions.margin(small);
+}
+
+tr td:last-child {
+	border: 0;
+}
+
+.go-to-details {
+	color: $accent-green;
+	font-size: functions.font-size(medium);
+}

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { OlympicRingsComponent, RouteButtonComponent } from '@paris-2024/client-ui-shared';
 import { LandingSectionComponent } from './landing-section/landing-section.component';
@@ -9,7 +8,6 @@ import { LANDING_ELEMENTS } from './landing-elements';
   selector: 'lib-landing-page',
   standalone: true,
   imports: [
-    CommonModule,
     RouteButtonComponent,
     OlympicRingsComponent,
     LandingSectionComponent,
