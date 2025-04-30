@@ -29,10 +29,11 @@ h2 {
 
 .landing-image {
   width: 80vw;
-  max-height: 50vh;
+  max-height: 60vh;
   display: block;
   margin-left: auto;
   margin-right: auto;
+  margin-bottom: functions.margin(smallest);
   border-radius: 1em;
 
   @include mixins.mobile {
