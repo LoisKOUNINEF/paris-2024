@@ -1,6 +1,13 @@
 @use "mixins";
-@import 'form';
+@use "functions";
 
 .form-title {
-	@include mixins.formTitle
+	@include mixins.formTitle;
+	margin-top: functions.margin(small);
+	margin-bottom: functions.margin(medium);
+}
+
+.form-container {
+	@include mixins.flexCenter;
+	flex-direction: column;
 }

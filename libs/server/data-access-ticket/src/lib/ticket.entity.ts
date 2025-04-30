@@ -33,7 +33,7 @@ export class Ticket extends BaseEntity implements ITicket {
   @ApiProperty()
   @Column({
     type: 'text',
-    name: 'hashed_token'
+    name: 'token_hash'
   })
   tokenHash: string;
 
@@ -46,7 +46,6 @@ export class Ticket extends BaseEntity implements ITicket {
     }
     if (!hashRegex.test(this.tokenHash)) {
       throw new BadRequestException();
-      return;
     }
   }
 }

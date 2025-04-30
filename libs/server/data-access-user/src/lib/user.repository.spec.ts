@@ -27,6 +27,18 @@ const mockUser: User = {
   hashPassword: async () => { return; } ,
 }
 
+const mockUserRepository = {
+  findOne: jest.fn(),
+  find: jest.fn(),
+  save: jest.fn(),
+  update: jest.fn(),
+  restore: jest.fn(),
+  remove: jest.fn(),
+  create: jest.fn(),
+  createQueryBuilder: jest.fn(),
+  softRemove: jest.fn(),
+};
+
 describe('UserRepository', () => {
   let userRepository: UserRepository;
   let userRepo: Repository<User>;
@@ -37,7 +49,7 @@ describe('UserRepository', () => {
         UserRepository,
         {
           provide: getRepositoryToken(User),
-          useClass: Repository,
+          useValue: mockUserRepository,
         },
         {
           provide: ConfigService,
@@ -101,7 +113,7 @@ describe('UserRepository', () => {
 
       const result = await userRepository.findOneByEmail(mockUser.email);
       expect(result).toEqual(mockUser);
-      expect(userRepo.findOne).toHaveBeenCalledWith({ where: { email: mockUser.email } });
+      expect(userRepo.findOne).toHaveBeenCalledWith({ where: { email: mockUser.email }, withDeleted: true });
     });
   });
 

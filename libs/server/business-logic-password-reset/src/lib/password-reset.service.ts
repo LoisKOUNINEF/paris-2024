@@ -30,24 +30,24 @@ export class PasswordResetService {
     return await this.passwordResetMailerService.sendResetLink(pwdReset);
   }
 
-  async reset(id: string, password: string): Promise<User | undefined> {
+  async reset(id: string, password: string): Promise<User | null> {
     if (!passwordRegex.test(password)) {
       passwordNotAppropriate();
-      return;
+      return null;
     }
 
     const pwdReset = await this.passwordResetRepository.findOne(id);
 
     if (!pwdReset) {
       tokenNotFound();
-      return;
+      return null;
     }
 
     const user = await this.userRepository.findOneByEmail(pwdReset.email);
 
     if (!user) {
       userNotFound();
-      return;
+      return null;
     }
 
     const updatedUser = await this.userRepository.update(

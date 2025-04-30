@@ -25,7 +25,18 @@ export class PaymentComponent implements AfterViewInit {
   card: StripeCardElement;
   paymentIntent: any;
   error: string | null = null;
-  private readonly _stripeEndpoint = '/stripe/create-payment-intent'
+  private readonly _stripeEndpoint = '/stripe/create-payment-intent';
+  appearance = {
+    theme: 'flat' as const,
+    variables: {
+      colorPrimary: '#0570de',
+      colorBackground: '#ffffff',
+      colorText: '#30313d',
+      fontFamily: 'Arial, sans-serif',
+      spacingUnit: '4px',
+      borderRadius: '8px',
+    },
+  }
 
   constructor(
     private stripeService: StripeService,
@@ -37,16 +48,14 @@ export class PaymentComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     if(this.platformService.isBrowser) {
-      this.stripeService.elements().subscribe((elements) => {
+      this.stripeService.elements({ appearance: this.appearance }).subscribe((elements) => {
         this.card = elements.create('card', {
           style: {
             base: {
               color: '#32325d',
               fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
               fontSmoothing: 'antialiased',
-              fontSize: '1.3em',
-              lineHeight: '1.5em',
-              padding: '2em',
+              fontSize: '20px',
               '::placeholder': {
                 color: '#aab7c4'
               }
@@ -84,8 +93,6 @@ export class PaymentComponent implements AfterViewInit {
   confirmPayment() {
     console.debug('confirmPayment init')
     if (!this.paymentIntent) return;
-    console.debug(`Card: ${this.card}`)
-    console.debug(`PaymenIntent: ${this.paymentIntent}`)
     this.stripeService
       .confirmCardPayment(this.paymentIntent, {
         payment_method: {
@@ -95,7 +102,7 @@ export class PaymentComponent implements AfterViewInit {
       .subscribe({
         next: (result) => {
           if (result.paymentIntent?.status === 'succeeded') {
-            console.debug('Payment successful');
+            console.log('Payment successful');
             this.completeCheckout();
           } else {
             this.error = `Payment failed: ${result.paymentIntent}.`;

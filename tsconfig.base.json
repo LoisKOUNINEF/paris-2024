@@ -75,6 +75,9 @@
       "@paris-2024/client-presentation-stripe": [
         "libs/client/presentation/stripe/src/index.ts"
       ],
+      "@paris-2024/client-presentation-user": [
+        "libs/client/presentation/user/src/index.ts"
+      ],
       "@paris-2024/client-ui-form-building-blocks": [
         "libs/client/ui-form-building-blocks/src/index.ts"
       ],

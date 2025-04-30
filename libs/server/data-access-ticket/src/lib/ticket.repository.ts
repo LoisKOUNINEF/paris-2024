@@ -43,7 +43,7 @@ export class TicketRepository {
     })
   }
 
-  async isValid(userId: string, hashedToken: string): Promise<TicketValidity | null> {
+  async isValid(userId: string, tokenHash: string): Promise<TicketValidity | null> {
     const result = await this.ticketRepository
       .createQueryBuilder('ticket')
       .leftJoin('user', 'user', 'ticket.user_id::uuid = user.id')
@@ -52,7 +52,7 @@ export class TicketRepository {
         'user.first_name AS "firstName"',
         'user.last_name AS "lastName"'
       ])
-      .where('ticket.hashed_token = :hashedToken', { hashedToken })
+      .where('ticket.token_hash = :tokenHash', { tokenHash })
       .andWhere('ticket.user_id::uuid = :userId::uuid', { userId })
       .getRawOne();
     

@@ -1,0 +1,25 @@
+@use "mixins";
+@use "functions";
+@use "variables" as *;
+
+h3 {
+	@include mixins.formHeader;
+	font-size: functions.font-size(medium);
+	margin: functions.margin(small);
+}
+
+.container {
+	text-align: center;
+}
+
+.form-title {
+	@include mixins.formTitle;
+}
+
+.delete {
+	font-style: italic;
+	color: $secondary-color;
+	text-decoration: underline;
+	margin-top: functions.margin(small);
+	padding-bottom: functions.padding(small);
+}

@@ -1,0 +1,13 @@
+{
+  "name": "client-presentation-user",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/client/presentation/user/src",
+  "prefix": "lib",
+  "tags": [
+    "scope:client",
+    "type:presentation"
+  ],
+  "projectType": "library",
+  "// targets": "to see all targets run: nx show project client-presentation-user --web",
+  "targets": {}
+}

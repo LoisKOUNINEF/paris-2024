@@ -1,0 +1,26 @@
+<main class="grid">
+	<h2>Mes Commandes</h2>
+	<table>
+		<tbody>
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th>Prix</th>
+				</tr>
+			</thead>
+			@for (order of orders; track order) {
+				<tr>
+					<td>{{ order.createdAt | date }}</td>
+					<td>
+						{{ order.totalPrice | formatPrice | currency:'symbol':'€':'1.2-2' }}
+					</td>
+					<td class="go-to-details">
+						<a (click)=goToDetails(order.id)>
+							Détails
+						</a>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</main>
