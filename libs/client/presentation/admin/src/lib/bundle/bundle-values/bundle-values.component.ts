@@ -37,7 +37,6 @@ export class BundleValuesComponent implements OnInit, OnDestroy {
     });
     
     const bundleId = this.route.snapshot.paramMap.get('id');
-    console.log(bundleId)
     if (bundleId) {
       this.loadBundle(bundleId);
     }

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiRequestService } from '@paris-2024/client-data-access-core';
 import { Observable } from 'rxjs';
 import { Order } from './order.model';
-import { IOrderTickets } from '@paris-2024/shared-interfaces';
+import { IOrderEntity, IOrderTickets } from '@paris-2024/shared-interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +16,8 @@ export class OrderService {
     return this.apiRequestService.get<Array<Order>>(this.orderUrl);
   }
 
-  findUserOrders(): Observable<Array<Order>> {
-    return this.apiRequestService.get<Array<Order>>(`${this.orderUrl}/user-orders`);
+  findUserOrders(): Observable<Array<IOrderEntity>> {
+    return this.apiRequestService.get<Array<IOrderEntity>>(`${this.orderUrl}/user-orders`);
   }
 
   findOne(orderId: Order['id']): Observable<IOrderTickets> {

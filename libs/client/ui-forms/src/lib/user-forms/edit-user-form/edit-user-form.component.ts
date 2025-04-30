@@ -32,7 +32,8 @@ export class EditUserFormComponent implements OnInit {
       userInfos: this.formBuilder.group({...this.user}, 
         { validators: Validators.required }
       )
-    })
+    });
+    this.populateFields();
   }
 
   onSubmit() {
@@ -46,5 +47,15 @@ export class EditUserFormComponent implements OnInit {
       lastName: this.editUserForm.value.userInfos.lastName
     }
     return userDtoValues;
+  }
+
+  private populateFields() {
+    if(this.user) {
+      this.editUserForm.patchValue({
+        email: this.user.email,
+        firstName: this.user.firstName,
+        lastName: this.user.lastName,
+      })
+    }
   }
 }
