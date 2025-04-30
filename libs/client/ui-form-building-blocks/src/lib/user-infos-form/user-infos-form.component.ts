@@ -32,5 +32,15 @@ export class UserInfosFormComponent extends CommonFormComponent implements OnIni
 
   ngOnInit(): void {
     this.userInfosForm = this.controlContainer.control as FormGroup;
+    this.userInfosForm.addControl<UserInfos['firstName']>('firstName',
+      this.formBuilder.control<UserInfos['firstName']>('', 
+        Validators.required
+      )
+    )
+    this.userInfosForm.addControl<UserInfos['lastName']>('lastName',
+      this.formBuilder.control<UserInfos['lastName']>('', 
+        Validators.required
+      )
+    )
   }
 }
