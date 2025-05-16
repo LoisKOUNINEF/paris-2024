@@ -36,7 +36,7 @@ export class OnOrderMailerService {
   }
 
   private async parseParams(params: OnOrderMailParams): Promise<OnOrderMailContext> {
-    const orderDetailsUrl = `${this.mailerParams.mainUrl}/shop/orders/order/${params.orderId}`;
+    const orderDetailsUrl = `${this.mailerParams.mainUrl}/shop/order/${params.orderId}`;
     const qrCodes: Array<SafeString> = [];
 
     for (const qrCode of params.qrCodes) {
