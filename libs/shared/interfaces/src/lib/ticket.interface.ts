@@ -10,4 +10,5 @@ export interface ITicket extends IBase {
 export interface TicketValidity {
   isValid: boolean;
   userFullName: string;
+  createdAt: Date;
 }
