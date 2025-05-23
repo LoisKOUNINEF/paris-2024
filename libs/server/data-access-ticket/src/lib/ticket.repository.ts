@@ -43,17 +43,18 @@ export class TicketRepository {
     })
   }
 
-  async isValid(userId: string, tokenHash: string): Promise<TicketValidity | null> {
+  async isValid(userSecret: string, tokenHash: string): Promise<TicketValidity | null> {
     const result = await this.ticketRepository
       .createQueryBuilder('ticket')
       .leftJoin('user', 'user', 'ticket.user_id::uuid = user.id')
       .select([
         'ticket.is_valid AS "isValid"',
+        'ticket.created_at AS "createdAt"',
         'user.first_name AS "firstName"',
         'user.last_name AS "lastName"'
       ])
       .where('ticket.token_hash = :tokenHash', { tokenHash })
-      .andWhere('ticket.user_id::uuid = :userId::uuid', { userId })
+      .andWhere('user.secret_key = :userSecret', { userSecret })
       .getRawOne();
     
     if (!result) {
@@ -63,7 +64,8 @@ export class TicketRepository {
     
     return {
       isValid: result.isValid,
-      userFullName: `${result.firstName} ${result.lastName}`
+      userFullName: `${result.firstName} ${result.lastName}`,
+      createdAt: result.createdAt,
     };
   }
 

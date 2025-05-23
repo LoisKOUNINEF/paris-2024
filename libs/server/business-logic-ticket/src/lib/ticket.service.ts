@@ -59,8 +59,10 @@ export class TicketService {
   }
 
   async isValid(qrCode: Ticket['qrCode']): Promise<TicketValidity | null> {
-    const [userId, ticketToken] = qrCode.split(':');
+    const [userSecret, ticketToken] = qrCode.split(':');
     const hashedToken = hash(ticketToken);
-    return await this.ticketRepository.isValid(userId, hashedToken);
+    const hashedUserSecret = hash(userSecret)
+
+    return await this.ticketRepository.isValid(hashedUserSecret, hashedToken);
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ItemJunction } from './item-junction.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateItemJunctionDto, UpdateItemJunctionDto } from './item-junction.dto';
@@ -76,6 +76,11 @@ export class ItemJunctionRepository {
   }
 
   async getAllWithSales(bundleIds: Array<string>): Promise<Record<string, number>> {
+    interface SaleJunction {
+      bundle_id: string;
+      item_junction_quantity: number;
+    };
+
     if (!bundleIds.length) {
       return {};
     }
@@ -87,12 +92,14 @@ export class ItemJunctionRepository {
       .andWhere('item_junction.order_id IS NOT NULL')
       .getRawMany();
 
-    const salesByBundleId = itemJunctions.reduce((acc: Record<string, number>, sale: any) => {
-      const bundleId = sale.item_junction_bundleId;
+    const salesByBundleId = itemJunctions.reduce((acc: Record<string, number>, saleJunction: SaleJunction) => {
+      const bundleId = saleJunction.bundle_id;
+      
       if (!acc[bundleId]) {
         acc[bundleId] = 0;
       }
-      acc[bundleId] += sale.item_junction_quantity;
+      
+      acc[bundleId] += saleJunction.item_junction_quantity;
       return acc;
     }, {});
 
@@ -104,7 +111,6 @@ export class ItemJunctionRepository {
 
     return salesByBundleId;
   }
-
 
   async updateQuantity(id: ItemJunction['id'], quantity: number): Promise<ItemJunction | null> {
     const itemJunction = await this.itemJunctionRepository.findOne({ 
@@ -199,7 +205,9 @@ export class ItemJunctionRepository {
       .execute();
     
     if (updateResult.affected && updateResult.affected > 0) {
-      return await this.itemJunctionRepository.findByIds(ids);
+      return await this.itemJunctionRepository.findBy({
+        id : In(ids)
+      });
     }
     
     return [];

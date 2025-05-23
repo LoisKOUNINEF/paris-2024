@@ -9,6 +9,7 @@ import {
   userAlreadyExists,
   userNotFound,
 } from './user.exceptions';
+import { createToken } from '@paris-2024/server-utils';
 
 @Injectable()
 export class UserRepository {
@@ -72,6 +73,7 @@ export class UserRepository {
     if (!userExists) {
       const newUser = this.userRepository.create(createUserDto);
       newUser.lastLoginAt = new Date();
+      newUser.emailVerificationToken = createToken();
       
       await this.userRepository.save(newUser);
 
@@ -88,6 +90,21 @@ export class UserRepository {
 
     userAlreadyExists();
     return null;
+  }
+
+  async verifyEmail(token: string): Promise<User | null> {
+    const user = await this.userRepository.findOne({
+      where: {
+        emailVerificationToken: token
+      }
+    });
+    if (!user) {
+      userNotFound();
+      return null;
+    }
+
+    await this.userRepository.save(Object.assign(user, {emailVerified: true, emailVerificationToken: null}))
+    return user;
   }
 
   async update(id: User['id'], updateUserDto: UpdateUserDto): Promise<User | null> {

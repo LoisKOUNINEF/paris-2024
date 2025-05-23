@@ -40,11 +40,11 @@ describe('generateTaggedLib', () => {
 
   it('should call createSpecConfigFiles for non-Angular library generation', async () => {
     await generateTaggedLib(tree, options, callGenerator);
-    expect(createSpecConfigFiles).toHaveBeenCalledWith(options, `libs/${options.scope}/${options.type}/${options.name}`, undefined);
+    expect(createSpecConfigFiles).toHaveBeenCalledWith(options, `libs/${options.scope}/${options.name}/${options.type}`, undefined);
   });
 
   it('should call createSpecConfigFiles for Angular library generation', async () => {
     await generateTaggedLib(tree, options, callGenerator, true);
-    expect(createSpecConfigFiles).toHaveBeenCalledWith(options, `libs/${options.scope}/${options.type}/${options.name}`, true);
+    expect(createSpecConfigFiles).toHaveBeenCalledWith(options, `libs/${options.scope}/${options.name}/${options.type}`, true);
   });
 });
