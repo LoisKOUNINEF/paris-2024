@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { filter, Subscription, switchMap } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
 import { UserDto, UserFormValue, User } from '@paris-2024/client-data-access-user';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { FullUserFormComponent } from '@paris-2024/client-ui-forms';
@@ -34,13 +34,8 @@ export class SignupComponent implements OnDestroy {
       .subscribe((res: User) => {
         this.guestTokenService.clearGuestToken()
         this.snackbarService.showSuccess('Compte créé.')
-          .afterDismissed()
-          .pipe(
-            switchMap(() => this.authService.login(user))
-          )
-        .subscribe(() => {
-          this.router.navigate(['shop'])
-      }) 
+        .afterDismissed()
+        this.router.navigate(['auth/pending-verification'])
     })
   }
 

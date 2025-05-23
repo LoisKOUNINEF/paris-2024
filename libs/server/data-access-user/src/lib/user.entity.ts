@@ -13,7 +13,8 @@ import { IsEmail, Matches } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { Roles, IUser } from '@paris-2024/shared-interfaces';
 import { BaseEntity } from '@paris-2024/server-base-entity';
-import { passwordRegex } from '@paris-2024/shared-utils';
+import { passwordRegex, uuidRegex } from '@paris-2024/shared-utils';
+import { hash } from '@paris-2024/server-utils';
 
 @Entity()
 @Unique('UQ_user_email', ['email'])
@@ -92,6 +93,22 @@ export class User extends BaseEntity implements IUser {
   @ApiProperty()
   lastLoginAt: Date;
 
+  @Column({
+    type: 'boolean',
+    default: false,
+    name: 'email_verified'
+  })
+  @ApiProperty()
+  emailVerified: boolean;
+
+  @Column({
+    type: 'text',
+    nullable: true,
+    name: 'email_verification_token'
+  })
+  @ApiProperty()
+  emailVerificationToken: string;
+
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
@@ -100,6 +117,14 @@ export class User extends BaseEntity implements IUser {
       !/^\$2[aby]\$[0-9]{2}\$.+/.test(this.password)
     ) {
       this.password = await bcrypt.hash(this.password, Number(10));
+    }
+  }
+
+  @BeforeInsert()
+  async hashSecretKey() {
+    if (uuidRegex.test(this.secretKey)) {
+      this.secretKey = hash(this.secretKey);
+      return;
     }
   }
 }

@@ -47,7 +47,7 @@
     "directory": {
       "type": "string",
       "description": "A directory where the library is placed",
-      "x-prompt": "In which directory should the library be generated? Empty Defaults to 'libs/{scope}/${type}/{projectName}'"
+      "x-prompt": "In which directory should the library be generated? Empty Defaults to 'libs/{scope}/${projectName}/{type}'"
     }
   },
   "required": ["name", "scope", "type"]

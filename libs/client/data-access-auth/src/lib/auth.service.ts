@@ -63,6 +63,10 @@ export class AuthService {
       )
   }
 
+  public verifyEmail(token: string): Observable<boolean> {
+    return this.apiRequestService.get<boolean>(`${this.authUrl}/verify-email/${token}`)
+  }
+
   public checkUserStatus(): Observable<IAuthStatus> {
     return forkJoin({
       isAuth: this.checkAuthStatus(),

@@ -1,0 +1,21 @@
+@use "variables" as *;
+@use "mixins";
+@use "functions";
+
+.container {
+	@include mixins.flexCenter;
+	flex-direction: column;
+	margin: functions.margin(small);
+	font-size: functions.font-size(medium);
+}
+
+.info {
+	margin-top: functions.margin(medium);
+	margin-bottom: functions.margin(medium);
+}
+
+.reminder {
+	color: $accent-yellow;
+	font-style: italic;
+	margin-bottom: functions.margin(small);
+}

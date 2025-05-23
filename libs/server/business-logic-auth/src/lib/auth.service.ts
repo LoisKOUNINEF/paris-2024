@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from '@paris-2024/server-data-access-user';
 import { IUser } from '@paris-2024/shared-interfaces';
-import { incorrectPassword, userDoesntExist } from './auth.exceptions';
+import { emailNotVerified, incorrectPassword, userDoesntExist } from './auth.exceptions';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +20,11 @@ export class AuthService {
 
     if (!isMatch) {
       incorrectPassword()
+      return null;
+    }
+
+    if (!user.emailVerified) {
+      emailNotVerified()
       return null;
     }
 
