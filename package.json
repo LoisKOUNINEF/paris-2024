@@ -1,6 +1,6 @@
 {
   "name": "@paris-2024/source",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "patch": "npm version patch -m 'CI/CD: Bump version to %s'",
