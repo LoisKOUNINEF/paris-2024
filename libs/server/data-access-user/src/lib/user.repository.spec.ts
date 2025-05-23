@@ -24,7 +24,10 @@ const mockUser: User = {
   secretKey: 'test-secret',
   createdAt: new Date(),
   updatedAt: new Date(),
+  emailVerified: true,
+  emailVerificationToken: '',
   hashPassword: async () => { return; } ,
+  hashSecretKey: async () => { return; } ,
 }
 
 const mockUserRepository = {
