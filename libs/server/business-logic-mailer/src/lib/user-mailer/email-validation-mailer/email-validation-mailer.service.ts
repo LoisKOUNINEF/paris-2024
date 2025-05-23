@@ -17,8 +17,8 @@ export class EmailValidationMailerService {
 
     return await this.mailerService.sendMail({
       to: user.email,
-      subject: 'Reset your Paris 2024 account password',
-      template: 'user-mailer/password-reset-mailer/password-reset-mailer',
+      subject: 'Validate your email adress',
+      template: 'user-mailer/email-validation-mailer/email-validation-mailer',
       context: {
         email,
         url,

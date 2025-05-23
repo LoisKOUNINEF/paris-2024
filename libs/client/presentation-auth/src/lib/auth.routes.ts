@@ -24,7 +24,7 @@ export const authRoutes: Routes = [
 				component: SignupComponent,
 			},
 			{
-				path: 'verify-email', 
+				path: 'verify-email/:token', 
 				title: 'Email Verification',
 				component: VerifyEmailComponent,
 			},
