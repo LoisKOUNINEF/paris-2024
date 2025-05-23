@@ -24,14 +24,14 @@ export const authRoutes: Routes = [
 				component: SignupComponent,
 			},
 			{
-				path: 'verify-email/:token', 
-				title: 'Email Verification',
-				component: VerifyEmailComponent,
-			},
-			{
 				path: 'pending-verification', 
 				title: 'Pending Verification',
 				component: PendingVerificationComponent,
+			},
+			{
+				path: 'verify-email/:token', 
+				title: 'Email Verification',
+				component: VerifyEmailComponent,
 			},
 		]
 	},
