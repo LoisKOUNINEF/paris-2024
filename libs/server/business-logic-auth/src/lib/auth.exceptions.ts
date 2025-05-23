@@ -1,4 +1,4 @@
-import { BadRequestException } from "@nestjs/common";
+import { BadRequestException, UnauthorizedException } from "@nestjs/common";
 
 export function userDoesntExist() {
   try {
@@ -20,4 +20,8 @@ export function incorrectPassword() {
     console.error(error);
     return null;
   }
+}
+
+export function emailNotVerified() {
+  throw new UnauthorizedException('Please verify your email before logging in.');
 }

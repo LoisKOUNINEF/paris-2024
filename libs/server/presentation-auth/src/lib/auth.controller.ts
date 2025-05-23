@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Body, Controller, Get, HttpException, HttpStatus, Post, Request, UseGuards, Headers } from "@nestjs/common";
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Request, UseGuards, Headers, Param } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UserService } from "@paris-2024/server-business-logic-user";
 import { CreateUserDto, LoginDto, User } from "@paris-2024/server-data-access-user";
@@ -29,9 +29,9 @@ export class AuthController {
   @ApiBadRequestResponse()
   createUser(
     @Body() userDto: CreateUserDto,
-    @Headers('x-guest-token') guestToken: string,
+    @Headers('x-guest-token') guestToken: string |undefined,
     ): Promise<User | undefined> {
-    return this.userService.create(userDto, false);
+    return this.userService.create(userDto, false, guestToken);
   }
 
   @Post('login')
@@ -89,6 +89,15 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'User is a staff member.' })
   @ApiResponse({ status: 403, description: 'User is not a staff member.' })
   isStaff(): boolean {
+    return true;
+  }
+
+  @Get('verify-email/:token')
+  async verifyEmail(@Param('token') token: string,): Promise<boolean> {
+    const valid = await this.userService.verifyEmail(token);
+    if(!valid) {
+      return false;
+    }
     return true;
   }
 

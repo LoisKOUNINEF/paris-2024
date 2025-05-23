@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ICartIdentifier, Roles, RoleValue } from '@paris-2024/shared-interfaces';
 import { UserRepository, CreateUserDto, User, UpdateUserDto } from '@paris-2024/server-data-access-user';
-import { WelcomeMailerService } from '@paris-2024/server-business-logic-mailer';
+import { WelcomeMailerService, EmailValidationMailerService } from '@paris-2024/server-business-logic-mailer';
 import { CartService } from '@paris-2024/server-business-logic-cart';
 import { Cart } from '@paris-2024/server-data-access-cart';
 
@@ -10,6 +10,7 @@ export class UserService {
 	constructor( 
 		private userRepository: UserRepository,
 		private welcomeMailerService: WelcomeMailerService,
+		private emailValidationService: EmailValidationMailerService,
 		private cartService: CartService,
 	) {}
 
@@ -52,10 +53,18 @@ export class UserService {
 				this.linkCart({ userId: createdUser.id, guestToken: guestToken })
 			} 
 		}
-		
+
+		await this.emailValidationService.sendValidationLink(        {
+			email: createdUser.email,
+      emailVerificationToken: createdUser.emailVerificationToken
+    });		
 		await this.welcomeMailerService.sendWelcome(createdUser.email);
 	
 		return createdUser;
+	}
+
+	async verifyEmail(token: string): Promise<User | null> {
+		return await this.userRepository.verifyEmail(token);
 	}
 
 	async update(id: User['id'], dto: UpdateUserDto): Promise<User | null> {
