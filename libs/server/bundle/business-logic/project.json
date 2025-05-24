@@ -1,0 +1,12 @@
+{
+  "name": "server-business-logic-bundle",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/server/business-logic-bundle/src",
+  "projectType": "library",
+  "tags": [
+    "scope:server",
+    "type:business-logic"
+  ],
+  "// targets": "to see all targets run: nx show project server-business-logic-bundle --web",
+  "targets": {}
+}

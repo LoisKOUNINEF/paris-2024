@@ -12,26 +12,26 @@
 }
 
 .button {
-	justify-self: center;
-	align-self: center;
-	background-color: $accent-green;
-	color: $background-light;
-	border-radius: .3em;
-	border: 1px solid $accent-green;
-	padding: .1em;
-	font-size: functions.font-size(medium);
-	font-weight: bold;
-	margin-left: functions.margin(smallest);
-	transition: all 0.5s ease-out;
-	&:hover {
-		background-color: $accent-yellow;
-		color: $text-color;
-	}
+	// justify-self: center;
+	// align-self: center;
+	// background-color: $accent-green;
+	// color: $background-light;
+	// border-radius: .3em;
+	// border: 1px solid $accent-green;
+	// padding: .1em;
+	// font-size: functions.font-size(medium);
+	// font-weight: bold;
+	// margin-left: functions.margin(smallest);
+	// transition: all 0.5s ease-out;
+	// &:hover {
+	// 	background-color: $accent-yellow;
+	// 	color: $text-color;
+	// }
 
-	@include mixins.mobile {
-		font-size: functions.font-size(small);
-		font-weight: normal;
-	}
+	// @include mixins.mobile {
+	// 	font-size: functions.font-size(small);
+	// 	font-weight: normal;
+	// }
 }
 
 .quantity-button {

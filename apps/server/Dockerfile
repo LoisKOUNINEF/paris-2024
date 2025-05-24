@@ -28,7 +28,7 @@ USER appuser
 WORKDIR /usr/src/app
 
 COPY --from=builder --chown=appuser:appgroup /usr/src/app/dist/apps/server ./build
-COPY --from=builder --chown=appuser:appgroup /usr/src/app/dist/libs/server/data-source/migrations ./migrations
+COPY --from=builder --chown=appuser:appgroup /usr/src/app/dist/libs/server/data-source/data-source/migrations ./migrations
 COPY --from=builder --chown=appuser:appgroup /usr/src/app/dist/tools/scripts/run-migrations/index.cjs ./scripts/run-migrations/index.cjs
 COPY --from=builder --chown=appuser:appgroup /usr/src/app/dist/tools/scripts/healthcheck/index.cjs ./scripts/healthcheck/index.cjs
 COPY --from=dependencies --chown=appuser:appgroup /usr/src/app/node_modules ./node_modules
