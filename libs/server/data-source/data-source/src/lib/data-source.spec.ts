@@ -68,7 +68,7 @@ describe('createDataSource', () => {
         trustServerCertificate: true,
       },
       entities: [expect.arrayContaining(EntitiesModule.provideEntities())],
-      migrations: [expect.stringContaining('libs/server/data-source/src/migrations/*.ts')],
+      migrations: [expect.stringContaining('libs/server/data-source/data-source/src/migrations/*.ts')],
       migrationsRun: false,
       synchronize: false,
     });
