@@ -1,8 +1,12 @@
 @if (loading) {
 	<lib-loading-spinner></lib-loading-spinner>
 } @else if(success) {
-	<p> {{ success }} </p>
-	<p><a (click)="goToLogin()" role="button">Se connecter</a></p>
+	<div class="container">
+		<p> {{ success }} </p>
+		<p class="link"><a (click)="goToLogin()" role="button">Se connecter</a></p>
+	</div>
 } @else {
-	<p> {{ error }}</p>
+	<div class="container">
+		<p> {{ error }}</p>
+	</div>
 }
