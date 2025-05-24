@@ -1,0 +1,117 @@
+{
+  "name": "server-data-source",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/server/data-source/src",
+  "projectType": "library",
+  "tags": [
+    "scope:server",
+    "type:data-access"
+  ],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options":{
+        "commands":[
+          { 
+            "command": "nx build-main server-data-source"
+          },
+          { 
+            "command": "nx build-migrations server-data-source"
+          }
+        ]
+      }
+    },
+    "build-main": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/server/data-source",
+        "main": "libs/server/data-source/data-source/src/index.ts",
+        "tsConfig": "libs/server/data-source/data-source/tsconfig.lib.json",
+        "assets": [
+          "libs/server/data-source/data-source/*.md"
+        ],
+        "format": ["cjs"],
+      },
+    },
+    "build-migrations": {
+      "executor": "nx:run-commands",
+      "options":{
+        "commands":[
+          {
+            "command":"npx tsc libs/server/data-source/data-source/src/migrations/*.ts --outDir dist/libs/server/data-source/data-source/migrations"
+          }
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "configurations": {
+        "coverage": {
+          "options": {
+            "codeCoverage": true,
+          }
+        }
+      },
+      "options": {
+        "jestConfig": "libs/server/data-source/data-source/jest.config.ts",
+        "verbose": true
+      }
+    },
+    "typeorm": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "commands": [
+          {
+            "command": "ts-node -r tsconfig-paths/register -O '{\"module\": \"commonjs\"}' --project libs/server/data-source/data-source/tsconfig.json node_modules/typeorm/cli"
+          }
+        ]
+      }
+    },
+    "migration-generate": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "commands": [
+          {
+            "command": "nx run server-data-source:typeorm migration:generate libs/server/data-source/data-source/src/migrations/{args.name}Migration -d libs/server/data-source/data-source/src/lib/data-source.ts --pretty"
+          }
+        ]
+      }
+    },
+    "migration-create": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "commands": [
+          {
+            "command": "nx run server-data-source:typeorm migration:create libs/server/data-source/data-source/src/migrations/{args.name}Migration"
+          }
+        ]
+      }
+    },
+    "migration-run": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "commands": [
+          {
+            "command": "nx run server-data-source:typeorm migration:run -d libs/server/data-source/data-source/src/lib/data-source.ts"
+          }
+        ]
+      }
+    },
+    "migration-revert": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "commands": [
+          {
+            "command": "nx run server-data-source:typeorm migration:revert -d libs/server/data-source/data-source/src/lib/data-source.ts"
+          }
+        ]
+      }
+    }
+  }
+}

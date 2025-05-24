@@ -19,7 +19,7 @@
           "apps/server/src/assets",
           {
             "glob": "**/*.hbs",
-            "input": "libs/server/business-logic-mailer/src/lib",
+            "input": "libs/server/mailer/business-logic/src/lib",
             "output": "src/mailer"
           }
         ],

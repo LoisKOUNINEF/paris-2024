@@ -90,91 +90,91 @@
         "tools/scripts/run-migrations/src/index.ts"
       ],
       "@paris-2024/server-base-entity": [
-        "libs/server/base-entity/src/index.ts"
+        "libs/server/data-source/base-entity/src/index.ts"
       ],
       "@paris-2024/server-business-logic-auth": [
-        "libs/server/business-logic-auth/src/index.ts"
+        "libs/server/auth/business-logic/src/index.ts"
       ],
       "@paris-2024/server-business-logic-bundle": [
-        "libs/server/business-logic-bundle/src/index.ts"
+        "libs/server/bundle/business-logic/src/index.ts"
       ],
       "@paris-2024/server-business-logic-cart": [
-        "libs/server/business-logic-cart/src/index.ts"
+        "libs/server/cart/business-logic/src/index.ts"
       ],
       "@paris-2024/server-business-logic-cron": [
-        "libs/server/business-logic-cron/src/index.ts"
+        "libs/server/cron/business-logic/src/index.ts"
       ],
       "@paris-2024/server-business-logic-guards": [
-        "libs/server/business-logic-guards/src/index.ts"
+        "libs/server/guards/business-logic/src/index.ts"
       ],
       "@paris-2024/server-business-logic-mailer": [
-        "libs/server/business-logic-mailer/src/index.ts"
+        "libs/server/mailer/business-logic/src/index.ts"
       ],
       "@paris-2024/server-business-logic-order": [
-        "libs/server/business-logic-order/src/index.ts"
+        "libs/server/order/business-logic/src/index.ts"
       ],
       "@paris-2024/server-business-logic-password-reset": [
-        "libs/server/business-logic-password-reset/src/index.ts"
+        "libs/server/password-reset/business-logic/src/index.ts"
       ],
       "@paris-2024/server-business-logic-stripe": [
-        "libs/server/business-logic/stripe/src/index.ts"
+        "libs/server/stripe/business-logic/src/index.ts"
       ],
       "@paris-2024/server-business-logic-ticket": [
-        "libs/server/business-logic-ticket/src/index.ts"
+        "libs/server/ticket/business-logic/src/index.ts"
       ],
       "@paris-2024/server-business-logic-user": [
-        "libs/server/business-logic-user/src/index.ts"
+        "libs/server/user/business-logic/src/index.ts"
       ],
       "@paris-2024/server-data-access-bundle": [
-        "libs/server/data-access-bundle/src/index.ts"
+        "libs/server/bundle/data-access/src/index.ts"
       ],
       "@paris-2024/server-data-access-cart": [
-        "libs/server/data-access-cart/src/index.ts"
+        "libs/server/cart/data-access/src/index.ts"
       ],
       "@paris-2024/server-data-access-item-junction": [
-        "libs/server/data-access-item-junction/src/index.ts"
+        "libs/server/item-junction/data-access/src/index.ts"
       ],
       "@paris-2024/server-data-access-order": [
-        "libs/server/data-access-order/src/index.ts"
+        "libs/server/order/data-access/src/index.ts"
       ],
       "@paris-2024/server-data-access-password-reset": [
-        "libs/server/data-access-password-reset/src/index.ts"
+        "libs/server/password-reset/data-access/src/index.ts"
       ],
       "@paris-2024/server-data-access-ticket": [
-        "libs/server/data-access-ticket/src/index.ts"
+        "libs/server/ticket/data-access/src/index.ts"
       ],
       "@paris-2024/server-data-access-user": [
-        "libs/server/data-access-user/src/index.ts"
+        "libs/server/user/data-access/src/index.ts"
       ],
       "@paris-2024/server-data-source": [
-        "libs/server/data-source/src/index.ts"
+        "libs/server/data-source/data-source/src/index.ts"
       ],
       "@paris-2024/server-data-source-entities": [
-        "libs/server/data-source-entities/src/index.ts"
+        "libs/server/data-source/entities/src/index.ts"
       ],
       "@paris-2024/server-presentation-auth": [
-        "libs/server/presentation-auth/src/index.ts"
+        "libs/server/auth/presentation/src/index.ts"
       ],
       "@paris-2024/server-presentation-bundle": [
-        "libs/server/presentation-bundle/src/index.ts"
+        "libs/server/bundle/presentation/src/index.ts"
       ],
       "@paris-2024/server-presentation-cart": [
-        "libs/server/presentation-cart/src/index.ts"
+        "libs/server/cart/presentation/src/index.ts"
       ],
       "@paris-2024/server-presentation-order": [
-        "libs/server/presentation-order/src/index.ts"
+        "libs/server/order/presentation/src/index.ts"
       ],
       "@paris-2024/server-presentation-password-reset": [
-        "libs/server/presentation-password-reset/src/index.ts"
+        "libs/server/password-reset/presentation/src/index.ts"
       ],
       "@paris-2024/server-presentation-ticket": [
-        "libs/server/presentation-ticket/src/index.ts"
+        "libs/server/ticket/presentation/src/index.ts"
       ],
       "@paris-2024/server-presentation-user": [
-        "libs/server/presentation-user/src/index.ts"
+        "libs/server/user/presentation/src/index.ts"
       ],
       "@paris-2024/server-security-guards": [
-        "libs/server/security-guards/src/index.ts"
+        "libs/server/guards/security/src/index.ts"
       ],
       "@paris-2024/server-utils": ["libs/server/utils/src/index.ts"],
       "@paris-2024/shared-interfaces": ["libs/shared/interfaces/src/index.ts"],
