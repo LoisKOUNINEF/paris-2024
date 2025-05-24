@@ -31,7 +31,7 @@
     "verbatimModuleSyntax": false,
     "paths": {
       "@paris-2024/client-data-access-auth": [
-        "libs/client/data-access-auth/src/index.ts"
+        "libs/client/data-access/auth/src/index.ts"
       ],
       "@paris-2024/client-data-access-bundle": [
         "libs/client/data-access/bundle/src/index.ts"
@@ -40,31 +40,31 @@
         "libs/client/data-access/cart/src/index.ts"
       ],
       "@paris-2024/client-data-access-core": [
-        "libs/client/data-access-core/src/index.ts"
+        "libs/client/data-access/core/src/index.ts"
       ],
       "@paris-2024/client-data-access-order": [
         "libs/client/data-access/order/src/index.ts"
       ],
       "@paris-2024/client-data-access-password-reset": [
-        "libs/client/data-access-password-reset/src/index.ts"
+        "libs/client/data-access/password-reset/src/index.ts"
       ],
       "@paris-2024/client-data-access-ticket": [
         "libs/client/data-access/ticket/src/index.ts"
       ],
       "@paris-2024/client-data-access-user": [
-        "libs/client/data-access-user/src/index.ts"
+        "libs/client/data-access/user/src/index.ts"
       ],
       "@paris-2024/client-presentation-admin": [
         "libs/client/presentation/admin/src/index.ts"
       ],
       "@paris-2024/client-presentation-auth": [
-        "libs/client/presentation-auth/src/index.ts"
+        "libs/client/presentation/auth/src/index.ts"
       ],
       "@paris-2024/client-presentation-core": [
-        "libs/client/presentation-core/src/index.ts"
+        "libs/client/presentation/core/src/index.ts"
       ],
       "@paris-2024/client-presentation-password-reset": [
-        "libs/client/presentation-password-reset/src/index.ts"
+        "libs/client/presentation/password-reset/src/index.ts"
       ],
       "@paris-2024/client-presentation-shop": [
         "libs/client/presentation/shop/src/index.ts"
@@ -79,10 +79,10 @@
         "libs/client/presentation/user/src/index.ts"
       ],
       "@paris-2024/client-ui-form-building-blocks": [
-        "libs/client/ui-form-building-blocks/src/index.ts"
+        "libs/client/ui/form-building-blocks/src/index.ts"
       ],
-      "@paris-2024/client-ui-forms": ["libs/client/ui-forms/src/index.ts"],
-      "@paris-2024/client-ui-shared": ["libs/client/ui-shared/src/index.ts"],
+      "@paris-2024/client-ui-forms": ["libs/client/ui/forms/src/index.ts"],
+      "@paris-2024/client-ui-shared": ["libs/client/ui/shared/src/index.ts"],
       "@paris-2024/client-utils": ["libs/client/utils/src/index.ts"],
       "@paris-2024/db-readiness": ["tools/scripts/db-readiness/src/index.ts"],
       "@paris-2024/healthcheck": ["tools/scripts/healthcheck/src/index.ts"],
