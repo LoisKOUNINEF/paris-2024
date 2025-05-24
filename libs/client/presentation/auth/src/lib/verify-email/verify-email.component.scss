@@ -1,0 +1,15 @@
+@use "functions";
+@use "variables" as *;
+
+.container {
+	font-size: functions.font-size(large);
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: functions.margin(large);
+}
+
+.link {
+	font-style: italic;
+	color: $secondary-color;	
+}
