@@ -20,7 +20,7 @@ import { hash } from '@paris-2024/server-utils';
 @Unique('UQ_user_email', ['email'])
 export class User extends BaseEntity implements IUser {
   @Column({
-    type: 'uuid',
+    type: 'text',
     select: false,
     name: 'secret_key'
   })

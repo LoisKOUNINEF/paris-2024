@@ -56,7 +56,7 @@ export class TicketRepository {
       .where('ticket.token_hash = :tokenHash', { tokenHash })
       .andWhere('user.secret_key = :userSecret', { userSecret })
       .getRawOne();
-    
+
     if (!result) {
       ticketDoesntExist();
       return null;

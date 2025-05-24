@@ -32,7 +32,7 @@ export class TicketService {
 
   private async generateQrCode(data: string): Promise<string | undefined> {
     try {
-      const appUrl = 'https://studi-exam-jo.lois-kouninef.eu/tickets';
+      const appUrl = 'https://studi-exam-jo.lois-kouninef.eu/shop/tickets';
       const qrCodeData = `${appUrl}/${data}`
       const qrCodeDataURL = await qrCode.toDataURL(qrCodeData);
       return qrCodeDataURL;
@@ -61,8 +61,7 @@ export class TicketService {
   async isValid(qrCode: Ticket['qrCode']): Promise<TicketValidity | null> {
     const [userSecret, ticketToken] = qrCode.split(':');
     const hashedToken = hash(ticketToken);
-    const hashedUserSecret = hash(userSecret)
 
-    return await this.ticketRepository.isValid(hashedUserSecret, hashedToken);
+    return await this.ticketRepository.isValid(userSecret, hashedToken);
   }
 }
