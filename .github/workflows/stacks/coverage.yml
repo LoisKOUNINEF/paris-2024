@@ -16,10 +16,14 @@ services:
         window: 120s
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.paris-2024-coverage.rule=Host(`studi-exam-jo.lois-kouninef.eu`, `www.studi-exam-jo.lois-kouninef.eu`) && PathPrefix(`/coverage`)"
+        - "traefik.http.routers.paris-2024-coverage.rule=(Host(`studi-exam-jo.lois-kouninef.eu`) || Host(`www.studi-exam-jo.lois-kouninef.eu`)) && PathPrefix(`/coverage`)"
         - "traefik.http.routers.paris-2024-coverage.entrypoints=websecure"
         - "traefik.http.routers.paris-2024-coverage.tls.certresolver=letsencrypt"
         - "traefik.http.routers.paris-2024-coverage.service=paris-2024-coverage"
+        - "traefik.http.middlewares.hsts-header.headers.stsSeconds=31536000"
+        - "traefik.http.middlewares.hsts-header.headers.stsIncludeSubdomains=true"
+        - "traefik.http.middlewares.hsts-header.headers.stsPreload=true"
+        - "traefik.http.routers.paris-2024-coverage.middlewares=hsts-header@docker"
         - "traefik.http.services.paris-2024-coverage.loadbalancer.server.port=8090"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8090 || exit 1"]

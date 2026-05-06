@@ -34,14 +34,20 @@ services:
         window: 120s
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.rule=Host(`${DOMAIN_NAME}`, `www.${DOMAIN_NAME}`) && PathPrefix(`/api`)"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.rule=(Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)) && PathPrefix(`/api`)"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.entrypoints=websecure"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.tls.certresolver=letsencrypt"
+        - "traefik.http.middlewares.hsts-header.headers.stsSeconds=31536000"
+        - "traefik.http.middlewares.hsts-header.headers.stsIncludeSubdomains=true"
+        - "traefik.http.middlewares.hsts-header.headers.stsPreload=true"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.middlewares=hsts-header@docker"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.service=${PROJECT_LOWER}-${STACK_NAME}-server"
         - "traefik.http.services.${PROJECT_LOWER}-${STACK_NAME}-server.loadbalancer.server.port=${SERVER_PORT}"
-        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.rule=Host(`${DOMAIN_NAME}`, `www.${DOMAIN_NAME}`) && PathPrefix(`/docs`)"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.rule=(Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)) && PathPrefix(`/docs`)"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.entrypoints=websecure"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.middlewares=hsts-header@docker"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.service=${PROJECT_LOWER}-${STACK_NAME}-server"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.service=${PROJECT_LOWER}-${STACK_NAME}-server"
     depends_on:
       - postgres
@@ -107,9 +113,13 @@ services:
         window: 120s
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.rule=Host(`${DOMAIN_NAME}`, `www.${DOMAIN_NAME}`) && PathPrefix(`/`)"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.rule=(Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)) && PathPrefix(`/`)"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.entrypoints=websecure"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.tls.certresolver=letsencrypt"
+        - "traefik.http.middlewares.hsts-header.headers.stsSeconds=31536000"
+        - "traefik.http.middlewares.hsts-header.headers.stsIncludeSubdomains=true"
+        - "traefik.http.middlewares.hsts-header.headers.stsPreload=true"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.middlewares=hsts-header@docker"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.service=${PROJECT_LOWER}-${STACK_NAME}-client"
         - "traefik.http.services.${PROJECT_LOWER}-${STACK_NAME}-client.loadbalancer.server.port=${CLIENT_PORT}"
     depends_on:
