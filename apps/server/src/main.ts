@@ -22,7 +22,6 @@ async function bootstrap() {
   app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
   const isProduction = process.env.NODE_ENV === 'production';
-
   const configService = new ConfigService;
 
   const pgPool = new pg.Pool({

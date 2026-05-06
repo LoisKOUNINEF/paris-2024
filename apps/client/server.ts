@@ -49,7 +49,6 @@ export function app(): express.Express {
 
 function run(): void {
   const port = process.env['PORT'] || 4222;
-
   // Start up the Node server
   const server = app();
   server.listen(port, () => {
