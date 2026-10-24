@@ -1,9 +1,10 @@
 import { CurrencyPipe } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { Cart, CartService } from '@paris-2024/client-data-access-cart';
 import { FormatPricePipe, GuestTokenService } from '@paris-2024/client-utils';
-import { Subject, takeUntil } from 'rxjs';
+import { filter, Observable, Subject, switchMap, take, takeUntil } from 'rxjs';
 import { ModifyQuantityComponent } from '../modify-quantity/modify-quantity.component';
 import { IItemJunctionModel } from '@paris-2024/shared-interfaces';
 import { Router } from '@angular/router';
@@ -21,8 +22,9 @@ import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './cart-details.component.scss',
 })
-export class CartDetailsComponent implements OnDestroy, OnInit, AfterViewInit {
+export class CartDetailsComponent implements OnDestroy, OnInit {
   private destroy$ = new Subject<void>();
+  private statusChecked$: Observable<boolean>;
   cart: Cart;
 
   constructor(
@@ -31,18 +33,30 @@ export class CartDetailsComponent implements OnDestroy, OnInit, AfterViewInit {
     private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit(): void {
-    if (!this.authService.isAuth()) {
-      this.guestTokenService.getOrCreateGuestToken();
-    }
+  ) {
+    this.statusChecked$ = toObservable(this.authService.statusChecked);
   }
 
-  ngAfterViewInit(): void {
-    this.cartService.findUserCart()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((cart: Cart) => this.cart = cart);   
+  ngOnInit(): void {
+    // wait for the initial auth status check before treating the user as a guest
+    this.statusChecked$
+      .pipe(
+        filter(Boolean),
+        take(1),
+        switchMap(() => {
+          if (this.authService.isAuth()) {
+            this.guestTokenService.clearGuestToken();
+          } else {
+            this.guestTokenService.getOrCreateGuestToken();
+          }
+          return this.cartService.findUserCart();
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((cart: Cart) => {
+        this.cart = cart;
+        this.cdr.markForCheck();
+      });
   }
 
   ngOnDestroy(): void {
@@ -52,12 +66,12 @@ export class CartDetailsComponent implements OnDestroy, OnInit, AfterViewInit {
 
   totalPrice() {
     return this.cart.bundles.reduce((acc: number, bundle: IItemJunctionModel) => {
-      return (acc += (bundle.quantity * bundle.price));
+      return acc + bundle.quantity * bundle.price;
     }, 0);
   }
 
   createOrder() { 
-    if (this.guestTokenService.getGuestToken()) {
+    if (!this.authService.isAuth()) {
       this.router.navigate(['auth/login']);
       return;
     }      

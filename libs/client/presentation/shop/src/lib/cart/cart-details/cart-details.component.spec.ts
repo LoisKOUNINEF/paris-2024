@@ -15,6 +15,7 @@ describe('CartDetailsComponent', () => {
   let guestTokenService: jest.Mocked<GuestTokenService>;
   let router: jest.Mocked<Router>;
   const isAuth = signal(false);
+  const statusChecked = signal(true);
 
   const bundle = (id: string, price: number, quantity: number) =>
     ({ id, name: `Bundle ${id}`, price, quantity }) as unknown as IItemJunctionModel;
@@ -30,6 +31,7 @@ describe('CartDetailsComponent', () => {
 
   beforeEach(async () => {
     isAuth.set(false);
+    statusChecked.set(true);
     cartService = {
       findUserCart: jest.fn(),
     } as unknown as jest.Mocked<CartService>;
@@ -37,6 +39,7 @@ describe('CartDetailsComponent', () => {
     guestTokenService = {
       getOrCreateGuestToken: jest.fn(),
       getGuestToken: jest.fn().mockReturnValue(null),
+      clearGuestToken: jest.fn(),
     } as unknown as jest.Mocked<GuestTokenService>;
 
     router = {
@@ -48,7 +51,7 @@ describe('CartDetailsComponent', () => {
       providers: [
         { provide: CartService, useValue: cartService },
         { provide: GuestTokenService, useValue: guestTokenService },
-        { provide: AuthService, useValue: { isAuth } },
+        { provide: AuthService, useValue: { isAuth, statusChecked } },
         { provide: Router, useValue: router },
       ],
     })
@@ -75,6 +78,37 @@ describe('CartDetailsComponent', () => {
       createComponent(cart);
 
       expect(component.cart).toBe(cart);
+    });
+
+    it('should create the guest token before requesting the cart', () => {
+      createComponent(makeCart([]));
+
+      expect(guestTokenService.getOrCreateGuestToken.mock.invocationCallOrder[0])
+        .toBeLessThan(cartService.findUserCart.mock.invocationCallOrder[0]);
+    });
+
+    it('should clear a stale guest token for logged in users', () => {
+      isAuth.set(true);
+      createComponent(makeCart([]));
+
+      expect(guestTokenService.clearGuestToken).toHaveBeenCalled();
+    });
+
+    it('should wait for the auth status before deciding the user is a guest', () => {
+      statusChecked.set(false);
+      createComponent(makeCart([bundle('a', 1000, 1)]));
+
+      expect(guestTokenService.getOrCreateGuestToken).not.toHaveBeenCalled();
+      expect(cartService.findUserCart).not.toHaveBeenCalled();
+
+      // the status check resolves: the user was logged in all along
+      isAuth.set(true);
+      statusChecked.set(true);
+      fixture.detectChanges();
+
+      expect(guestTokenService.getOrCreateGuestToken).not.toHaveBeenCalled();
+      expect(cartService.findUserCart).toHaveBeenCalled();
+      expect(component.cart.bundles).toHaveLength(1);
     });
   });
 
@@ -108,7 +142,6 @@ describe('CartDetailsComponent', () => {
 
   describe('createOrder', () => {
     it('should send guests to the login page', () => {
-      guestTokenService.getGuestToken.mockReturnValue('guest-123');
       createComponent(makeCart([bundle('a', 1000, 1)]));
 
       component.createOrder();
@@ -125,6 +158,18 @@ describe('CartDetailsComponent', () => {
 
       expect(router.navigate).toHaveBeenCalledWith(['shop/checkout'], {
         queryParams: { total: 2500 },
+      });
+    });
+
+    it('should send logged in users to checkout even with a leftover guest token', () => {
+      isAuth.set(true);
+      guestTokenService.getGuestToken.mockReturnValue('stale-token');
+      createComponent(makeCart([bundle('a', 1000, 1)]));
+
+      component.createOrder();
+
+      expect(router.navigate).toHaveBeenCalledWith(['shop/checkout'], {
+        queryParams: { total: 1000 },
       });
     });
   });
