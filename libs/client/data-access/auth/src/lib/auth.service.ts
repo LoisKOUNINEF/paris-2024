@@ -26,6 +26,8 @@ export class AuthService {
   public isAuth = signal(false);
   public isStaff = signal(false);
   public isAdmin = signal(false);
+  // true once the auth state is known (status check, login or logout)
+  public statusChecked = signal(false);
 
   constructor( private apiRequestService: ApiRequestService ) { }
 
@@ -44,6 +46,7 @@ export class AuthService {
           this.isAdmin.set(true);
         }
         this.isAuth.set(true);
+        this.statusChecked.set(true);
         return response;
       })
     );
@@ -58,6 +61,7 @@ export class AuthService {
           this.isAdmin.set(false);
           this.isStaff.set(false);
           this.isAuth.set(false);
+          this.statusChecked.set(true);
           return response;
         })
       )
@@ -77,6 +81,7 @@ export class AuthService {
           this.isAuth.set(isAuth);
           this.isStaff.set(isStaff);
           this.isAdmin.set(isAdmin);
+          this.statusChecked.set(true);
           return { isAuth, isStaff, isAdmin };
       })
     );

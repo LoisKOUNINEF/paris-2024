@@ -41,6 +41,7 @@ describe('AuthService', () => {
     expect(service.isAuth()).toBe(false);
     expect(service.isStaff()).toBe(false);
     expect(service.isAdmin()).toBe(false);
+    expect(service.statusChecked()).toBe(false);
   });
 
   describe('signup', () => {
@@ -68,6 +69,7 @@ describe('AuthService', () => {
       expect(result).toEqual(response);
       expect(service.isAuth()).toBe(true);
       expect(service.isAdmin()).toBe(true);
+      expect(service.statusChecked()).toBe(true);
     });
 
     it('should set isAuth but not isAdmin for a regular user', () => {
@@ -88,6 +90,7 @@ describe('AuthService', () => {
       expect(next).not.toHaveBeenCalled();
       expect(service.isAuth()).toBe(false);
       expect(service.isAdmin()).toBe(false);
+      expect(service.statusChecked()).toBe(false);
     });
   });
 
@@ -107,6 +110,7 @@ describe('AuthService', () => {
       expect(service.isAuth()).toBe(false);
       expect(service.isStaff()).toBe(false);
       expect(service.isAdmin()).toBe(false);
+      expect(service.statusChecked()).toBe(true);
     });
 
     it('should keep the session state when logout fails', () => {
@@ -143,6 +147,7 @@ describe('AuthService', () => {
       service.checkUserStatus().subscribe((status) => result = status);
 
       expect(result).toEqual({ isAuth: true, isStaff: true, isAdmin: false });
+      expect(service.statusChecked()).toBe(true);
       expect(service.isAuth()).toBe(true);
       expect(service.isStaff()).toBe(true);
       expect(service.isAdmin()).toBe(false);
@@ -161,6 +166,7 @@ describe('AuthService', () => {
       service.checkUserStatus().subscribe((status) => result = status);
 
       expect(result).toEqual({ isAuth: false, isStaff: false, isAdmin: false });
+      expect(service.statusChecked()).toBe(true);
       expect(service.isAuth()).toBe(false);
       expect(service.isAdmin()).toBe(false);
     });
