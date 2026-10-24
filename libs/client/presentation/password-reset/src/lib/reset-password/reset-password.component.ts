@@ -44,7 +44,7 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
 
   resetPassword(): Subscription | Promise<boolean> {
     if(!this.resetPasswordForm.valid) {
-      return this.router.navigate([`password-reset/${this.token}`])
+      return this.router.navigate([`password-reset/reset-password/${this.token}`])
     } 
     const user = new UserDto({
       password: this.resetPasswordForm.value.passwordConfirm.password,

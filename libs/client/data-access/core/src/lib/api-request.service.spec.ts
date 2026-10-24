@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ApiRequestService } from './api-request.service';
 
@@ -22,6 +23,43 @@ describe('ApiRequestService', () => {
 
   afterEach(() => {
     httpMock.verify();
+    jest.restoreAllMocks();
+  });
+
+  describe('configuration', () => {
+    it('should send credentials and a JSON content type', () => {
+      service.get(mockPath).subscribe();
+
+      const req = httpMock.expectOne(`${mockUrl}${mockPath}`);
+      expect(req.request.withCredentials).toBe(true);
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+      req.flush(mockResponse);
+    });
+
+    it('should target the local API in development', () => {
+      const previousEnv = process.env['NODE_ENV'];
+      process.env['NODE_ENV'] = 'development';
+      try {
+        const devService = TestBed.runInInjectionContext(
+          () => new ApiRequestService(TestBed.inject(HttpClient))
+        );
+        devService.get(mockPath).subscribe();
+      } finally {
+        process.env['NODE_ENV'] = previousEnv;
+      }
+
+      httpMock.expectOne(`http://localhost:8080/api${mockPath}`).flush(mockResponse);
+    });
+
+    it('should log errors to the console', () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+      service.get(mockPath).subscribe();
+
+      httpMock.expectOne(`${mockUrl}${mockPath}`)
+        .flush('Error', { status: 500, statusText: 'Server Error' });
+
+      expect(consoleSpy).toHaveBeenCalled();
+    });
   });
 
   describe('get', () => {
@@ -36,12 +74,13 @@ describe('ApiRequestService', () => {
     });
 
     it('should handle errors', () => {
-      service.get(mockPath).subscribe((response) => {
-        expect(response).toBeNull();
-      });
+      let result: unknown = 'not emitted';
+      service.get(mockPath).subscribe((response) => result = response);
 
       const req = httpMock.expectOne(`${mockUrl}${mockPath}`);
       req.flush('Error', { status: 500, statusText: 'Server Error' });
+
+      expect(result).toBeNull();
     });
   });
 
@@ -58,12 +97,13 @@ describe('ApiRequestService', () => {
     });
 
     it('should handle errors', () => {
-      service.post(mockPath, mockBody).subscribe((response) => {
-        expect(response).toBeNull();
-      });
+      let result: unknown = 'not emitted';
+      service.post(mockPath, mockBody).subscribe((response) => result = response);
 
       const req = httpMock.expectOne(`${mockUrl}${mockPath}`);
       req.flush('Error', { status: 500, statusText: 'Server Error' });
+
+      expect(result).toBeNull();
     });
   });
 
@@ -80,12 +120,13 @@ describe('ApiRequestService', () => {
     });
 
     it('should handle errors', () => {
-      service.patch(mockPath, mockBody).subscribe((response) => {
-        expect(response).toBeNull();
-      });
+      let result: unknown = 'not emitted';
+      service.patch(mockPath, mockBody).subscribe((response) => result = response);
 
       const req = httpMock.expectOne(`${mockUrl}${mockPath}`);
       req.flush('Error', { status: 500, statusText: 'Server Error' });
+
+      expect(result).toBeNull();
     });
   });
 
@@ -101,12 +142,13 @@ describe('ApiRequestService', () => {
     });
 
     it('should handle errors', () => {
-      service.delete(mockPath).subscribe((response) => {
-        expect(response).toBeNull();
-      });
+      let result: unknown = 'not emitted';
+      service.delete(mockPath).subscribe((response) => result = response);
 
       const req = httpMock.expectOne(`${mockUrl}${mockPath}`);
       req.flush('Error', { status: 500, statusText: 'Server Error' });
+
+      expect(result).toBeNull();
     });
   });
 });

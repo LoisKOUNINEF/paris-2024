@@ -42,7 +42,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
     this.subscription = this.authService.verifyEmail(token)
       .subscribe((res) => {
         this.loading = false;
-        if (res === false) {
+        if (!res) {
           this.error = 'Lien de vérification invalide';
           return;
         } else {

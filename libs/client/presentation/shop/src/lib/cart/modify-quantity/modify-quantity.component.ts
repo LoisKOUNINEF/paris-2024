@@ -46,6 +46,10 @@ export class ModifyQuantityComponent implements OnInit, OnDestroy {
 
     this.subscription = this.cartService.updateQuantity(cartDto).subscribe({
       next: (res: Cart) => {
+        if (!res) {
+          this.snackbarService.showError('Échec de la mise à jour.');
+          return;
+        }
         this.quantityChanged.emit(this.quantityControl.value)
         this.snackbarService.showInfo('Quantité mise à jour.');
       },

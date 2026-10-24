@@ -49,4 +49,9 @@ describe('SortArrayPipe', () => {
       { name: 'Loïs', age: 28 },
     ]);
   });
+
+  it('should return an empty array for null or undefined', () => {
+    expect(pipe.transform(null as Array<{ name: string }> | null, 'name')).toEqual([]);
+    expect(pipe.transform(undefined as Array<{ name: string }> | undefined, 'name')).toEqual([]);
+  });
 });
