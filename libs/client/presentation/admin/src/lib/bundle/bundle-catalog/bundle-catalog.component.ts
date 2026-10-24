@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { IBundleSales } from '@paris-2024/shared-interfaces';
 import { FormatPricePipe } from '@paris-2024/client-utils';
@@ -14,6 +14,7 @@ import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
     RouteButtonComponent,
   ],
   templateUrl: './bundle-catalog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bundle-catalog.component.scss',
 })
 export class BundleCatalogComponent implements OnInit {

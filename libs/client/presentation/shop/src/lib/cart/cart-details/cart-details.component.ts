@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { Cart, CartService } from '@paris-2024/client-data-access-cart';
 import { FormatPricePipe, GuestTokenService } from '@paris-2024/client-utils';
@@ -18,6 +18,7 @@ import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
     RouteButtonComponent
   ],
   templateUrl: './cart-details.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './cart-details.component.scss',
 })
 export class CartDetailsComponent implements OnDestroy, OnInit, AfterViewInit {

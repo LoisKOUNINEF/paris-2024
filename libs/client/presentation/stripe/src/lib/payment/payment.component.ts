@@ -1,4 +1,4 @@
-import { Component, Input, AfterViewInit } from '@angular/core';
+import { Component, Input, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { NgxStripeModule, StripeService, StripeInstance } from 'ngx-stripe';
 import { FormatPricePipe } from '@paris-2024/client-utils';
 import { ApiRequestService } from '@paris-2024/client-data-access-core';
@@ -16,6 +16,7 @@ import { Router } from '@angular/router';
     CurrencyPipe,
   ],
   templateUrl: './payment.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './payment.component.scss',
 })
 export class PaymentComponent implements AfterViewInit {

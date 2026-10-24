@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { GuestTokenService, SnackbarService } from '@paris-2024/client-utils';
 import { Cart, CartDto, CartFormValue, CartService } from '@paris-2024/client-data-access-cart';
 import { AuthService } from '@paris-2024/client-data-access-auth';
@@ -8,6 +8,7 @@ import { filter, Subscription } from 'rxjs';
   selector: 'lib-add-to-cart',
   standalone: true,
   templateUrl: './add-to-cart.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './add-to-cart.component.scss',
 })
 export class AddToCartComponent implements OnDestroy {

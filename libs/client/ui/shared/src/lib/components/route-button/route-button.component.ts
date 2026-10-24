@@ -1,10 +1,11 @@
-import { 
-  Component, 
-  ElementRef, 
-  EventEmitter, 
-  HostListener, 
-  Input, 
-  Output 
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  Output,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { Router } from '@angular/router';
 
@@ -12,6 +13,7 @@ import { Router } from '@angular/router';
   selector: 'lib-route-button',
   standalone: true,
   templateUrl: './route-button.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './route-button.component.scss',
 })
 export class RouteButtonComponent {

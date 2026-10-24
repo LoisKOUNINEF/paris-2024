@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EmailFormComponent, UserInfosFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
 import { UserFormValue, User } from '@paris-2024/client-data-access-user';
@@ -12,6 +12,7 @@ import { UserFormValue, User } from '@paris-2024/client-data-access-user';
     SubmitButtonComponent,
   ],
   templateUrl: './edit-user-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './edit-user-form.component.scss',
 })
 export class EditUserFormComponent implements OnInit {

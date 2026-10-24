@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PaymentComponent } from '@paris-2024/client-presentation-stripe';
 
@@ -6,6 +6,7 @@ import { PaymentComponent } from '@paris-2024/client-presentation-stripe';
   selector: 'lib-checkout',
   imports: [PaymentComponent],
   templateUrl: './checkout.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './checkout.component.scss',
 })
 export class CheckoutComponent {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Cart, CartDto, CartFormValue, CartService } from '@paris-2024/client-data-access-cart';
 import { SnackbarService } from '@paris-2024/client-utils';
@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
   selector: 'lib-modify-quantity',
   imports: [ReactiveFormsModule],
   templateUrl: './modify-quantity.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './modify-quantity.component.scss',
 })
 export class ModifyQuantityComponent implements OnInit, OnDestroy {

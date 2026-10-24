@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { User, UserDto, UserFormValue, UserService } from '@paris-2024/client-data-access-user';
 import { AuthService } from '@paris-2024/client-data-access-auth';
@@ -13,6 +13,7 @@ import { filter, Subscription } from 'rxjs';
     EditPasswordFormComponent,
   ],
   templateUrl: './edit-user.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './edit-user.component.scss',
 })
 export class EditUserComponent implements OnInit, OnDestroy{

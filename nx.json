@@ -41,6 +41,23 @@
         "componentTestingTargetName": "component-test",
         "ciTargetName": "e2e-ci"
       }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      },
+      "include": [
+        "apps/client/**/*",
+        "tools/generators/tagged-lib-generators/**/*"
+      ]
+    },
+    {
+      "plugin": "@nx/jest/plugin",
+      "options": {
+        "targetName": "e2e"
+      },
+      "include": ["apps/server-e2e/**/*"]
     }
   ],
   "targetDefaults": {
@@ -52,8 +69,7 @@
     "test": {
       "cache": true,
       "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "executor": "@nx/jest:jest"
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"]
     },
     "e2e-ci--**/*": {
       "dependsOn": ["^build"]
@@ -122,12 +138,6 @@
     "@schematics/angular:service": {
       "type": "service"
     },
-    "@nx/angular:scam": {
-      "type": "component"
-    },
-    "@nx/angular:scam-directive": {
-      "type": "directive"
-    },
     "@nx/angular:guard": {
       "typeSeparator": "."
     },
@@ -158,5 +168,8 @@
     "@schematics/angular:resolver": {
       "typeSeparator": "."
     }
+  },
+  "affected": {
+    "legacy": true
   }
 }

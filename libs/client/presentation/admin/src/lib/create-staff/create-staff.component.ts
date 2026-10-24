@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { User, UserDto, UserFormValue } from '@paris-2024/client-data-access-user';
 import { UserService } from '@paris-2024/client-data-access-user';
 import { FullUserFormComponent } from '@paris-2024/client-ui-forms';
@@ -10,6 +10,7 @@ import { SnackbarService } from '@paris-2024/client-utils';
   selector: 'lib-create-staff',
   imports: [FullUserFormComponent],
   templateUrl: './create-staff.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './create-staff.component.scss',
 })
 export class CreateStaffComponent {

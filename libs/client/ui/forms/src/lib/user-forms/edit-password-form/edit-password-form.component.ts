@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserFormValue } from '@paris-2024/client-data-access-user';
 import { PasswordConfirmFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
@@ -11,6 +11,7 @@ import { PasswordConfirmFormComponent, SubmitButtonComponent } from '@paris-2024
     SubmitButtonComponent
   ],
   templateUrl: './edit-password-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './edit-password-form.component.scss',
 })
 export class EditPasswordFormComponent {
