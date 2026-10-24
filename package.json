@@ -122,5 +122,22 @@
     "typescript-eslint": "^8.72.0",
     "webpack-cli": "7.2.3",
     "webpack-dev-server": "5.2.7"
+  },
+  "overrides": {
+    "@nestjs/platform-express": {
+      "multer": "^2.5.0"
+    },
+    "@nestjs/swagger": {
+      "js-yaml": "^5.5.0"
+    },
+    "nx": {
+      "undici": "^7.30.1"
+    },
+    "@angular/build": {
+      "vite": "^8.3.5"
+    },
+    "sockjs": {
+      "uuid": "^11.1.1"
+    }
   }
 }
