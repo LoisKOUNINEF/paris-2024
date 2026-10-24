@@ -8,8 +8,6 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
-    env:
-      AFFECTED_SERVICES: ${{ needs.build-and-publish.outputs.affected_services }}
 
     outputs:
       affected_services: ${{ steps.get_affected_services.outputs.services }}
@@ -125,7 +123,7 @@ jobs:
           REPO_LOWER: ${{ env.REPO_LOWER }}
           PROJECT_LOWER: ${{ env.PROJECT_LOWER }}
           STACK_NAME: ${{ env.STACK_NAME }}
-          ENCRYPTION_PASSWORD: ${{ env.ENCRYPTION_PASSWORD }}
+          ENCRYPTION_PASSWORD: ${{ secrets.ENCRYPTION_PASSWORD }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
