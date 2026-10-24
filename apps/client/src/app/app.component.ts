@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NavigationCancel, NavigationEnd, Router, RouterModule } from '@angular/router';
@@ -10,10 +10,9 @@ import { filter, Subscription } from 'rxjs';
 
 @Component({
   imports: [
-    CommonModule,
     LoadingSpinnerComponent,
-    NavbarComponent, 
-    RouterModule, 
+    NavbarComponent,
+    RouterModule,
     MatSnackBarModule,
   ],
   selector: 'app-root',

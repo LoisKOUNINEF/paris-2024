@@ -33,7 +33,7 @@ export class PageNotFoundComponent implements OnInit, OnDestroy {
         filter((event): event is NavigationStart => event instanceof NavigationStart)
       )
       .subscribe(() => {
-        const targetComponent = this.router.getCurrentNavigation()?.extras.state?.['sameComponent'] || PageNotFoundComponent;
+        const targetComponent = this.router.currentNavigation()?.extras.state?.['sameComponent'] || PageNotFoundComponent;
 
         if (targetComponent !== PageNotFoundComponent) {
           this.clearInterval();
