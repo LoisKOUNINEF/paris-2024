@@ -103,8 +103,8 @@ describe('EditUserFormComponent', () => {
   it('should disable submit button when form is invalid', () => {
     component.editUserForm.setErrors({ 'incorrect': true });
     fixture.detectChanges();
-    const submitButton = fixture.nativeElement.querySelector('lib-submit-button');
-    expect(submitButton.getAttribute('ng-reflect-is-disabled')).toBe('true');
+    const submitButton = fixture.nativeElement.querySelector('lib-submit-button button');
+    expect(submitButton.disabled).toBe(true);
   });
 
   it('should enable submit button when form is valid', fakeAsync(() => {

@@ -80,8 +80,12 @@ export class PaymentComponent implements AfterViewInit {
       .post<{ clientSecret: string }>(this._stripeEndpoint, body)
       .subscribe({
         next: (response) => {
+          if (!response?.clientSecret) {
+            this.error = 'Failed to create payment intent. Please try again.';
+            return;
+          }
           this.paymentIntent = response.clientSecret;
-            this.confirmPayment();
+          this.confirmPayment();
         },
         error: (err) => {
           console.error('Payment Intent Error:', err);
@@ -105,7 +109,7 @@ export class PaymentComponent implements AfterViewInit {
             console.log('Payment successful');
             this.completeCheckout();
           } else {
-            this.error = `Payment failed: ${result.paymentIntent}.`;
+            this.error = result.error?.message ?? 'Payment failed. Please try again.';
           }
         },
         error: (error) => {
@@ -116,7 +120,13 @@ export class PaymentComponent implements AfterViewInit {
 
   completeCheckout() {
     this.orderService.newOrder().subscribe({
-      next: () => this.router.navigate(['/shop/order-success']),
+      next: (order) => {
+        if (!order) {
+          this.error = 'Failed to complete checkout. Please try again.';
+          return;
+        }
+        this.router.navigate(['/shop/order-success']);
+      },
       error: (err) => {
         console.error('Checkout Error:', err);
         this.error = 'Failed to complete checkout. Please try again.';

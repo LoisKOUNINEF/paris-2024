@@ -3,82 +3,89 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { UserDto, User } from '@paris-2024/client-data-access-user';
+import { GuestTokenService, SnackbarService } from '@paris-2024/client-utils';
 import { SignupComponent } from './signup.component';
-import { FullUserFormComponent } from '@paris-2024/client-ui-forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackbarService } from '@paris-2024/client-utils';
 
 describe('SignupComponent', () => {
   let component: SignupComponent;
   let fixture: ComponentFixture<SignupComponent>;
-  let authServiceMock: any;
-  let routerMock: any;
-  let snackbarMock: jest.Mocked<MatSnackBar>;
-  let snackbarServiceMock: any;
+  let authService: jest.Mocked<AuthService>;
+  let router: jest.Mocked<Router>;
+  let snackbarService: jest.Mocked<SnackbarService>;
+  let guestTokenService: jest.Mocked<GuestTokenService>;
 
-  beforeEach(() => {
-    authServiceMock = {
-      signup: jest.fn().mockReturnValue(of({} as User)),
-      login: jest.fn().mockReturnValue(of(true)),
-    };
-    
-    routerMock = {
+  const userFormValue = {
+    email: 'test@test.com',
+    password: 'Password123#',
+    firstName: 'Loïs',
+    lastName: 'Test',
+  };
+
+  beforeEach(async () => {
+    authService = {
+      signup: jest.fn().mockReturnValue(of({ id: '1' } as User)),
+    } as unknown as jest.Mocked<AuthService>;
+
+    router = {
       navigate: jest.fn(),
-    };
+    } as unknown as jest.Mocked<Router>;
 
-    snackbarServiceMock = {
-      showSuccess: jest.fn(() => ({
-        afterDismissed: () => of({ dismissedByAction: false })
-      })),
-    };
+    snackbarService = {
+      showSuccess: jest.fn().mockReturnValue({ afterDismissed: () => of(undefined) }),
+    } as unknown as jest.Mocked<SnackbarService>;
 
-    snackbarMock = {
-      open: jest.fn()
-    } as any;
+    guestTokenService = {
+      clearGuestToken: jest.fn(),
+    } as unknown as jest.Mocked<GuestTokenService>;
 
-    TestBed.configureTestingModule({
-      imports: [FullUserFormComponent, SignupComponent],
+    await TestBed.configureTestingModule({
+      imports: [SignupComponent],
       providers: [
-        { provide: AuthService, useValue: authServiceMock },
-        { provide: Router, useValue: routerMock },
-        { provide: SnackbarService, useValue: snackbarServiceMock },
-        { provide: MatSnackBar, useValue: snackbarMock },
+        { provide: AuthService, useValue: authService },
+        { provide: Router, useValue: router },
+        { provide: SnackbarService, useValue: snackbarService },
+        { provide: GuestTokenService, useValue: guestTokenService },
       ],
-    }).compileComponents();
+    })
+    .overrideComponent(SignupComponent, { set: { imports: [], template: '' } })
+    .compileComponents();
 
     fixture = TestBed.createComponent(SignupComponent);
     component = fixture.componentInstance;
   });
 
-  afterEach(() => {
-    component.ngOnDestroy();
+  describe('signup', () => {
+    it('should create the account and go to the pending verification page', () => {
+      component.signup(userFormValue);
+
+      expect(authService.signup).toHaveBeenCalledWith(new UserDto(userFormValue));
+      expect(guestTokenService.clearGuestToken).toHaveBeenCalled();
+      expect(snackbarService.showSuccess).toHaveBeenCalledWith('Compte créé.');
+      expect(router.navigate).toHaveBeenCalledWith(['auth/pending-verification']);
+    });
+
+    it('should stay on the page when the signup fails', () => {
+      authService.signup.mockReturnValue(of(null as unknown as User));
+
+      component.signup(userFormValue);
+
+      expect(guestTokenService.clearGuestToken).not.toHaveBeenCalled();
+      expect(snackbarService.showSuccess).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should unsubscribe from subscription on destroy', () => {
-    const unsubscribeSpy = jest.spyOn(component.subscription, 'unsubscribe');
-    component.ngOnDestroy();
-    expect(unsubscribeSpy).toHaveBeenCalled();
-  });
-
-  it('should call authService signup and navigate to shop after login', () => {
-    const userFormValue = { email: 'test@test.com', password: 'password' };
+  it('should unsubscribe on destroy', () => {
     component.signup(userFormValue);
+    const unsubscribeSpy = jest.spyOn(component.subscription, 'unsubscribe');
 
-    expect(authServiceMock.signup).toHaveBeenCalledWith(new UserDto(userFormValue));
-    snackbarServiceMock.showSuccess('done')
-      .afterDismissed()
-      .subscribe(() => {
-        expect(authServiceMock.login).toHaveBeenCalled();
-        expect(routerMock.navigate).toHaveBeenCalledWith(['shop']);
-    })
+    component.ngOnDestroy();
+
+    expect(unsubscribeSpy).toHaveBeenCalled();
   });
 
   it('should navigate to login on goToLogin', () => {
     component.goToLogin();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['auth/login']);
+    expect(router.navigate).toHaveBeenCalledWith(['auth/login']);
   });
 });

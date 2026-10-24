@@ -75,8 +75,8 @@ describe('RequestPasswordResetLinkComponent', () => {
     component.requestResetLinkForm.markAsTouched();
     component.requestResetLinkForm.setErrors({ 'incorrect': true });
     fixture.detectChanges();
-    const submitButton = fixture.nativeElement.querySelector('lib-submit-button');
-    expect(submitButton.getAttribute('ng-reflect-is-disabled')).toBe('true');
+    const submitButton = fixture.nativeElement.querySelector('lib-submit-button button');
+    expect(submitButton.disabled).toBe(true);
   });
 
   it('should enable submit button when form is valid', fakeAsync(() => {
@@ -113,5 +113,15 @@ describe('RequestPasswordResetLinkComponent', () => {
 
     expect(passwordResetServiceMock.sendPwdResetLink).toHaveBeenCalledWith(new UserDto({ email: 'test@test.com' }));
     expect(routerMock.navigate).toHaveBeenCalledWith(['password-reset/reset-link-sent']);
+  });
+
+  it('should stay on the page when the reset link cannot be sent', () => {
+    passwordResetServiceMock.sendPwdResetLink.mockReturnValue(of(null));
+    component.requestResetLinkForm = component['formBuilder'].group({
+      email: { email: 'test@test.com' },
+    });
+    component.sendPwdResetLink();
+
+    expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 });
