@@ -1,11 +1,17 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'client-data-access-password-reset',
   preset: '../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\.(ts|mjs|js|html)$': ['jest-preset-angular', { tsconfig: '<rootDir>/tsconfig.spec.json', stringifyContentPathRegex: '\.(html|svg)$' }],
+    '^.+\.(ts|mjs|js|html)$': [
+      'jest-preset-angular',
+      {
+        tsconfig: '<rootDir>/tsconfig.spec.json',
+        stringifyContentPathRegex: '\.(html|svg)$',
+      },
+    ],
   },
   transformIgnorePatterns: ['node_modules/(?!.*\.mjs$|lodash-es)'],
   testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/dist/'],
@@ -15,5 +21,6 @@ export default {
     'jest-preset-angular/build/serializers/html-comment',
   ],
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../../../coverage/libs/client/data-access-password-reset',
+  coverageDirectory:
+    '../../../../coverage/libs/client/data-access-password-reset',
 };

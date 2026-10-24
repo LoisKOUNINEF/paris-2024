@@ -1,5 +1,5 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'db-readiness',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',

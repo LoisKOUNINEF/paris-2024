@@ -1,5 +1,5 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'server-data-source',
   preset: '../../../../jest.preset.js',
   testEnvironment: 'node',
