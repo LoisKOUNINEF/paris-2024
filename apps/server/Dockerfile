@@ -1,5 +1,6 @@
 FROM node:24.22.1-alpine AS builder
 WORKDIR /usr/src/app
+ENV CYPRESS_INSTALL_BINARY=0
 COPY package*.json ./
 RUN npm ci
 COPY . .

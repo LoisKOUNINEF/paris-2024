@@ -1,5 +1,6 @@
 FROM node:24.22.1 AS builder
 WORKDIR /usr/src/app
+ENV CYPRESS_INSTALL_BINARY=0
 COPY ../../ .
 RUN npm ci && \
 		npm run coverage-report
