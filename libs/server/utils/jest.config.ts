@@ -1,5 +1,5 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'server-utils',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',
@@ -8,8 +8,8 @@ export default {
   },
   globals: {
     'ts-jest': {
-      isolatedModules: true
-    }
+      isolatedModules: true,
+    },
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../../coverage/libs/server/utils',

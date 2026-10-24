@@ -1,5 +1,5 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'server-security-guards',
   preset: '../../../../jest.preset.js',
   testEnvironment: 'node',

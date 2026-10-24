@@ -1,5 +1,5 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'tagged-lib-generators',
   preset: '../../../jest.preset.js',
   transform: {

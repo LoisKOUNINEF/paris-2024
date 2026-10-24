@@ -1,11 +1,17 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'client-data-access-cart',
   preset: '../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\.(ts|mjs|js|html)$': ['jest-preset-angular', { tsconfig: '<rootDir>/tsconfig.spec.json', stringifyContentPathRegex: '\.(html|svg)$' }],
+    '^.+\.(ts|mjs|js|html)$': [
+      'jest-preset-angular',
+      {
+        tsconfig: '<rootDir>/tsconfig.spec.json',
+        stringifyContentPathRegex: '\.(html|svg)$',
+      },
+    ],
   },
   transformIgnorePatterns: ['node_modules/(?!.*\.mjs$|lodash-es)'],
   testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/dist/'],

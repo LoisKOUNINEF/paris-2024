@@ -1,5 +1,5 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'server-data-access-item-junction',
   preset: '../../../../jest.preset.js',
   testEnvironment: 'node',
@@ -7,5 +7,6 @@ export default {
     '^.+\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../../../coverage/libs/server/data-access-item-junction',
+  coverageDirectory:
+    '../../../../coverage/libs/server/data-access-item-junction',
 };

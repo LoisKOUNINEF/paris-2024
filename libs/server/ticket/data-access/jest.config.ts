@@ -1,5 +1,5 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'server-data-access-ticket',
   preset: '../../../../jest.preset.js',
   testEnvironment: 'node',
