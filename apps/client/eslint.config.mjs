@@ -35,6 +35,7 @@ export default [
     files: ['**/*.ts'],
     rules: {
       '@angular-eslint/prefer-standalone': 'off',
+      '@angular-eslint/prefer-inject': 'off',
     },
   },
 ];
