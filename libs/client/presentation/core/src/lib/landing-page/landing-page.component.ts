@@ -6,7 +6,6 @@ import { LANDING_ELEMENTS } from './landing-elements';
 
 @Component({
   selector: 'lib-landing-page',
-  standalone: true,
   imports: [
     RouteButtonComponent,
     OlympicRingsComponent,

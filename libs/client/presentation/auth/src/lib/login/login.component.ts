@@ -8,7 +8,6 @@ import { GuestTokenService, SnackbarService } from '@paris-2024/client-utils';
 
 @Component({
   selector: 'lib-login',
-  standalone: true,
   imports: [LoginFormComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',

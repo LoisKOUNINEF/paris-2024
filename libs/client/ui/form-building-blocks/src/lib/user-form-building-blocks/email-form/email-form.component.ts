@@ -7,7 +7,6 @@ import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'lib-email-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule, 

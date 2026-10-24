@@ -8,7 +8,6 @@ import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'lib-edit-user',
-  standalone: true,
   imports: [
     EditUserFormComponent,
     EditPasswordFormComponent,

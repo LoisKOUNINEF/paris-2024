@@ -11,7 +11,6 @@ export interface ILandingSection {
 
 @Component({
   selector: 'lib-landing-section',
-  standalone: true,
   imports: [
     CommonModule,
     DatePipe,

@@ -6,7 +6,6 @@ import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'lib-navbar',
-  standalone: true,
   imports: [
     NgTemplateOutlet,
     RouteButtonComponent,

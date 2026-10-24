@@ -10,7 +10,6 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'lib-payment',
-  standalone: true,
   imports: [
     NgxStripeModule,
     FormatPricePipe,

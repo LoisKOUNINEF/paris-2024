@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'lib-olympic-rings',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './olympic-rings.component.html',
   styleUrl: './olympic-rings.component.scss',

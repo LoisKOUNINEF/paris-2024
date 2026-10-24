@@ -10,7 +10,6 @@ import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'lib-password-confirm-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule, 

@@ -6,7 +6,6 @@ import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'lib-page-not-found',
-  standalone: true,
   imports: [
     RouteButtonComponent,
     OlympicRingsComponent,

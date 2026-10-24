@@ -7,7 +7,6 @@ import { IOrderTickets } from '@paris-2024/shared-interfaces';
 
 @Component({
   selector: 'lib-order-details',
-  standalone: true,
   imports: [
     FormatPricePipe,
     CurrencyPipe,

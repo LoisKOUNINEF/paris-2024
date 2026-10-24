@@ -17,7 +17,6 @@ export const USER_INFOS_DEFAULT: UserInfos = {
 
 @Component({
   selector: 'lib-user-infos-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule, 
     MatFormFieldModule, 

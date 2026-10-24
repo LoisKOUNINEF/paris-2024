@@ -3,7 +3,8 @@
 @use "functions";
 @use "@angular/material" as mat;
 
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 
 // Import fonts from library
 @import 'libs/client/ui/shared/src/lib/styles/_fonts.scss';

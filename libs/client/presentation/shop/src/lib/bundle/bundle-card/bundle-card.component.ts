@@ -5,7 +5,6 @@ import { Bundle } from '@paris-2024/client-data-access-bundle';
 
 @Component({
   selector: 'lib-bundle-card',
-  standalone: true,
   imports: [CurrencyPipe, FormatPricePipe, CommonModule],
   templateUrl: './bundle-card.component.html',
   styleUrl: './bundle-card.component.scss',

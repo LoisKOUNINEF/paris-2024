@@ -7,7 +7,6 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'lib-modify-quantity',
-  standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './modify-quantity.component.html',
   styleUrl: './modify-quantity.component.scss',

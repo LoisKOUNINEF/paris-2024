@@ -9,7 +9,6 @@ import { PlatformService } from '@paris-2024/client-utils';
 import { filter, Subscription } from 'rxjs';
 
 @Component({
-  standalone: true,
   imports: [
     CommonModule,
     LoadingSpinnerComponent,

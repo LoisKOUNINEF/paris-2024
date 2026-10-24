@@ -7,7 +7,6 @@ import { LoadingSpinnerComponent } from '@paris-2024/client-ui-shared';
 
 @Component({
   selector: 'lib-verify-email',
-  standalone: true,
   imports: [LoadingSpinnerComponent],
   templateUrl: './verify-email.component.html',
   styleUrl: './verify-email.component.scss',

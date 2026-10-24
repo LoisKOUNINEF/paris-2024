@@ -5,7 +5,6 @@ import { UserFormValue, User } from '@paris-2024/client-data-access-user';
 
 @Component({
   selector: 'lib-edit-user-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule, 
     EmailFormComponent, 

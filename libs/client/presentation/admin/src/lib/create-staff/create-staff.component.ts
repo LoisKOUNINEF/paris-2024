@@ -8,7 +8,6 @@ import { SnackbarService } from '@paris-2024/client-utils';
 
 @Component({
   selector: 'lib-create-staff',
-  standalone: true,
   imports: [FullUserFormComponent],
   templateUrl: './create-staff.component.html',
   styleUrl: './create-staff.component.scss',

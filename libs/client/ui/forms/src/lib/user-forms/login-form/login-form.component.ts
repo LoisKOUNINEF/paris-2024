@@ -5,7 +5,6 @@ import { EmailFormComponent, PasswordFormComponent, SubmitButtonComponent } from
 
 @Component({
   selector: 'lib-login-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     EmailFormComponent,
