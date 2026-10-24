@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Order } from "./order.entity";
-import { Repository } from "typeorm";
+import { EntityManager, Repository } from "typeorm";
 import { CreateOrderDto } from "./order.dto";
 import { IOrderTickets } from "@paris-2024/shared-interfaces";
 
@@ -63,9 +63,16 @@ export class OrderRepository {
     })
   }
 
-  async create(dto: CreateOrderDto): Promise<Order> {
-    const newOrder = this.orderRepository.create(dto);
-    return await this.orderRepository.save(newOrder);
+  async findByPaymentIntentId(paymentIntentId: string): Promise<Order | null> {
+    return await this.orderRepository.findOne({
+      where: { paymentIntentId: paymentIntentId }
+    })
+  }
+
+  async create(dto: CreateOrderDto, manager?: EntityManager): Promise<Order> {
+    const repository = manager?.getRepository(Order) ?? this.orderRepository;
+    const newOrder = repository.create(dto);
+    return await repository.save(newOrder);
   }
 
 }

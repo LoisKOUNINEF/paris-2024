@@ -50,6 +50,10 @@ export class CartRepository {
   }
 
   async getGuestCart(guestToken: string): Promise<Cart | null> {
+    // typeorm drops undefined values from `where`, which would match any cart
+    if (!guestToken) {
+      return null;
+    }
     return await this.cartRepository.findOne({
       where: { guestToken },
     });

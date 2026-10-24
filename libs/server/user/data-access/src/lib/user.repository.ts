@@ -140,7 +140,7 @@ export class UserRepository {
     
     return await this.userRepository.save(Object.assign(
       user, 
-      { lastLoginAt: new Date() }
+      { lastLoginAt: new Date(), inactivityReminderSentAt: null }
     ));
   }
 
@@ -156,6 +156,8 @@ export class UserRepository {
     restored.password = dto.password;
 
     restored.lastLoginAt = new Date();
+    restored.anonymizationReminderSentAt = null;
+    restored.inactivityReminderSentAt = null;
 
     return this.userRepository.save(restored);
   }

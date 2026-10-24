@@ -14,9 +14,9 @@ export class PasswordResetService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async sendLink(email: string): Promise<any> {
-    const user = this.userRepository.findOneByEmail(email);
+    const user = await this.userRepository.findOneByEmail(email);
+    // answer the same way whether the email exists or not, to avoid account enumeration
     if (!user) {
-      userNotFound();
       return;
     }
 
@@ -55,7 +55,7 @@ export class PasswordResetService {
       { password: password }
     );
   
-    this.passwordResetRepository.remove(id);
+    await this.passwordResetRepository.remove(id);
 
     return updatedUser;
   }

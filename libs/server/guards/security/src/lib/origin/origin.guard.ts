@@ -6,9 +6,13 @@ export class OriginGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
     const origin = request.headers.origin || request.headers.referer;
+    // compare full origins: a prefix match would accept https://allowed.eu.evil.com
     const normalizeOrigin = (origin: string) => {
-      if (!origin) return '';
-      return origin.replace('https://www.', 'https://');
+      try {
+        return new URL(origin).origin.replace('https://www.', 'https://');
+      } catch {
+        return '';
+      }
     };
 
     const allowedOrigins = [
@@ -18,7 +22,7 @@ export class OriginGuard implements CanActivate {
 
     if (
       request.hostname === 'localhost' ||
-      (origin && allowedOrigins.some(allowed => normalizeOrigin(origin).startsWith(allowed)))
+      (origin && allowedOrigins.includes(normalizeOrigin(origin)))
     ) {
       return true;
     }

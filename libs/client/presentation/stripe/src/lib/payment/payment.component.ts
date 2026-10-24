@@ -1,7 +1,6 @@
-import { Component, Input, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, AfterViewInit, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { NgxStripeModule, StripeService, StripeInstance } from 'ngx-stripe';
 import { FormatPricePipe } from '@paris-2024/client-utils';
-import { ApiRequestService } from '@paris-2024/client-data-access-core';
 import { PlatformService } from '@paris-2024/client-utils';
 import { StripeCardElement } from '@stripe/stripe-js';
 import { CurrencyPipe } from '@angular/common';
@@ -19,13 +18,14 @@ import { Router } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './payment.component.scss',
 })
-export class PaymentComponent implements AfterViewInit {
-  @Input({ required: true }) amount = 0;
+export class PaymentComponent implements OnInit, AfterViewInit {
+  // amount and client secret come from the server, computed from the cart
+  amount: number | null = null;
+  clientSecret: string | null = null;
+  isProcessing = false;
   stripe: StripeInstance;
   card: StripeCardElement;
-  paymentIntent: any;
   error: string | null = null;
-  private readonly _stripeEndpoint = '/stripe/create-payment-intent';
   appearance = {
     theme: 'flat' as const,
     variables: {
@@ -40,11 +40,16 @@ export class PaymentComponent implements AfterViewInit {
 
   constructor(
     private stripeService: StripeService,
-    private apiRequest: ApiRequestService,
     private platformService: PlatformService,
     private orderService: OrderService,
     private router: Router,
   ) {}
+
+  ngOnInit(): void {
+    if(this.platformService.isBrowser) {
+      this.createPaymentIntent();
+    }
+  }
 
   ngAfterViewInit(): void {
     if(this.platformService.isBrowser) {
@@ -74,31 +79,31 @@ export class PaymentComponent implements AfterViewInit {
     }
   }
 
-  createPaymentIntent(amount: number) {
-    const body = { amount, currencyCode: 'eur'};
-    this.apiRequest
-      .post<{ clientSecret: string }>(this._stripeEndpoint, body)
-      .subscribe({
-        next: (response) => {
-          if (!response?.clientSecret) {
-            this.error = 'Failed to create payment intent. Please try again.';
-            return;
-          }
-          this.paymentIntent = response.clientSecret;
-          this.confirmPayment();
-        },
-        error: (err) => {
-          console.error('Payment Intent Error:', err);
+  createPaymentIntent() {
+    this.orderService.createPaymentIntent().subscribe({
+      next: (response) => {
+        if (!response?.clientSecret) {
           this.error = 'Failed to create payment intent. Please try again.';
+          return;
         }
-      });
+        this.clientSecret = response.clientSecret;
+        this.amount = response.amount;
+      },
+      error: (err) => {
+        console.error('Payment Intent Error:', err);
+        this.error = 'Failed to create payment intent. Please try again.';
+        // e.g. the cart is empty
+        this.router.navigate(['/shop/cart']);
+      }
+    });
   }
 
   confirmPayment() {
-    console.debug('confirmPayment init')
-    if (!this.paymentIntent) return;
+    if (!this.clientSecret || this.isProcessing) return;
+    this.isProcessing = true;
+    this.error = null;
     this.stripeService
-      .confirmCardPayment(this.paymentIntent, {
+      .confirmCardPayment(this.clientSecret, {
         payment_method: {
           card: this.card,
         },
@@ -106,22 +111,24 @@ export class PaymentComponent implements AfterViewInit {
       .subscribe({
         next: (result) => {
           if (result.paymentIntent?.status === 'succeeded') {
-            console.log('Payment successful');
-            this.completeCheckout();
+            this.completeCheckout(result.paymentIntent.id);
           } else {
+            this.isProcessing = false;
             this.error = result.error?.message ?? 'Payment failed. Please try again.';
           }
         },
         error: (error) => {
+          this.isProcessing = false;
           this.error = error.message || 'Error during payment';
         }
       });
   }
 
-  completeCheckout() {
-    this.orderService.newOrder().subscribe({
+  completeCheckout(paymentIntentId: string) {
+    this.orderService.newOrder(paymentIntentId).subscribe({
       next: (order) => {
         if (!order) {
+          this.isProcessing = false;
           this.error = 'Failed to complete checkout. Please try again.';
           return;
         }
@@ -129,6 +136,7 @@ export class PaymentComponent implements AfterViewInit {
       },
       error: (err) => {
         console.error('Checkout Error:', err);
+        this.isProcessing = false;
         this.error = 'Failed to complete checkout. Please try again.';
       }
     });

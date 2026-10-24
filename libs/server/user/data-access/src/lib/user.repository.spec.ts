@@ -26,6 +26,8 @@ const mockUser: User = {
   updatedAt: new Date(),
   emailVerified: true,
   emailVerificationToken: '',
+  anonymizationReminderSentAt: null,
+  inactivityReminderSentAt: null,
   hashPassword: async () => { return; } ,
   hashSecretKey: async () => { return; } ,
 }
@@ -133,6 +135,24 @@ describe('UserRepository', () => {
       mockUser.deletedAt = null;
     });
 
+    it('should clear reminder flags when a deleted user is restored', async () => {
+      const deletedUser = {
+        ...mockUser,
+        deletedAt: new Date(),
+        anonymizationReminderSentAt: new Date(),
+        inactivityReminderSentAt: new Date(),
+      } as User;
+      jest.spyOn(userRepo, 'findOne').mockResolvedValue(deletedUser);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear().mockImplementation(async (user) => user as User);
+
+      await userRepository.create(mockUser as any);
+
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({
+        anonymizationReminderSentAt: null,
+        inactivityReminderSentAt: null,
+      }));
+    });
+
     it('should throw ForbiddenException if user exists and is not deleted', async () => {
       jest.spyOn(userRepo, 'findOne').mockResolvedValue(mockUser);
 
@@ -165,6 +185,20 @@ describe('UserRepository', () => {
       jest.spyOn(userRepository, 'findOneById').mockResolvedValue(undefined);
 
       await expect(userRepository.update(mockUser.id, mockUser as any)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('updateLastLogin', () => {
+    it('should update last login date and clear inactivity reminder flag', async () => {
+      jest.spyOn(userRepo, 'findOne').mockResolvedValue({ ...mockUser, inactivityReminderSentAt: new Date() } as User);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear().mockImplementation(async (user) => user as User);
+
+      await userRepository.updateLastLogin(mockUser.id);
+
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({
+        lastLoginAt: expect.any(Date),
+        inactivityReminderSentAt: null,
+      }));
     });
   });
 

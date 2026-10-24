@@ -13,4 +13,9 @@ export class Order extends BaseEntity implements IOrderEntity {
   @ApiProperty()
   @Column('uuid', { name: 'user_id' })
   userId: string;
+
+  // one order per payment: a replayed or concurrent order request cannot reuse a payment
+  @Index('UQ_order_payment_intent_id', { unique: true })
+  @Column('text', { name: 'payment_intent_id', nullable: true })
+  paymentIntentId: string | null;
 }

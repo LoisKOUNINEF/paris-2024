@@ -1,387 +1,273 @@
-it.todo('FIX THOSE')
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { EntityManager, In } from 'typeorm';
+import { IItemJunctionModel } from '@paris-2024/shared-interfaces';
+import { ItemJunctionRepository } from './item-junction.repository';
+import { ItemJunction } from './item-junction.entity';
 
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { getRepositoryToken } from '@nestjs/typeorm';
-// import { ItemJunctionRepository } from './item-junction.repository';
-// import { ItemJunction } from './item-junction.entity';
-// import { CreateItemJunctionDto, UpdateItemJunctionDto } from './item-junction.dto';
-// import { createEntityMock } from '@paris-2024/shared-mocks';
+describe('ItemJunctionRepository', () => {
+  let repository: ItemJunctionRepository;
 
-// const { mockEntity } = createEntityMock(ItemJunction);
-// const mockItemJunction: ItemJunction = {
-//   ...mockEntity,
-//   id: 'itemJunction-id',
-//   createdAt: new Date(),
-//   updatedAt: new Date(),
-//   quantity: 2,
-//   bundleId: 'bundle-id',
-//   cartId: '',
-//   orderId: '',
-//   deletedAt: null,
-// };
+  const mockQueryBuilder = {
+    leftJoin: jest.fn().mockReturnThis(),
+    select: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    update: jest.fn().mockReturnThis(),
+    set: jest.fn().mockReturnThis(),
+    whereInIds: jest.fn().mockReturnThis(),
+    getRawMany: jest.fn(),
+    getMany: jest.fn(),
+    execute: jest.fn(),
+  };
 
-// describe('ItemJunctionRepository', () => {
-//   let itemJunctionRepository: ItemJunctionRepository;
+  const mockRepository = {
+    create: jest.fn(),
+    save: jest.fn(),
+    findOne: jest.fn(),
+    findBy: jest.fn(),
+    delete: jest.fn(),
+    createQueryBuilder: jest.fn(() => mockQueryBuilder),
+  };
 
-//   const mockQueryBuilder = {
-//     leftJoinAndSelect: jest.fn().mockReturnThis(),
-//     where: jest.fn().mockReturnThis(),
-//     andWhere: jest.fn().mockReturnThis(),
-//     select: jest.fn().mockReturnThis(),
-//     getRawMany: jest.fn(),
-//     getRawOne: jest.fn(),
-//   };
+  const junctionModel = (overrides: Partial<IItemJunctionModel>): IItemJunctionModel => ({
+    junction: 'junction-1',
+    id: 'bundle-1',
+    name: 'Solo',
+    amount: 1,
+    price: 50,
+    quantity: 1,
+    ...overrides,
+  });
 
-//   const mockRepository = {
-//     create: jest.fn(),
-//     save: jest.fn(),
-//     find: jest.fn(),
-//     findOne: jest.fn(),
-//     delete: jest.fn(),
-//     createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
-//   };
+  beforeEach(async () => {
+    jest.clearAllMocks();
 
-//   beforeEach(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       providers: [
-//         ItemJunctionRepository,
-//         {
-//           provide: getRepositoryToken(ItemJunction),
-//           useValue: mockRepository,
-//         },
-//       ],
-//     }).compile();
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ItemJunctionRepository,
+        { provide: getRepositoryToken(ItemJunction), useValue: mockRepository },
+      ],
+    }).compile();
 
-//     itemJunctionRepository = module.get<ItemJunctionRepository>(ItemJunctionRepository);
-//   });
+    repository = module.get<ItemJunctionRepository>(ItemJunctionRepository);
 
-//   afterEach(() => {
-//     jest.clearAllMocks();
-//   });
+    mockRepository.create.mockImplementation((dto) => ({ ...dto }));
+    mockRepository.save.mockImplementation(async (entity) => entity);
+  });
 
-//   it('should be defined', () => {
-//     expect(itemJunctionRepository).toBeDefined();
-//   });
+  describe('getManyByRelationshipId', () => {
+    it('should filter on the requested relationship column', async () => {
+      mockQueryBuilder.getRawMany.mockResolvedValue([]);
 
-//   describe('getManyByRelationshipId', () => {
-//     it('should get many item junctions by cart relationship', async () => {
-//       const relationshipType = 'cart';
-//       const relationshipId = 'cart-123';
-//       const mockResults = [{ id: 'junction-1', bundle: { id: 'bundle-1' } }];
-      
-//       mockQueryBuilder.getRawMany.mockResolvedValue(mockResults);
+      await repository.getManyByRelationshipId('order', 'order-1');
 
-//       const result = await itemJunctionRepository.getManyByRelationshipId(relationshipType, relationshipId);
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'item_junction.order_id::uuid = :relationshipId::uuid',
+        { relationshipId: 'order-1' },
+      );
+    });
 
-//       expect(mockRepository.createQueryBuilder).toHaveBeenCalledWith('junction');
-//       expect(mockQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('bundle', 'bundle', 'junction.bundle_id = bundle.id');
-//       expect(mockQueryBuilder.where).toHaveBeenCalledWith('junction.cart_id = :relationshipId', { relationshipId });
-//       expect(mockQueryBuilder.getRawMany).toHaveBeenCalled();
-//       expect(result).toEqual(mockResults);
-//     });
+    it('should map raw rows to item junction models', async () => {
+      mockQueryBuilder.getRawMany.mockResolvedValue([
+        { junction: 'junction-1', quantity: 2, name: 'Solo', id: 'bundle-1', amount: 1, price: 50 },
+      ]);
 
-//     it('should get many item junctions by order relationship', async () => {
-//       const relationshipType = 'order';
-//       const relationshipId = 'order-123';
-//       const mockResults = [{ id: 'junction-1', bundle: { id: 'bundle-1' } }];
-      
-//       mockQueryBuilder.getRawMany.mockResolvedValue(mockResults);
+      await expect(repository.getManyByRelationshipId('cart', 'cart-1')).resolves.toEqual([
+        junctionModel({ quantity: 2 }),
+      ]);
+    });
+  });
 
-//       const result = await itemJunctionRepository.getManyByRelationshipId(relationshipType, relationshipId);
+  describe('create', () => {
+    it('should add quantity to existing junction of the same bundle in cart', async () => {
+      const existing = { id: 'junction-1', cartId: 'cart-1', bundleId: 'bundle-1', quantity: 2 };
+      mockRepository.findOne.mockResolvedValue(existing);
 
-//       expect(mockRepository.createQueryBuilder).toHaveBeenCalledWith('junction');
-//       expect(mockQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('bundle', 'bundle', 'junction.bundle_id = bundle.id');
-//       expect(mockQueryBuilder.where).toHaveBeenCalledWith('junction.order_id = :relationshipId', { relationshipId });
-//       expect(mockQueryBuilder.getRawMany).toHaveBeenCalled();
-//       expect(result).toEqual(mockResults);
-//     });
-//   });
+      const result = await repository.create({ cartId: 'cart-1', bundleId: 'bundle-1', quantity: 3 });
 
-//   describe('getOneWithBundle', () => {
-//     it('should get one item junction with bundled data', async () => {
-//       const junctionId = 'junction-123';
-//       const mockResult = { id: junctionId, bundle: { id: 'bundle-1' } };
-      
-//       mockQueryBuilder.getRawOne.mockResolvedValue(mockResult);
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { cartId: 'cart-1', bundleId: 'bundle-1' },
+      });
+      expect(mockRepository.create).not.toHaveBeenCalled();
+      expect(mockRepository.save).toHaveBeenCalledWith(expect.objectContaining({ id: 'junction-1', quantity: 5 }));
+      expect(result).toEqual(expect.objectContaining({ quantity: 5 }));
+    });
 
-//       const result = await itemJunctionRepository.getOneWithBundle(junctionId);
+    it('should create junction if bundle is not in cart yet', async () => {
+      mockRepository.findOne.mockResolvedValue(null);
+      const dto = { cartId: 'cart-1', bundleId: 'bundle-1', quantity: 3 };
 
-//       expect(mockRepository.createQueryBuilder).toHaveBeenCalledWith('junction');
-//       expect(mockQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('bundle', 'bundle', 'junction.bundle_id = bundle.id');
-//       expect(mockQueryBuilder.where).toHaveBeenCalledWith('junction.id = :junction_id', { id: junctionId });
-//       expect(mockQueryBuilder.getRawOne).toHaveBeenCalled();
-//       expect(result).toEqual(mockResult);
-//     });
-//   });
+      await repository.create(dto);
 
-//   describe('getOne', () => {
-//     it('should find one item junction by cart and bundle IDs', async () => {
-//       const cartId = 'cart-123';
-//       const bundleId = 'bundle-123';
-      
-//       mockRepository.findOne.mockResolvedValue(mockItemJunction);
+      expect(mockRepository.create).toHaveBeenCalledWith(dto);
+      expect(mockRepository.save).toHaveBeenCalledWith(dto);
+    });
 
-//       const result = await itemJunctionRepository.getOne(cartId, bundleId);
+    it('should not look for duplicates without cart', async () => {
+      const dto = { orderId: 'order-1', bundleId: 'bundle-1', quantity: 3 };
 
-//       expect(mockRepository.findOne).toHaveBeenCalledWith({
-//         where: { cartId, bundleId }
-//       });
-//       expect(result).toEqual(mockItemJunction);
-//     });
-//   });
+      await repository.create(dto);
 
-//   describe('getOneSales', () => {
-//     it('should get total sales quantity for a bundle', async () => {
-//       const bundleId = 'bundle-123';
-//       const mockSales = [
-//         { quantity: 2 },
-//         { quantity: 3 },
-//       ];
-      
-//       mockQueryBuilder.getRawMany.mockResolvedValue(mockSales);
+      expect(mockRepository.findOne).not.toHaveBeenCalled();
+      expect(mockRepository.create).toHaveBeenCalledWith(dto);
+    });
+  });
 
-//       const result = await itemJunctionRepository.getOneWithSales(bundleId);
+  describe('updateQuantity', () => {
+    it('should return null if junction does not exist', async () => {
+      mockRepository.findOne.mockResolvedValue(null);
 
-//       expect(mockRepository.createQueryBuilder).toHaveBeenCalledWith('junction');
-//       expect(mockQueryBuilder.select).toHaveBeenCalledWith('item_junction');
-//       expect(mockQueryBuilder.where).toHaveBeenCalledWith('item_junction.bundle_id = :id', { id: bundleId });
-//       expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('item_junction.order_id != null');
-//       expect(mockQueryBuilder.getRawMany).toHaveBeenCalled();
-//       expect(result).toBe(5);
-//     });
+      await expect(repository.updateQuantity('junction-1', 3)).resolves.toBeNull();
+      expect(mockRepository.save).not.toHaveBeenCalled();
+    });
 
-//     it('should return 0 when no sales found', async () => {
-//       const bundleId = 'bundle-123';
-      
-//       mockQueryBuilder.getRawMany.mockResolvedValue([]);
+    it('should save new quantity', async () => {
+      mockRepository.findOne.mockResolvedValue({ id: 'junction-1', quantity: 1 });
 
-//       const result = await itemJunctionRepository.getOneWithSales(bundleId);
+      await repository.updateQuantity('junction-1', 3);
 
-//       expect(result).toBe(0);
-//     });
-//   });
+      expect(mockRepository.save).toHaveBeenCalledWith({ id: 'junction-1', quantity: 3 });
+    });
 
-//   describe('getAllSales', () => {
-//     it('should get sales for multiple bundle IDs', async () => {
-//       const bundleIds = ['bundle-1', 'bundle-2', 'bundle-3'];
-//       const mockSales = [
-//         { item_junction_bundleId: 'bundle-1', item_junction_quantity: 5 },
-//         { item_junction_bundleId: 'bundle-1', item_junction_quantity: 3 },
-//         { item_junction_bundleId: 'bundle-2', item_junction_quantity: 2 },
-//       ];
-      
-//       mockQueryBuilder.getRawMany.mockResolvedValue(mockSales);
+    it('should remove junction when quantity is 0', async () => {
+      mockRepository.findOne.mockResolvedValue({ id: 'junction-1', quantity: 1 });
 
-//       const result = await itemJunctionRepository.getAllWithSales(bundleIds);
+      await repository.updateQuantity('junction-1', 0);
 
-//       expect(mockRepository.createQueryBuilder).toHaveBeenCalledWith('junction');
-//       expect(mockQueryBuilder.select).toHaveBeenCalledWith(['item_junction.bundle_id', 'item_junction.quantity']);
-//       expect(mockQueryBuilder.where).toHaveBeenCalledWith('item_junction.bundle_id IN (:...ids)::uuid', { ids: bundleIds });
-//       expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('item_junction.order_id IS NOT NULL');
-//       expect(mockQueryBuilder.getRawMany).toHaveBeenCalled();
-      
-//       expect(result).toEqual({
-//         'bundle-1': 8,
-//         'bundle-2': 2,
-//         'bundle-3': 0,
-//       });
-//     });
+      expect(mockRepository.delete).toHaveBeenCalledWith('junction-1');
+      expect(mockRepository.save).not.toHaveBeenCalled();
+    });
+  });
 
-//     it('should return empty object when bundleIds array is empty', async () => {
-//       const bundleIds: Array<string> = [];
-      
-//       const result = await itemJunctionRepository.getAllWithSales(bundleIds);
+  describe('mergeJunctions', () => {
+    it('should add guest quantities to user junctions of the same bundle', async () => {
+      const updateSpy = jest.spyOn(repository, 'update').mockResolvedValue(null);
+      const createSpy = jest.spyOn(repository, 'create').mockResolvedValue(null);
 
-//       expect(mockQueryBuilder.getRawMany).not.toHaveBeenCalled();
-//       expect(result).toEqual({});
-//     });
-//   });
+      await repository.mergeJunctions(
+        'user-cart',
+        [junctionModel({ junction: 'guest-junction', quantity: 2 })],
+        [junctionModel({ junction: 'user-junction', quantity: 3 })],
+      );
 
-//   describe('updateQuantity', () => {
-//     it('should update the quantity of an item junction', async () => {
-//       const junctionId = 'junction-123';
-//       const newQuantity = 5;
-//       const existingJunction = { ...mockItemJunction, id: junctionId, quantity: 2 };
-//       const updatedJunction = { ...existingJunction, quantity: newQuantity };
-      
-//       mockRepository.findOne.mockResolvedValue(existingJunction);
-//       mockRepository.save.mockResolvedValue(updatedJunction);
+      expect(updateSpy).toHaveBeenCalledWith('user-junction', { quantity: 5 });
+      expect(createSpy).not.toHaveBeenCalled();
+    });
 
-//       const result = await itemJunctionRepository.updateQuantity(junctionId, newQuantity);
+    it('should move guest bundles missing from user cart', async () => {
+      const updateSpy = jest.spyOn(repository, 'update').mockResolvedValue(null);
+      const createSpy = jest.spyOn(repository, 'create').mockResolvedValue(null);
 
-//       expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: junctionId } });
-//       expect(mockRepository.save).toHaveBeenCalledWith(expect.objectContaining({ quantity: newQuantity }));
-//       expect(result).toEqual(existingJunction);
-//     });
+      await repository.mergeJunctions(
+        'user-cart',
+        [junctionModel({ junction: 'guest-junction', id: 'bundle-2', quantity: 2 })],
+        [junctionModel({ junction: 'user-junction', id: 'bundle-1', quantity: 3 })],
+      );
 
-//     it('should return null if junction not found', async () => {
-//       const junctionId = 'non-existent-id';
-//       const newQuantity = 5;
-      
-//       mockRepository.findOne.mockResolvedValue(null);
+      expect(createSpy).toHaveBeenCalledWith({ cartId: 'user-cart', bundleId: 'bundle-2', quantity: 2 });
+      expect(updateSpy).not.toHaveBeenCalled();
+    });
 
-//       const result = await itemJunctionRepository.updateQuantity(junctionId, newQuantity);
+    it('should delete every guest junction once merged', async () => {
+      jest.spyOn(repository, 'update').mockResolvedValue(null);
+      jest.spyOn(repository, 'create').mockResolvedValue(null);
 
-//       expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: junctionId } });
-//       expect(mockRepository.save).not.toHaveBeenCalled();
-//       expect(result).toBeNull();
-//     });
-//   });
+      await repository.mergeJunctions(
+        'user-cart',
+        [
+          junctionModel({ junction: 'guest-junction-1', id: 'bundle-1' }),
+          junctionModel({ junction: 'guest-junction-2', id: 'bundle-2' }),
+        ],
+        [junctionModel({ junction: 'user-junction', id: 'bundle-1' })],
+      );
 
-//   describe('mergeJunctions', () => {
-//     it('should merge guest junctions with user junctions', async () => {
-//       const guestJunctions = [
-//         { id: 'guest-1', bundle: { id: 'bundle-1' }, quantity: 2 },
-//         { id: 'guest-2', bundle: { id: 'bundle-2' }, quantity: 3 },
-//         { id: 'guest-3', bundle: { id: 'bundle-3' }, quantity: 1 },
-//       ];
-      
-//       const userJunctions = [
-//         { id: 'user-1', bundle: { id: 'bundle-1' }, quantity: 1 },
-//         { id: 'user-2', bundle: { id: 'bundle-3' }, quantity: 4 },
-//       ];
+      expect(mockRepository.delete).toHaveBeenCalledTimes(2);
+      expect(mockRepository.delete).toHaveBeenCalledWith('guest-junction-1');
+      expect(mockRepository.delete).toHaveBeenCalledWith('guest-junction-2');
+      expect(mockRepository.delete).not.toHaveBeenCalledWith('user-junction');
+    });
+  });
 
-//       const updateSpy = jest.spyOn(itemJunctionRepository, 'update').mockResolvedValue({} as any);
+  describe('switchRelationship', () => {
+    it('should detach junctions from cart and attach them to order', async () => {
+      const junctions = [{ id: 'junction-1' }, { id: 'junction-2' }];
+      mockQueryBuilder.execute.mockResolvedValue({ affected: 2 });
+      mockRepository.findBy.mockResolvedValue(junctions);
 
-//       await itemJunctionRepository.mergeJunctions('user-1',guestJunctions as any, userJunctions as any);
+      const result = await repository.switchRelationship(['junction-1', 'junction-2'], 'order-1');
 
-//       expect(updateSpy).toHaveBeenCalledTimes(2);
-//       expect(updateSpy).toHaveBeenCalledWith('user-1', { quantity: 3 });
-//       expect(updateSpy).toHaveBeenCalledWith('user-2', { quantity: 5 });
-//     });
-//   });
+      expect(mockQueryBuilder.set).toHaveBeenCalledWith({ cartId: null, orderId: 'order-1' });
+      expect(mockQueryBuilder.whereInIds).toHaveBeenCalledWith(['junction-1', 'junction-2']);
+      expect(mockRepository.findBy).toHaveBeenCalledWith({ id: In(['junction-1', 'junction-2']), orderId: 'order-1' });
+      expect(result).toBe(junctions);
+    });
 
-//   describe('create', () => {
-//     it('should create and save a new item junction', async () => {
-//       const dto: CreateItemJunctionDto = {
-//         quantity: 2,
-//         bundleId: 'bundle-123',
-//         cartId: 'cart-123',
-//       };
-      
-//       const itemJunction = { id: 'item-junction-123', ...dto };
-//       mockRepository.findOne.mockResolvedValue(null);
-//       mockRepository.create.mockReturnValue(itemJunction);
-//       mockRepository.save.mockResolvedValue(itemJunction);
+    it('should only move junctions still in a cart', async () => {
+      mockQueryBuilder.execute.mockResolvedValue({ affected: 0 });
 
-//       const result = await itemJunctionRepository.create(dto);
+      await repository.switchRelationship(['junction-1'], 'order-1');
 
-//       expect(mockRepository.create).toHaveBeenCalledWith(dto);
-//       expect(mockRepository.save).toHaveBeenCalledWith(itemJunction);
-//       expect(result).toEqual(itemJunction);
-//     });
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('cart_id IS NOT NULL');
+    });
 
-//     it('should update quantity if item already exists in cart', async () => {
-//       const dto: CreateItemJunctionDto = {
-//         quantity: 2,
-//         bundleId: 'bundle-123',
-//         cartId: 'cart-123',
-//       };
-      
-//       const existingJunction = { 
-//         id: 'existing-junction',
-//         bundleId: dto.bundleId,
-//         cartId: dto.cartId,
-//         quantity: 3
-//       };
-      
-//       const itemJunction = { id: 'new-junction', ...dto };
-      
-//       mockRepository.findOne.mockResolvedValue(existingJunction);
-//       const updateQuantitySpy = jest.spyOn(itemJunctionRepository, 'updateQuantity').mockResolvedValue(existingJunction as any);
-//       mockRepository.create.mockReturnValue(itemJunction);
-//       mockRepository.save.mockResolvedValue(itemJunction);
+    it('should use the transaction manager when given', async () => {
+      const transactionRepository = { ...mockRepository, findBy: jest.fn().mockResolvedValue([]) };
+      const manager = { getRepository: jest.fn(() => transactionRepository) };
+      mockQueryBuilder.execute.mockResolvedValue({ affected: 1 });
 
-//       const result = await itemJunctionRepository.create(dto);
+      await repository.switchRelationship(['junction-1'], 'order-1', manager as unknown as EntityManager);
 
-//       expect(mockRepository.findOne).toHaveBeenCalledWith({
-//         where: { cartId: dto.cartId, bundleId: dto.bundleId }
-//       });
-//       expect(updateQuantitySpy).toHaveBeenCalledWith(existingJunction.id, dto.quantity);
-//       expect(mockRepository.create).toHaveBeenCalledWith(dto);
-//       expect(mockRepository.save).toHaveBeenCalledWith(itemJunction);
-//       expect(result).toEqual(itemJunction);
-//     });
+      expect(manager.getRepository).toHaveBeenCalledWith(ItemJunction);
+      expect(transactionRepository.findBy).toHaveBeenCalled();
+      expect(mockRepository.findBy).not.toHaveBeenCalled();
+    });
 
-//     it('should not check for existing item if cartId is not provided', async () => {
-//       const dto: CreateItemJunctionDto = {
-//         quantity: 2,
-//         bundleId: 'bundle-123',
-//       };
-      
-//       const itemJunction = { id: 'item-junction-123', ...dto };
-//       mockRepository.create.mockReturnValue(itemJunction);
-//       mockRepository.save.mockResolvedValue(itemJunction);
+    it('should return empty array when nothing was updated', async () => {
+      mockQueryBuilder.execute.mockResolvedValue({ affected: 0 });
 
-//       const result = await itemJunctionRepository.create(dto);
+      await expect(repository.switchRelationship(['junction-1'], 'order-1')).resolves.toEqual([]);
+      expect(mockRepository.findBy).not.toHaveBeenCalled();
+    });
+  });
 
-//       expect(mockRepository.findOne).not.toHaveBeenCalled();
-//       expect(mockRepository.create).toHaveBeenCalledWith(dto);
-//       expect(mockRepository.save).toHaveBeenCalledWith(itemJunction);
-//       expect(result).toEqual(itemJunction);
-//     });
-//   });
+  describe('getOneWithSales', () => {
+    it('should only count junctions attached to an order', async () => {
+      mockQueryBuilder.getMany.mockResolvedValue([{ quantity: 2 }, { quantity: 3 }]);
 
-//   describe('update', () => {
-//     it('should update an existing item junction', async () => {
-//       const dto: UpdateItemJunctionDto = {
-//         quantity: 3,
-//         bundleId: 'bundle-123',
-//         cartId: 'cart-456',
-//       };
-      
-//       const updatedItemJunction = { ...mockItemJunction, ...dto };
-      
-//       mockRepository.findOne.mockResolvedValue(mockItemJunction);
-//       mockRepository.save.mockResolvedValue(updatedItemJunction);
+      await expect(repository.getOneWithSales('bundle-1')).resolves.toBe(5);
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('item_junction.order_id IS NOT NULL');
+    });
+  });
 
-//       const result = await itemJunctionRepository.update(mockItemJunction.id, dto);
+  describe('getAllWithSales', () => {
+    it('should not query without bundle ids', async () => {
+      await expect(repository.getAllWithSales([])).resolves.toEqual({});
+      expect(mockRepository.createQueryBuilder).not.toHaveBeenCalled();
+    });
 
-//       expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: mockItemJunction.id } });
-//       expect(mockRepository.save).toHaveBeenCalledWith(Object.assign(mockItemJunction, dto));
-//       expect(result).toEqual(updatedItemJunction);
-//     });
+    it('should sum sales per bundle and default unsold bundles to 0', async () => {
+      mockQueryBuilder.getRawMany.mockResolvedValue([
+        { bundle_id: 'bundle-1', item_junction_quantity: 2 },
+        { bundle_id: 'bundle-1', item_junction_quantity: 3 },
+        { bundle_id: 'bundle-2', item_junction_quantity: 1 },
+      ]);
 
-//     it('should return null if item junction not found', async () => {
-//       const id = 'non-existent-id';
-//       const dto: UpdateItemJunctionDto = {
-//         quantity: 3,
-//         bundleId: 'bundle-123',
-//       };
-      
-//       mockRepository.findOne.mockResolvedValue(null);
+      await expect(repository.getAllWithSales(['bundle-1', 'bundle-2', 'bundle-3'])).resolves.toEqual({
+        'bundle-1': 5,
+        'bundle-2': 1,
+        'bundle-3': 0,
+      });
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('item_junction.order_id IS NOT NULL');
+    });
+  });
 
-//       const result = await itemJunctionRepository.update(id, dto);
+  describe('remove', () => {
+    it('should return null if junction does not exist', async () => {
+      mockRepository.findOne.mockResolvedValue(null);
 
-//       expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
-//       expect(mockRepository.save).not.toHaveBeenCalled();
-//       expect(result).toBeNull();
-//     });
-//   });
-
-//   describe('remove', () => {
-//     it('should remove an existing item junction', async () => {    
-//       const deleteResult = { affected: 1, raw: {} };
-      
-//       mockRepository.findOne.mockResolvedValue(mockItemJunction);
-//       mockRepository.delete.mockResolvedValue(deleteResult);
-
-//       const result = await itemJunctionRepository.remove(mockItemJunction.id);
-
-//       expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: mockItemJunction.id } });
-//       expect(mockRepository.delete).toHaveBeenCalledWith(mockItemJunction.id);
-//       expect(result).toEqual(deleteResult);
-//     });
-
-//     it('should return null if item junction not found', async () => {
-//       const id = 'wrongId';
-//       mockRepository.findOne.mockResolvedValue(null);
-
-//       const result = await itemJunctionRepository.remove(id);
-
-//       expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
-//       expect(mockRepository.delete).not.toHaveBeenCalled();
-//       expect(result).toBeNull();
-//     });
-//   });
-// });
+      await expect(repository.remove('junction-1')).resolves.toBeNull();
+      expect(mockRepository.delete).not.toHaveBeenCalled();
+    });
+  });
+});

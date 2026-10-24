@@ -150,15 +150,13 @@ describe('CartDetailsComponent', () => {
       expect(router.navigate).toHaveBeenCalledTimes(1);
     });
 
-    it('should send logged in users to checkout with the total', () => {
+    it('should send logged in users to checkout without any amount', () => {
       isAuth.set(true);
       createComponent(makeCart([bundle('a', 1000, 2), bundle('b', 500, 1)]));
 
       component.createOrder();
 
-      expect(router.navigate).toHaveBeenCalledWith(['shop/checkout'], {
-        queryParams: { total: 2500 },
-      });
+      expect(router.navigate).toHaveBeenCalledWith(['shop/checkout']);
     });
 
     it('should send logged in users to checkout even with a leftover guest token', () => {
@@ -168,9 +166,7 @@ describe('CartDetailsComponent', () => {
 
       component.createOrder();
 
-      expect(router.navigate).toHaveBeenCalledWith(['shop/checkout'], {
-        queryParams: { total: 1000 },
-      });
+      expect(router.navigate).toHaveBeenCalledWith(['shop/checkout']);
     });
   });
 

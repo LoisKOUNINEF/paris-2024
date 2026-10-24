@@ -1,15 +1,19 @@
 import { randomUUID } from 'crypto';
 import * as qrCode from 'qrcode';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { failedToGenerateQrCode, Ticket, TicketDto, TicketRepository } from '@paris-2024/server-data-access-ticket';
+import { failedToGenerateQrCode, Ticket, TicketDto, TicketRepository, ticketDoesntExist } from '@paris-2024/server-data-access-ticket';
 import { TicketValidity } from '@paris-2024/shared-interfaces';
 import { hash } from '@paris-2024/server-utils';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class TicketService {
   constructor(private ticketRepository: TicketRepository) {}
 
-  async createTicket(dto: Pick<TicketDto, 'userId' | 'userSecret' | 'orderId'>): Promise<Ticket | undefined> {
+  async createTicket(
+    dto: Pick<TicketDto, 'userId' | 'userSecret' | 'orderId'>,
+    manager?: EntityManager,
+  ): Promise<Ticket | undefined> {
     const token = randomUUID();
     const tokenHash = hash(token);
     if(!dto.userSecret) { 
@@ -25,7 +29,7 @@ export class TicketService {
 
     const newTicket = await this.ticketRepository.create({
       ...dto, qrCode, tokenHash,
-    })
+    }, manager)
 
     return newTicket;
   }
@@ -60,6 +64,10 @@ export class TicketService {
 
   async isValid(qrCode: Ticket['qrCode']): Promise<TicketValidity | null> {
     const [userSecret, ticketToken] = qrCode.split(':');
+    if (!userSecret || !ticketToken) {
+      ticketDoesntExist();
+      return null;
+    }
     const hashedToken = hash(ticketToken);
 
     return await this.ticketRepository.isValid(userSecret, hashedToken);
