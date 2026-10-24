@@ -1,11 +1,11 @@
-FROM node:22.3.0-alpine AS builder
+FROM node:22.23.4-alpine AS builder
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npx nx build client --configuration=production
 
-FROM node:22.3.0-alpine
+FROM node:22.23.4-alpine
 RUN apk add --no-cache curl && \
     addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
