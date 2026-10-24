@@ -9,6 +9,9 @@
     "coverage-report": "tools/coverage-report/coverage-report.sh"
   },
   "private": true,
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
     "@angular/animations": "~22.2.3",
     "@angular/cdk": "~22.2.4",
@@ -90,7 +93,7 @@
     "@types/connect-pg-simple": "^7.0.3",
     "@types/express": "4.17.25",
     "@types/jest": "30.0.0",
-    "@types/node": "~22.19.0",
+    "@types/node": "~24.12.0",
     "@types/passport": "^1.0.16",
     "@types/passport-local": "^1.0.38",
     "@types/qrcode": "^1.5.6",
