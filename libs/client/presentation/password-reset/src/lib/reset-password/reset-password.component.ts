@@ -8,7 +8,6 @@ import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'lib-reset-password',
-  standalone: true,
   imports: [
     ReactiveFormsModule, 
     PasswordConfirmFormComponent,

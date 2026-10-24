@@ -7,7 +7,6 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'lib-bundle-catalog',
-  standalone: true,
   imports: [
     BundleCardComponent,
     AddToCartComponent,

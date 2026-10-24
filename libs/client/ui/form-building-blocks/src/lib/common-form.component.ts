@@ -3,6 +3,7 @@ import { ControlContainer, FormBuilder } from "@angular/forms";
 
 @Component({
 	template: '',
+	standalone: false,
 })
 export class CommonFormComponent {
 	constructor(

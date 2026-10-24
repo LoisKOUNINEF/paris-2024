@@ -8,7 +8,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'lib-bundle-values',
-  standalone: true,
   imports: [
     ReactiveFormsModule, 
     BundleFormComponent, 

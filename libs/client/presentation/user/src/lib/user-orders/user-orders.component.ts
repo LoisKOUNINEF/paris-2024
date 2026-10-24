@@ -7,7 +7,6 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'lib-user-orders',
-  standalone: true,
   imports: [
     FormatPricePipe,
     CurrencyPipe,

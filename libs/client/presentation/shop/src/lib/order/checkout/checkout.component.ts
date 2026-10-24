@@ -4,7 +4,6 @@ import { PaymentComponent } from '@paris-2024/client-presentation-stripe';
 
 @Component({
   selector: 'lib-checkout',
-  standalone: true,
   imports: [PaymentComponent],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss',

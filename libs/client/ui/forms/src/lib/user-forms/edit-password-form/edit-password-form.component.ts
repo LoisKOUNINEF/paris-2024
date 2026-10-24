@@ -5,7 +5,6 @@ import { PasswordConfirmFormComponent, SubmitButtonComponent } from '@paris-2024
 
 @Component({
   selector: 'lib-edit-password-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule, 
     PasswordConfirmFormComponent, 

@@ -8,7 +8,6 @@ import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
 
 @Component({
   selector: 'lib-bundle-catalog',
-  standalone: true,
   imports: [
     FormatPricePipe, 
     CurrencyPipe, 

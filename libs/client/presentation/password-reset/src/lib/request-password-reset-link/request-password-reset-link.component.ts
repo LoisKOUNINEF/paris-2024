@@ -8,7 +8,6 @@ import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'lib-request-password-reset-link',
-  standalone: true,
   imports: [
     ReactiveFormsModule, 
     EmailFormComponent, 

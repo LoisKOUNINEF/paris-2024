@@ -11,7 +11,6 @@ import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
 
 @Component({
   selector: 'lib-cart-details',
-  standalone: true,
   imports: [
     CurrencyPipe, 
     FormatPricePipe, 

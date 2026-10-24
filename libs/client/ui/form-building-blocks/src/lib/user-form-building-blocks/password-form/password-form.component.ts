@@ -9,7 +9,6 @@ import { passwordRegex } from '@paris-2024/shared-utils';
 
 @Component({
   selector: 'lib-password-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule, 
