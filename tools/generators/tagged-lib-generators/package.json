@@ -2,7 +2,10 @@
   "name": "@paris-2024/tagged-lib-generators",
   "version": "0.0.1",
   "dependencies": {
-    "@nx/devkit": "19.6.4",
+    "@nx/angular": "24.0.1",
+    "@nx/devkit": "24.0.1",
+    "@nx/js": "24.0.1",
+    "@nx/nest": "24.0.1",
     "tslib": "^2.3.0"
   },
   "type": "commonjs",

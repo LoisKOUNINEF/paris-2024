@@ -37,14 +37,6 @@
         ]
       }
     },
-    "lint": {
-      "options": {
-        "args": [
-          "tools/tagged-lib-generators/**/*.ts",
-          "tools/tagged-lib-generators/package.json"
-        ]
-      }
-    },
     "test": {
       "options": {
         "passWithNoTests": true
