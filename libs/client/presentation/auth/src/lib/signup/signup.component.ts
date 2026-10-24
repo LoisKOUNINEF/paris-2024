@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { UserDto, UserFormValue, User } from '@paris-2024/client-data-access-user';
@@ -10,6 +10,7 @@ import { GuestTokenService, SnackbarService } from '@paris-2024/client-utils';
   selector: 'lib-signup',
   imports: [FullUserFormComponent],
   templateUrl: './signup.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './signup.component.scss',
 })
 export class SignupComponent implements OnDestroy {

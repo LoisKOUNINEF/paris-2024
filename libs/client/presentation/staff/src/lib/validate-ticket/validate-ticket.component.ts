@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Ticket, TicketService } from '@paris-2024/client-data-access-ticket';
 import { ActivatedRoute } from '@angular/router';
 import { PlatformService } from '@paris-2024/client-utils';
@@ -7,6 +7,7 @@ import { PlatformService } from '@paris-2024/client-utils';
   selector: 'lib-validate-ticket',
   standalone: true,
   templateUrl: './validate-ticket.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './validate-ticket.component.scss',
 })
 export class ValidateTicketComponent implements OnInit {

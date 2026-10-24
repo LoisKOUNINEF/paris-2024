@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserFormValue } from '@paris-2024/client-data-access-user';
 import { EmailFormComponent, PasswordFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
@@ -12,6 +12,7 @@ import { EmailFormComponent, PasswordFormComponent, SubmitButtonComponent } from
     SubmitButtonComponent,
   ],
   templateUrl: './login-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login-form.component.scss',
 })
 export class LoginFormComponent implements OnInit {

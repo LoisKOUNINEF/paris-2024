@@ -5,13 +5,14 @@
   "implicitDependencies": ["server"],
   "targets": {
     "e2e": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{e2eProjectRoot}",
+        "{workspaceRoot}/coverage/server-e2e"
+      ],
+      "dependsOn": ["server:build"],
       "options": {
-        "jestConfig": "apps/server-e2e/jest.config.ts",
         "passWithNoTests": true
-      },
-      "dependsOn": ["server:build"]
+      }
     }
   }
 }

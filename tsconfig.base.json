@@ -183,7 +183,10 @@
       "@paris-2024/tagged-lib-generators": [
         "tools/generators/tagged-lib-generators"
       ]
-    }
+    },
+    "noUncheckedSideEffectImports": false,
+    "types": ["*"],
+    "ignoreDeprecations": "6.0"
   },
   "exclude": ["node_modules", "tmp", "**/files/**"]
 }

@@ -1,5 +1,5 @@
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NavigationCancel, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AuthService } from '@paris-2024/client-data-access-auth';
@@ -17,6 +17,7 @@ import { filter, Subscription } from 'rxjs';
   ],
   selector: 'app-root',
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit, OnDestroy {

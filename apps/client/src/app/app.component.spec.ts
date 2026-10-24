@@ -4,11 +4,12 @@ import { Router, NavigationEnd, NavigationCancel } from '@angular/router';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { PlatformService } from '@paris-2024/client-utils';
 import { BehaviorSubject, of } from 'rxjs';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'lib-navbar',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: ''
 })
 class MockNavbarComponent {}

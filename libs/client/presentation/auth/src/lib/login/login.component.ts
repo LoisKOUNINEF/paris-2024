@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginFormComponent } from '@paris-2024/client-ui-forms';
 import { Subscription } from 'rxjs';
@@ -10,6 +10,7 @@ import { GuestTokenService, SnackbarService } from '@paris-2024/client-utils';
   selector: 'lib-login',
   imports: [LoginFormComponent],
   templateUrl: './login.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login.component.scss',
 })
 export class LoginComponent implements OnDestroy {

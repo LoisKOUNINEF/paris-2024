@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { OrderService } from '@paris-2024/client-data-access-order';
 import { FormatPricePipe, PlatformService } from '@paris-2024/client-utils';
@@ -12,6 +12,7 @@ import { IOrderTickets } from '@paris-2024/shared-interfaces';
     CurrencyPipe,
   ],
   templateUrl: './order-details.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './order-details.component.scss',
 })
 export class OrderDetailsComponent {

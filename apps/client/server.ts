@@ -12,7 +12,14 @@ export function app(): express.Express {
   const browserDistFolder = resolve(serverDistFolder, '../browser');
   const indexHtml = join(serverDistFolder, 'index.server.html');
 
-  const commonEngine = new CommonEngine();
+  // Hosts allowed to be rendered (SSRF protection). NG_ALLOWED_HOSTS overrides this list.
+  const commonEngine = new CommonEngine({
+    allowedHosts: [
+      'studi-exam-jo.lois-kouninef.eu',
+      'studi-exam-jo-staging.lois-kouninef.eu',
+      'localhost',
+    ],
+  });
 
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);

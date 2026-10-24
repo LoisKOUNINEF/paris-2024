@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormatPricePipe } from '@paris-2024/client-utils';
 import { Bundle } from '@paris-2024/client-data-access-bundle';
@@ -7,6 +7,7 @@ import { Bundle } from '@paris-2024/client-data-access-bundle';
   selector: 'lib-bundle-card',
   imports: [CurrencyPipe, FormatPricePipe, CommonModule],
   templateUrl: './bundle-card.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bundle-card.component.scss',
 })
 export class BundleCardComponent {

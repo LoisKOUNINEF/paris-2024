@@ -36,6 +36,8 @@ export default [
     rules: {
       '@angular-eslint/prefer-standalone': 'off',
       '@angular-eslint/prefer-inject': 'off',
+      // Components keep Eager change detection (set by the Angular 22 migration)
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
     },
   },
 ];

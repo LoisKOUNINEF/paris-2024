@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BundleFormComponent } from '../bundle-form/bundle-form.component';
 import { SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
@@ -14,6 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
     SubmitButtonComponent,
   ],
   templateUrl: './bundle-values.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bundle-values.component.scss',
 })
 export class BundleValuesComponent implements OnInit, OnDestroy {

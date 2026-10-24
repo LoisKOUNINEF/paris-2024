@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonFormComponent } from '@paris-2024/client-ui-form-building-blocks';
 import { Bundle } from '@paris-2024/client-data-access-bundle';
@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
     MatInputModule,
   ],
   templateUrl: './bundle-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bundle-form.component.scss',
 })
 export class BundleFormComponent extends CommonFormComponent implements OnInit {

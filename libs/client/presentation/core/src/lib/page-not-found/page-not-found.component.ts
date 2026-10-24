@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { OlympicRingsComponent, RouteButtonComponent } from '@paris-2024/client-ui-shared';
 import { PlatformService } from '@paris-2024/client-utils';
@@ -11,6 +11,7 @@ import { filter, Subscription } from 'rxjs';
     OlympicRingsComponent,
   ],
   templateUrl: './page-not-found.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './page-not-found.component.scss',
 })
 export class PageNotFoundComponent implements OnInit, OnDestroy {
