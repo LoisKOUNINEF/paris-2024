@@ -108,6 +108,20 @@ export class User extends BaseEntity implements IUser {
   @ApiProperty()
   emailVerificationToken: string;
 
+  @Column({
+    type: 'timestamptz',
+    nullable: true,
+    name: 'anonymization_reminder_sent_at'
+  })
+  anonymizationReminderSentAt: Date | null;
+
+  @Column({
+    type: 'timestamptz',
+    nullable: true,
+    name: 'inactivity_reminder_sent_at'
+  })
+  inactivityReminderSentAt: Date | null;
+
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {

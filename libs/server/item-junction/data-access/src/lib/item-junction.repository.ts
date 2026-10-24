@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { In, Repository } from 'typeorm';
+import { EntityManager, In, Repository } from 'typeorm';
 import { ItemJunction } from './item-junction.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateItemJunctionDto, UpdateItemJunctionDto } from './item-junction.dto';
@@ -65,11 +65,11 @@ export class ItemJunctionRepository {
       .createQueryBuilder('item_junction')
       .select('item_junction')
       .where('item_junction.bundle_id = :id::uuid', { id: bundleId })
-      .andWhere('item_junction.order_id != null')
+      .andWhere('item_junction.order_id IS NOT NULL')
       .getMany();
 
     const sales = itemJunctions.reduce((acc: number, sale: ItemJunction) => {
-      return acc += sale.quantity
+      return acc + sale.quantity
     }, 0);
 
     return sales;
@@ -195,18 +195,27 @@ export class ItemJunctionRepository {
     return await this.itemJunctionRepository.delete(itemJunction.id);
   }
 
-  async switchRelationship(ids: Array<ItemJunction['id']>, orderId: string): Promise<Array<ItemJunction> | null> {
-    const updateResult = await this.itemJunctionRepository
+  // only moves junctions still in a cart, and returns the ones now attached to the order:
+  // a concurrent order on the same cart gets fewer junctions back than it asked for
+  async switchRelationship(
+    ids: Array<ItemJunction['id']>,
+    orderId: string,
+    manager?: EntityManager,
+  ): Promise<Array<ItemJunction>> {
+    const repository = manager?.getRepository(ItemJunction) ?? this.itemJunctionRepository;
+    const updateResult = await repository
       .createQueryBuilder()
       .update(ItemJunction)
       // TODO: remove 'as any' bypass
       .set({ cartId: null as any, orderId: orderId })
       .whereInIds(ids)
+      .andWhere('cart_id IS NOT NULL')
       .execute();
     
     if (updateResult.affected && updateResult.affected > 0) {
-      return await this.itemJunctionRepository.findBy({
-        id : In(ids)
+      return await repository.findBy({
+        id : In(ids),
+        orderId: orderId,
       });
     }
     

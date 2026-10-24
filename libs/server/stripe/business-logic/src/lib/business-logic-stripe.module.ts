@@ -1,6 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { StripeController } from './stripe.controller';
 import { StripeService } from './stripe.service';
 import { getEnvValue } from '@paris-2024/server-utils';
 
@@ -10,7 +9,8 @@ export class StripeModule {
   static forRootAsync(): DynamicModule {
     return {
       module: StripeModule,
-      controllers: [StripeController],
+      // payment intents are created and verified by the order flow
+      global: true,
       providers: [
         StripeService,
         {
@@ -22,6 +22,7 @@ export class StripeModule {
           inject: [ConfigService],
         },
       ],
+      exports: [StripeService],
     };
   }
 }

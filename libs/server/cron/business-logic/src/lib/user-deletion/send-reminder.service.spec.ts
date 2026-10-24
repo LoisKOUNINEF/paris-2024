@@ -4,7 +4,8 @@ import { AnonymizeMailerService, InactiveUsersMailerService } from '@paris-2024/
 import { User } from '@paris-2024/server-data-access-user';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Logger } from '@nestjs/common';
-import { subDays, subWeeks, subYears } from 'date-fns';
+import { addWeeks, subDays, subYears } from 'date-fns';
+import { IsNull } from 'typeorm';
 
 describe('SendReminderService', () => {
   let service: SendReminderService;
@@ -12,6 +13,7 @@ describe('SendReminderService', () => {
 
   const mockUserRepository = {
     find: jest.fn(),
+    update: jest.fn(),
   };
 
   const mockAnonymizeMailerService = {
@@ -70,7 +72,9 @@ describe('SendReminderService', () => {
         where: {
           deletedAt: expect.any(Object),
           isAnonymized: false,
+          anonymizationReminderSentAt: IsNull(),
         },
+        withDeleted: true,
       });
       expect(mockAnonymizeMailerService.sendReminder).toHaveBeenCalledTimes(2);
       expect(mockAnonymizeMailerService.sendReminder).toHaveBeenCalledWith('user1@example.com');
@@ -78,6 +82,17 @@ describe('SendReminderService', () => {
       expect(loggerSpy).toHaveBeenCalledTimes(2);
       expect(loggerSpy).toHaveBeenCalledWith('Sending email 24 hours before definitive account deletion to 1');
       expect(loggerSpy).toHaveBeenCalledWith('Sending email 24 hours before definitive account deletion to 2');
+    });
+
+    it('should mark reminded users so they are not reminded again', async () => {
+      mockUserRepository.find.mockResolvedValue([
+        { id: '1', email: 'user1@example.com', deletedAt: new Date(), isAnonymized: false },
+      ]);
+
+      await service.sendReminderBeforeAnonymization();
+
+      expect(mockUserRepository.update).toHaveBeenCalledTimes(1);
+      expect(mockUserRepository.update).toHaveBeenCalledWith('1', { anonymizationReminderSentAt: expect.any(Date) });
     });
 
     it('should log a message when no users need anonymization reminders', async () => {
@@ -94,7 +109,8 @@ describe('SendReminderService', () => {
       mockUserRepository.find.mockResolvedValue([]);
       
       const currentDate = new Date('2023-01-30T00:00:00Z');
-      const expectedThresholdDate = subDays(currentDate, 1);
+      // anonymization happens 7 days after deletion, remind one day before
+      const expectedThresholdDate = subDays(currentDate, 6);
       
       jest.spyOn(global, 'Date').mockImplementation(() => currentDate as any);
 
@@ -121,7 +137,7 @@ describe('SendReminderService', () => {
       expect(mockUserRepository.find).toHaveBeenCalledWith({
         where: {
           lastLoginAt: expect.any(Object),
-          deletedAt: undefined,
+          inactivityReminderSentAt: IsNull(),
         },
       });
       expect(mockInactiveUsersMailerService.sendReminder).toHaveBeenCalledTimes(2);
@@ -130,6 +146,17 @@ describe('SendReminderService', () => {
       expect(loggerSpy).toHaveBeenCalledTimes(2);
       expect(loggerSpy).toHaveBeenCalledWith('Sending email to inactive user 1');
       expect(loggerSpy).toHaveBeenCalledWith('Sending email to inactive user 2');
+    });
+
+    it('should mark reminded users so they are not reminded again', async () => {
+      mockUserRepository.find.mockResolvedValue([
+        { id: '1', email: 'inactive1@example.com', lastLoginAt: new Date('2020-01-01') },
+      ]);
+
+      await service.sendReminderToInactiveUsers();
+
+      expect(mockUserRepository.update).toHaveBeenCalledTimes(1);
+      expect(mockUserRepository.update).toHaveBeenCalledWith('1', { inactivityReminderSentAt: expect.any(Date) });
     });
 
     it('should log a message when no inactive users found', async () => {
@@ -146,7 +173,8 @@ describe('SendReminderService', () => {
       mockUserRepository.find.mockResolvedValue([]);
       
       const currentDate = new Date('2023-01-30T00:00:00Z');
-      const expectedThresholdDate = subWeeks(subYears(currentDate, 2), 1);
+      // accounts are soft deleted after 2 years of inactivity, remind one week before
+      const expectedThresholdDate = addWeeks(subYears(currentDate, 2), 1);
       
       jest.spyOn(global, 'Date').mockImplementation(() => currentDate as any);
 
@@ -161,30 +189,37 @@ describe('SendReminderService', () => {
   });
 
   describe('error handling', () => {
-    it('should handle errors when sending anonymization reminders', async () => {
-      const mockUsers = [{ id: '1', email: 'user1@example.com', deletedAt: new Date(), isAnonymized: false }];
-      mockUserRepository.find.mockResolvedValue(mockUsers);
+    it('should keep sending anonymization reminders when one email fails', async () => {
+      const errorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation();
+      mockUserRepository.find.mockResolvedValue([
+        { id: '1', email: 'user1@example.com', deletedAt: new Date(), isAnonymized: false },
+        { id: '2', email: 'user2@example.com', deletedAt: new Date(), isAnonymized: false },
+      ]);
       mockAnonymizeMailerService.sendReminder.mockRejectedValueOnce(new Error('Email service error'));
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
-      await expect(service.sendReminderBeforeAnonymization()).rejects.toThrow('Email service error');
-      
-      expect(mockAnonymizeMailerService.sendReminder).toHaveBeenCalledWith('user1@example.com');
-      
-      consoleErrorSpy.mockRestore();
+      await service.sendReminderBeforeAnonymization();
+
+      expect(mockAnonymizeMailerService.sendReminder).toHaveBeenCalledWith('user2@example.com');
+      // the failed user is not marked, so the next run retries
+      expect(mockUserRepository.update).toHaveBeenCalledTimes(1);
+      expect(mockUserRepository.update).toHaveBeenCalledWith('2', { anonymizationReminderSentAt: expect.any(Date) });
+      expect(errorSpy).toHaveBeenCalled();
     });
 
-    it('should handle errors when sending inactive user reminders', async () => {
-      const mockUsers = [{ id: '1', email: 'inactive@example.com', lastLoginAt: new Date('2020-01-01'), deletedAt: undefined }];
-      mockUserRepository.find.mockResolvedValue(mockUsers);
+    it('should keep sending inactivity reminders when one email fails', async () => {
+      const errorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation();
+      mockUserRepository.find.mockResolvedValue([
+        { id: '1', email: 'inactive1@example.com', lastLoginAt: new Date('2020-01-01') },
+        { id: '2', email: 'inactive2@example.com', lastLoginAt: new Date('2020-01-01') },
+      ]);
       mockInactiveUsersMailerService.sendReminder.mockRejectedValueOnce(new Error('Email service error'));
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
-      await expect(service.sendReminderToInactiveUsers()).rejects.toThrow('Email service error');
-      
-      expect(mockInactiveUsersMailerService.sendReminder).toHaveBeenCalledWith('inactive@example.com');
-      
-      consoleErrorSpy.mockRestore();
+      await service.sendReminderToInactiveUsers();
+
+      expect(mockInactiveUsersMailerService.sendReminder).toHaveBeenCalledWith('inactive2@example.com');
+      expect(mockUserRepository.update).toHaveBeenCalledTimes(1);
+      expect(mockUserRepository.update).toHaveBeenCalledWith('2', { inactivityReminderSentAt: expect.any(Date) });
+      expect(errorSpy).toHaveBeenCalled();
     });
 
     it('should handle repository errors', async () => {

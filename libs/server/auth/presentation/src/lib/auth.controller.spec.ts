@@ -1,99 +1,128 @@
-it.todo('FIX THESE. Priority+')
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { Test, TestingModule } from '@nestjs/testing';
+import { UserService } from '@paris-2024/server-business-logic-user';
+import { CartService } from '@paris-2024/server-business-logic-cart';
+import { RequestWithUser } from '@paris-2024/server-base-entity';
+import { CreateUserDto } from '@paris-2024/server-data-access-user';
+import { Roles } from '@paris-2024/shared-interfaces';
+import { AuthController } from './auth.controller';
 
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { AuthController } from './auth.controller';
-// import { HttpException, HttpStatus } from '@nestjs/common';
-// import { UserService } from '@paris-2024/server-business-logic-user';
-// import { CartService } from '@paris-2024/server-business-logic-cart';
-// import { RequestWithUser } from '@paris-2024/server-base-entity';
+describe('AuthController', () => {
+  let controller: AuthController;
 
-// describe('AuthController', () => {
-//   let controller: AuthController;
-//   const mockUserService = {
-//     findOne: jest.fn(),
-//     create: jest.fn(),
-//   };
-//   const mockCartService = {
-//     getUserCart: jest.fn(),
-//     mergeGuestCartWithUserCart: jest.fn(),
-//   }
-//   beforeEach(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       controllers: [AuthController],
-//       providers: [{
-//         provide: UserService,
-//         useValue: mockUserService
-//         },{
-//         provide: CartService,
-//         useValue: mockCartService
-//         }
-//       ]
-//     }).compile();
+  const mockUserService = {
+    create: jest.fn(),
+    verifyEmail: jest.fn(),
+  };
 
-//     controller = module.get<AuthController>(AuthController);
-//   });
+  const mockCartService = {
+    mergeGuestCartWithUserCart: jest.fn(),
+  };
 
-//   describe('login', () => {
-//     it('should return login successful with user when req.user exists', () => {
-//       const req: RequestWithUser & any = { user: { id: '1' }, session: { passport: {} } };
-//       const result = controller.login(req, '',undefined);
-//       expect(result).toEqual({
-//         message: 'Login successful',
-//         user: { id: '1' },
-//       });
-//     });
+  const user = { id: 'user-1', role: Roles.CUSTOMER };
 
-//     it('should throw HttpException when req.user is missing', () => {
-//       const req: RequestWithUser & any = { user: null };
-//       expect(() => controller.login(req, '', undefined)).toThrow(
-//         new HttpException('Login failed', HttpStatus.UNAUTHORIZED)
-//       );
-//     });
+  beforeEach(async () => {
+    jest.clearAllMocks();
 
-//     it('should return error message when an error occurs', () => {
-//       const req: RequestWithUser & any = { user: { id: '1' }, session: {} };
-//       const err = new Error('Some error');
-//       const result = controller.login(req, '', err);
-//       expect(result).toBe('Some error');
-//     });
-//   });
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [AuthController],
+      providers: [
+        { provide: UserService, useValue: mockUserService },
+        { provide: CartService, useValue: mockCartService },
+      ],
+    }).compile();
 
-//   describe('logout', () => {
+    controller = module.get<AuthController>(AuthController);
+  });
 
-//     it('should log out successfully and return logged out message', async () => {
-//       const req: RequestWithUser & any = {
-//         logout: jest.fn((callback) => callback(null)),
-//       };
-//       const result = await controller.logout(req);
-//       expect(result).toEqual({ msg: 'Logged out' });
-//       expect(req.logout).toHaveBeenCalled();
-//     });
+  describe('createUser', () => {
+    const dto = { email: 'john.doe@example.com' } as CreateUserDto;
 
-//     it('should return error message when logout fails', async () => {
-//       const req: RequestWithUser & any = {
-//         logout: jest.fn((callback) => callback(new Error('Logout failed'))),
-//       };
-//       const result = await controller.logout(req);
-//       expect(result).toBe('Logout failed');
-//       expect(req.logout).toHaveBeenCalled();
-//     });
-//   });
+    it('should create a customer and forward guest token', async () => {
+      await controller.createUser(dto, 'guest-token');
 
-//   describe('isAuthenticated', () => {
-//     it('should return true when authenticated', () => {
-//       expect(controller.isAuthenticated()).toBe(true);
-//     });
-//   });
+      expect(mockUserService.create).toHaveBeenCalledWith(dto, false, 'guest-token');
+    });
 
-//   describe('isAdmin', () => {
-//     it('should return true when user is admin', () => {
-//       expect(controller.isAdmin()).toBe(true);
-//     });
-//   });
+    it('should create a customer without guest token', async () => {
+      await controller.createUser(dto, undefined);
 
-//   describe('isStaff', () => {
-//     it('should return true when user is staff', () => {
-//       expect(controller.isStaff()).toBe(true);
-//     });
-//   });
-// });
+      expect(mockUserService.create).toHaveBeenCalledWith(dto, false, undefined);
+    });
+  });
+
+  describe('login', () => {
+    it('should throw unauthorized without user', async () => {
+      const req = { user: undefined } as RequestWithUser;
+
+      await expect(controller.login(req, 'guest-token')).rejects.toThrow(
+        new HttpException('Login failed', HttpStatus.UNAUTHORIZED),
+      );
+      expect(mockCartService.mergeGuestCartWithUserCart).not.toHaveBeenCalled();
+    });
+
+    it('should merge guest cart into user cart', async () => {
+      const req = { user } as RequestWithUser;
+
+      const result = await controller.login(req, 'guest-token');
+
+      expect(mockCartService.mergeGuestCartWithUserCart).toHaveBeenCalledWith({
+        userId: 'user-1',
+        guestToken: 'guest-token',
+      });
+      expect(result).toEqual({ message: 'Login successful', user });
+    });
+
+    it('should wait for cart merge before answering', async () => {
+      mockCartService.mergeGuestCartWithUserCart.mockRejectedValue(new Error('db failure'));
+      const req = { user } as RequestWithUser;
+
+      await expect(controller.login(req, 'guest-token')).rejects.toThrow('db failure');
+    });
+  });
+
+  describe('logout', () => {
+    it('should log user out', async () => {
+      const req = { logout: jest.fn((done) => done()) } as unknown as RequestWithUser;
+
+      await expect(controller.logout(req)).resolves.toEqual({ msg: 'Logged out' });
+      expect(req.logout).toHaveBeenCalled();
+    });
+
+    it('should resolve with error message if logout fails', async () => {
+      const req = {
+        logout: jest.fn((done) => done(new Error('session store unavailable'))),
+      } as unknown as RequestWithUser;
+
+      await expect(controller.logout(req)).resolves.toBe('session store unavailable');
+    });
+  });
+
+  describe('verifyEmail', () => {
+    it('should return true when token matches a user', async () => {
+      mockUserService.verifyEmail.mockResolvedValue({ id: 'user-1' });
+
+      await expect(controller.verifyEmail('token')).resolves.toBe(true);
+      expect(mockUserService.verifyEmail).toHaveBeenCalledWith('token');
+    });
+
+    it('should return false when token does not match', async () => {
+      mockUserService.verifyEmail.mockResolvedValue(null);
+
+      await expect(controller.verifyEmail('token')).resolves.toBe(false);
+    });
+  });
+
+  describe('access metadata', () => {
+    const reflector = new Reflector();
+
+    it('isAdmin should be restricted to admins', () => {
+      expect(reflector.get('admin', AuthController.prototype.isAdmin)).toBe(true);
+    });
+
+    it('isStaff should be restricted to staff', () => {
+      expect(reflector.get('staff', AuthController.prototype.isStaff)).toBe(true);
+    });
+  });
+});

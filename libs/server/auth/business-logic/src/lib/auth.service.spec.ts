@@ -1,3 +1,4 @@
+import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { User, UserRepository } from '@paris-2024/server-data-access-user';
@@ -23,6 +24,8 @@ const mockUser: User = {
   updatedAt: new Date(),
   emailVerified: true,
   emailVerificationToken: '',
+  anonymizationReminderSentAt: null,
+  inactivityReminderSentAt: null,
   hashPassword: async () => { return; } ,
   hashSecretKey: async () => { return; } ,
 }
@@ -89,6 +92,50 @@ describe('AuthService', () => {
       }));
       expect(userRepository.findOneByEmail).toHaveBeenCalledWith('john.doe@example.com');
       expect(bcrypt.compare).toHaveBeenCalledWith('10Characters+', '10Characters+');
+    });
+
+    it('should never expose password or secret key', async () => {
+      userRepository.findOneByEmail.mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      const result = await service.validateUser('john.doe@example.com', '10Characters+');
+
+      expect(result).not.toHaveProperty('password');
+      expect(result).not.toHaveProperty('secretKey');
+    });
+
+    it('should throw if email is not verified', async () => {
+      userRepository.findOneByEmail.mockResolvedValue({ ...mockUser, emailVerified: false } as User);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      await expect(service.validateUser('john.doe@example.com', '10Characters+'))
+        .rejects.toThrow(UnauthorizedException);
+      expect(userRepository.updateLastLogin).not.toHaveBeenCalled();
+    });
+
+    it('should check password before revealing that email is not verified', async () => {
+      userRepository.findOneByEmail.mockResolvedValue({ ...mockUser, emailVerified: false } as User);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+      await expect(service.validateUser('john.doe@example.com', 'wrongPassword')).resolves.toBeNull();
+    });
+
+    it('should update last login date of validated user', async () => {
+      userRepository.findOneByEmail.mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      await service.validateUser('john.doe@example.com', '10Characters+');
+
+      expect(userRepository.updateLastLogin).toHaveBeenCalledWith('test-id');
+    });
+
+    it('should wait for last login update so failures are not left unhandled', async () => {
+      userRepository.findOneByEmail.mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      userRepository.updateLastLogin.mockRejectedValue(new Error('db failure'));
+
+      await expect(service.validateUser('john.doe@example.com', '10Characters+'))
+        .rejects.toThrow('db failure');
     });
   });
 });

@@ -1,9 +1,15 @@
 <main class="payment-form" autocomplete="off">
   <div id="card-element" class="card-element"></div>
-  <button 
-    (click)="createPaymentIntent(amount)"
+  <button
+    (click)="confirmPayment()"
+    [disabled]="!clientSecret || isProcessing"
     class=""
-  >Payer {{ amount | formatPrice | currency:'symbol':'€':'1.2-2' }}
+  >
+    @if(amount !== null) {
+      Payer {{ amount | formatPrice | currency:'symbol':'€':'1.2-2' }}
+    } @else {
+      Payer
+    }
   </button>
   @if(error) {
  	  <div class="error">{{ error }}</div>

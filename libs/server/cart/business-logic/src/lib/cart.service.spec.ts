@@ -1,200 +1,254 @@
-it.todo('FIX THOSE!')
+import { BadRequestException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { CartRepository } from '@paris-2024/server-data-access-cart';
+import { ItemJunctionRepository } from '@paris-2024/server-data-access-item-junction';
+import { IItemJunctionModel } from '@paris-2024/shared-interfaces';
+import { CartService } from './cart.service';
 
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { CartService } from './cart.service';
-// import { CartRepository } from '@paris-2024/server-data-access-cart';
-// import { ItemJunctionRepository } from '@paris-2024/server-data-access-item-junction';
+describe('CartService', () => {
+  let service: CartService;
 
-// describe('CartService', () => {
+  const mockCartRepository = {
+    getCart: jest.fn(),
+    getUserCart: jest.fn(),
+    getGuestCart: jest.fn(),
+    createUserCart: jest.fn(),
+    createGuestCart: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  };
 
-//   const mockUserCart = {
-//     id: 'cart123',
-//     userId: 'user123',
-//     guestToken: '',
-//     createdAt: new Date(),
-//     updatedAt: new Date(),
-//     deletedAt: null,
-//   };
+  const mockItemJunctionRepository = {
+    getManyByRelationshipId: jest.fn(),
+    mergeJunctions: jest.fn(),
+    create: jest.fn(),
+    getOne: jest.fn(),
+    remove: jest.fn(),
+    updateQuantity: jest.fn(),
+  };
 
-//   const mockGuestCart = {
-//     id: '2',
-//     userId: '',
-//     guestToken: 'token123',
-//     createdAt: new Date(),
-//     updatedAt: new Date(),
-//     deletedAt: null,
-//   };
+  const userCart = { id: 'user-cart', userId: 'user-1', guestToken: null };
+  const guestCart = { id: 'guest-cart', userId: null, guestToken: 'guest-token' };
+  const identifiers = { userId: 'user-1', guestToken: 'guest-token' };
 
-//   const bundlesArray = [
-//     { id: 'bundle1', name: 'Bundle 1', price: 100, ticketAmount: 3, isAvailable: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null  },
-//     { id: 'bundle2', name: 'Bundle 2', price: 150, ticketAmount: 4, isAvailable: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null  }
-//   ]
-//   const bundlesWithQuantity = [ { bundle: bundlesArray[0], quantity: 2 },{ bundle: bundlesArray[1], quantity: 2 },]
+  const junction: IItemJunctionModel = {
+    junction: 'junction-1', id: 'bundle-1', name: 'Solo', amount: 1, price: 50, quantity: 2,
+  };
 
-//   const mockJunctions = [
-//     { id: 'junction1', quantity: 2, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, bundle: { id: 'bundle1', name: 'Bundle 1', price: 100, ticketAmount: 3, isAvailable: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null  } },
-//     { id: 'junction2', quantity: 2, createdAt: new Date(), updatedAt: new Date(), deletedAt: null, bundle: { id: 'bundle2', name: 'Bundle 2', price: 150, ticketAmount: 4, isAvailable: true, createdAt: new Date(), updatedAt: new Date(), deletedAt: null  } }
-//   ];
+  beforeEach(async () => {
+    jest.clearAllMocks();
 
-//   let service: CartService;
-//   let cartRepositoryMock: jest.Mocked<CartRepository>;
-//   let itemJunctionRepositoryMock: jest.Mocked<ItemJunctionRepository>;
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CartService,
+        { provide: CartRepository, useValue: mockCartRepository },
+        { provide: ItemJunctionRepository, useValue: mockItemJunctionRepository },
+      ],
+    }).compile();
 
-//   beforeEach(async () => {
-//     cartRepositoryMock = {
-//       getCart: jest.fn(),
-//       getUserCart: jest.fn(),
-//       getGuestCart: jest.fn(),
-//       createUserCart: jest.fn(),
-//       createGuestCart: jest.fn(),
-//       update: jest.fn(),
-//     } as unknown as jest.Mocked<CartRepository>;
+    service = module.get<CartService>(CartService);
+  });
 
-//     itemJunctionRepositoryMock = {
-//       getManyByRelationshipId: jest.fn(),
-//       getOne: jest.fn(),
-//       updateQuantity: jest.fn(),
-//       mergeJunctions: jest.fn(),
-//     } as unknown as jest.Mocked<ItemJunctionRepository>;
+  describe('getCartWithBundles', () => {
+    it('should return null if there is no cart', async () => {
+      mockCartRepository.getCart.mockResolvedValue(null);
 
-//     const module: TestingModule = await Test.createTestingModule({
-//       providers: [
-//         CartService,
-//         { provide: CartRepository, useValue: cartRepositoryMock },
-//         { provide: ItemJunctionRepository, useValue: itemJunctionRepositoryMock },
-//       ],
-//     }).compile();
+      await expect(service.getCartWithBundles({ userId: 'user-1' })).resolves.toBeNull();
+      expect(mockItemJunctionRepository.getManyByRelationshipId).not.toHaveBeenCalled();
+    });
 
-//     service = module.get<CartService>(CartService);
-//   });
+    it('should return cart with its bundles', async () => {
+      mockCartRepository.getCart.mockResolvedValue(userCart);
+      mockItemJunctionRepository.getManyByRelationshipId.mockResolvedValue([junction]);
 
-//   afterEach(() => {
-//     jest.clearAllMocks();
-//   });
+      await expect(service.getCartWithBundles({ userId: 'user-1' })).resolves.toEqual({
+        ...userCart,
+        bundles: [junction],
+      });
+      expect(mockItemJunctionRepository.getManyByRelationshipId).toHaveBeenCalledWith('cart', 'user-cart');
+    });
 
-//   describe('getCartWithBundles', () => {
-//     it('should return null when cart is not found', async () => {
-//       const identifier = { userId: 'user123' };
-//       cartRepositoryMock.getCart.mockResolvedValue(null);
+    it('should return empty bundles for an empty cart', async () => {
+      mockCartRepository.getCart.mockResolvedValue(userCart);
+      mockItemJunctionRepository.getManyByRelationshipId.mockResolvedValue([]);
 
-//       const result = await service.getCartWithBundles(identifier);
+      await expect(service.getCartWithBundles({ userId: 'user-1' })).resolves.toEqual({
+        ...userCart,
+        bundles: [],
+      });
+    });
+  });
 
-//       expect(result).toBeNull();
-//       expect(cartRepositoryMock.getCart).toHaveBeenCalledWith(identifier);
-//       expect(itemJunctionRepositoryMock.getManyByRelationshipId).not.toHaveBeenCalled();
-//     });
+  describe('mergeGuestCartWithUserCart', () => {
+    it.each([
+      ['undefined', undefined],
+      ['empty', ''],
+    ])('should not look up a guest cart when guest token is %s', async (_case, guestToken) => {
+      mockCartRepository.getUserCart.mockResolvedValue(userCart);
 
-//     it('should return cart with empty bundles when no junctions exist', async () => {
-//       const identifier = { userId: 'user123' };
-//       cartRepositoryMock.getCart.mockResolvedValue(mockUserCart);
-//       itemJunctionRepositoryMock.getManyByRelationshipId.mockResolvedValue([]);
+      const result = await service.mergeGuestCartWithUserCart({
+        userId: 'user-1',
+        guestToken: guestToken as unknown as string,
+      });
 
-//       const result = await service.getCartWithBundles(identifier);
+      expect(result).toBe(userCart);
+      expect(mockCartRepository.getGuestCart).not.toHaveBeenCalled();
+      expect(mockCartRepository.update).not.toHaveBeenCalled();
+      expect(mockCartRepository.delete).not.toHaveBeenCalled();
+    });
 
-//       expect(result).toEqual({ ...mockUserCart, bundles: [] });
-//       expect(cartRepositoryMock.getCart).toHaveBeenCalledWith(identifier);
-//       expect(itemJunctionRepositoryMock.getManyByRelationshipId).toHaveBeenCalledWith('cart', 'cart123');
-//     });
+    it('should return existing user cart when there is no guest cart', async () => {
+      mockCartRepository.getUserCart.mockResolvedValue(userCart);
+      mockCartRepository.getGuestCart.mockResolvedValue(null);
 
-//     it('should return cart with bundles when junctions exist', async () => {
-//       const identifier = { userId: 'user123' };
+      await expect(service.mergeGuestCartWithUserCart(identifiers)).resolves.toBe(userCart);
+      expect(mockCartRepository.createUserCart).not.toHaveBeenCalled();
+    });
 
-//       cartRepositoryMock.getCart.mockResolvedValue(mockUserCart);
-//       itemJunctionRepositoryMock.getManyByRelationshipId.mockResolvedValue(mockJunctions);
+    it('should create user cart when user has no cart and there is no guest cart', async () => {
+      mockCartRepository.getUserCart.mockResolvedValue(null);
+      mockCartRepository.getGuestCart.mockResolvedValue(null);
+      mockCartRepository.createUserCart.mockResolvedValue(userCart);
 
-//       const result = await service.getCartWithBundles(identifier);
+      await expect(service.mergeGuestCartWithUserCart(identifiers)).resolves.toBe(userCart);
+      expect(mockCartRepository.createUserCart).toHaveBeenCalledWith('user-1');
+    });
 
-//       expect(result).toEqual({
-//         ...mockUserCart,
-//         bundles: bundlesWithQuantity,
-//       });
-//       expect(cartRepositoryMock.getCart).toHaveBeenCalledWith(identifier);
-//       expect(itemJunctionRepositoryMock.getManyByRelationshipId).toHaveBeenCalledWith('cart', 'cart123');
-//     });
-//   });
+    it('should hand guest cart over to user when user has no cart', async () => {
+      const handedOver = { ...guestCart, userId: 'user-1', guestToken: null };
+      mockCartRepository.getUserCart.mockResolvedValue(null);
+      mockCartRepository.getGuestCart.mockResolvedValue(guestCart);
+      mockCartRepository.update.mockResolvedValue(handedOver);
 
-//   describe('mergeGuestCartWithUserCart', () => {
-//     it('should create new user cart when no carts exist', async () => {
-//       cartRepositoryMock.getUserCart.mockResolvedValue(null);
-//       cartRepositoryMock.getGuestCart.mockResolvedValue(null);
-//       cartRepositoryMock.createUserCart.mockResolvedValue(mockUserCart);
+      await expect(service.mergeGuestCartWithUserCart(identifiers)).resolves.toBe(handedOver);
+      expect(mockCartRepository.update).toHaveBeenCalledWith('guest-cart', {
+        userId: 'user-1',
+        guestToken: null,
+      });
+      expect(mockItemJunctionRepository.mergeJunctions).not.toHaveBeenCalled();
+      expect(mockCartRepository.delete).not.toHaveBeenCalled();
+    });
 
-//       const result = await service.mergeGuestCartWithUserCart({userId: mockUserCart.userId, guestToken: mockGuestCart.guestToken});
+    it('should merge guest items into user cart and delete guest cart', async () => {
+      const guestJunctions = [junction];
+      const userJunctions = [{ ...junction, junction: 'junction-2', quantity: 1 }];
+      mockCartRepository.getUserCart.mockResolvedValue(userCart);
+      mockCartRepository.getGuestCart.mockResolvedValue(guestCart);
+      mockItemJunctionRepository.getManyByRelationshipId
+        .mockResolvedValueOnce(guestJunctions)
+        .mockResolvedValueOnce(userJunctions);
 
-//       expect(result).toEqual(mockUserCart);
-//       expect(cartRepositoryMock.getUserCart).toHaveBeenCalledWith(mockUserCart.userId);
-//       expect(cartRepositoryMock.getGuestCart).toHaveBeenCalledWith(mockGuestCart.guestToken);
-//       expect(cartRepositoryMock.createUserCart).toHaveBeenCalledWith(mockUserCart.userId);
-//     });
+      await expect(service.mergeGuestCartWithUserCart(identifiers)).resolves.toBe(userCart);
 
-//     it('should return existing user cart when guest cart does not exist', async () => {
-//       cartRepositoryMock.getUserCart.mockResolvedValue(mockUserCart);
-//       cartRepositoryMock.getGuestCart.mockResolvedValue(null);
+      expect(mockItemJunctionRepository.getManyByRelationshipId).toHaveBeenNthCalledWith(1, 'cart', 'guest-cart');
+      expect(mockItemJunctionRepository.getManyByRelationshipId).toHaveBeenNthCalledWith(2, 'cart', 'user-cart');
+      expect(mockItemJunctionRepository.mergeJunctions).toHaveBeenCalledWith('user-cart', guestJunctions, userJunctions);
+      expect(mockCartRepository.delete).toHaveBeenCalledWith('guest-cart');
+    });
 
-//       const result = await service.mergeGuestCartWithUserCart({userId: mockUserCart.userId, guestToken: mockGuestCart.guestToken});
+    it('should delete guest cart only after items are merged', async () => {
+      mockCartRepository.getUserCart.mockResolvedValue(userCart);
+      mockCartRepository.getGuestCart.mockResolvedValue(guestCart);
+      mockItemJunctionRepository.getManyByRelationshipId.mockResolvedValue([]);
+      mockItemJunctionRepository.mergeJunctions.mockRejectedValue(new Error('db failure'));
 
-//       expect(result).toEqual(mockUserCart);
-//       expect(cartRepositoryMock.getUserCart).toHaveBeenCalledWith(mockUserCart.userId);
-//       expect(cartRepositoryMock.getGuestCart).toHaveBeenCalledWith(mockGuestCart.guestToken);
-//       expect(cartRepositoryMock.createUserCart).not.toHaveBeenCalled();
-//     });
+      await expect(service.mergeGuestCartWithUserCart(identifiers)).rejects.toThrow('db failure');
+      expect(mockCartRepository.delete).not.toHaveBeenCalled();
+    });
+  });
 
-//     it('should convert guest cart to user cart when user cart does not exist', async () => {
-//       const updatedCart = {...mockGuestCart, id: 'guestCart123', userId: 'user123', guestToken: '' };
-      
-//       cartRepositoryMock.getUserCart.mockResolvedValue(null);
-//       cartRepositoryMock.getGuestCart.mockResolvedValue(mockGuestCart);
-//       cartRepositoryMock.update.mockResolvedValue(updatedCart);
+  describe('addToCart', () => {
+    const dto = { bundleId: 'bundle-1', quantity: 2 };
 
-//       const result = await service.mergeGuestCartWithUserCart({userId: mockUserCart.userId, guestToken: mockGuestCart.guestToken});
+    it('should add item to existing cart', async () => {
+      mockCartRepository.getCart.mockResolvedValue(userCart);
 
-//       expect(result).toEqual(updatedCart);
-//       expect(cartRepositoryMock.getUserCart).toHaveBeenCalledWith(mockUserCart.userId);
-//       expect(cartRepositoryMock.getGuestCart).toHaveBeenCalledWith(mockGuestCart.guestToken);
-//       expect(cartRepositoryMock.update).toHaveBeenCalledWith(mockGuestCart.id, {
-//         userId: mockUserCart.userId,
-//         guestToken: undefined
-//       });
-//     });
-//   });
+      await service.addToCart({ userId: 'user-1' }, dto);
 
-//   describe('updateItemQuantity', () => {
-//     it('should not update item quantity when item junction does not exist', async () => {
-//       const bundleId = 'bundle123';
-//       const quantity = 5;
-      
-//       itemJunctionRepositoryMock.getOne.mockResolvedValue(null);
-      
-//       await service.updateItemQuantity({ userId: mockUserCart.id }, { bundleId, quantity });
+      expect(mockItemJunctionRepository.create).toHaveBeenCalledWith({ ...dto, cartId: 'user-cart' });
+      expect(mockCartRepository.createUserCart).not.toHaveBeenCalled();
+    });
 
-//       expect(itemJunctionRepositoryMock.getOne).not.toHaveBeenCalled();
-//       expect(itemJunctionRepositoryMock.updateQuantity).not.toHaveBeenCalled();
-//     });
-//   });
+    it('should create user cart if user has none', async () => {
+      mockCartRepository.getCart.mockResolvedValue(null);
+      mockCartRepository.createUserCart.mockResolvedValue(userCart);
 
-//   describe('createGuestCart', () => {
-//     it('should create a new guest cart', async () => {
-//       const guestToken = 'token123';
-      
-//       cartRepositoryMock.createGuestCart.mockResolvedValue(mockUserCart);
-      
-//       const result = await service.createGuestCart(guestToken);
+      await service.addToCart({ userId: 'user-1' }, dto);
 
-//       expect(result).toEqual(mockUserCart);
-//       expect(cartRepositoryMock.createGuestCart).toHaveBeenCalledWith(guestToken);
-//     });
-//   });
+      expect(mockCartRepository.createUserCart).toHaveBeenCalledWith('user-1');
+      expect(mockItemJunctionRepository.create).toHaveBeenCalledWith({ ...dto, cartId: 'user-cart' });
+    });
 
-//   describe('createUserCart', () => {
-//     it('should create a new user cart', async () => {
-//       const userId = 'user123';
-      
-//       cartRepositoryMock.createUserCart.mockResolvedValue(mockUserCart);
-      
-//       const result = await service.createUserCart(userId);
+    it('should create guest cart if guest has none', async () => {
+      mockCartRepository.getCart.mockResolvedValue(null);
+      mockCartRepository.createGuestCart.mockResolvedValue(guestCart);
 
-//       expect(result).toEqual(mockUserCart);
-//       expect(cartRepositoryMock.createUserCart).toHaveBeenCalledWith(userId);
-//     });
-//   });
-// });
+      await service.addToCart({ guestToken: 'guest-token' }, dto);
+
+      expect(mockCartRepository.createGuestCart).toHaveBeenCalledWith('guest-token');
+      expect(mockItemJunctionRepository.create).toHaveBeenCalledWith({ ...dto, cartId: 'guest-cart' });
+    });
+
+    it('should ignore cartId sent by client', async () => {
+      mockCartRepository.getCart.mockResolvedValue(userCart);
+
+      await service.addToCart({ userId: 'user-1' }, { ...dto, cartId: 'someone-else-cart' });
+
+      expect(mockItemJunctionRepository.create).toHaveBeenCalledWith({ ...dto, cartId: 'user-cart' });
+    });
+
+    it('should throw without identifier', async () => {
+      mockCartRepository.getCart.mockResolvedValue(null);
+
+      await expect(service.addToCart({}, dto)).rejects.toThrow(BadRequestException);
+      expect(mockItemJunctionRepository.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('removeFromCart', () => {
+    it('should remove item junction from cart', async () => {
+      mockItemJunctionRepository.getOne.mockResolvedValue({ id: 'junction-1' });
+
+      await service.removeFromCart('user-cart', 'bundle-1');
+
+      expect(mockItemJunctionRepository.getOne).toHaveBeenCalledWith('user-cart', 'bundle-1');
+      expect(mockItemJunctionRepository.remove).toHaveBeenCalledWith('junction-1');
+    });
+
+    it('should return null if item is not in cart', async () => {
+      mockItemJunctionRepository.getOne.mockResolvedValue(null);
+
+      await expect(service.removeFromCart('user-cart', 'bundle-1')).resolves.toBeNull();
+      expect(mockItemJunctionRepository.remove).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('updateItemQuantity', () => {
+    const dto = { bundleId: 'bundle-1', quantity: 5 };
+
+    it('should update quantity of item in the identified cart', async () => {
+      mockCartRepository.getCart.mockResolvedValue(guestCart);
+      mockItemJunctionRepository.getOne.mockResolvedValue({ id: 'junction-1' });
+
+      await service.updateItemQuantity({ guestToken: 'guest-token' }, dto);
+
+      expect(mockItemJunctionRepository.getOne).toHaveBeenCalledWith('guest-cart', 'bundle-1');
+      expect(mockItemJunctionRepository.updateQuantity).toHaveBeenCalledWith('junction-1', 5);
+    });
+
+    it('should return null if there is no cart', async () => {
+      mockCartRepository.getCart.mockResolvedValue(null);
+
+      await expect(service.updateItemQuantity({ guestToken: 'guest-token' }, dto)).resolves.toBeNull();
+      expect(mockItemJunctionRepository.getOne).not.toHaveBeenCalled();
+    });
+
+    it('should return null if item is not in cart', async () => {
+      mockCartRepository.getCart.mockResolvedValue(guestCart);
+      mockItemJunctionRepository.getOne.mockResolvedValue(null);
+
+      await expect(service.updateItemQuantity({ guestToken: 'guest-token' }, dto)).resolves.toBeNull();
+      expect(mockItemJunctionRepository.updateQuantity).not.toHaveBeenCalled();
+    });
+  });
+});

@@ -75,10 +75,8 @@ export class CartDetailsComponent implements OnDestroy, OnInit {
       this.router.navigate(['auth/login']);
       return;
     }      
-    const totalPrice = this.totalPrice();
-    this.router.navigate(['shop/checkout'], {
-      queryParams: { total: totalPrice }
-    })
+    // the amount to pay is computed by the server
+    this.router.navigate(['shop/checkout']);
   }
 
   checkoutDisabled(): boolean {

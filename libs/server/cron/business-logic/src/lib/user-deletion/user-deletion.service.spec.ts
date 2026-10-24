@@ -48,6 +48,7 @@ describe('UserDeletionService', () => {
           deletedAt: expect.any(Object),
           isAnonymized: false,
         },
+        withDeleted: true,
       });
       expect(mockUserRepository.update).not.toHaveBeenCalled();
       expect(loggerSpy).toHaveBeenCalledWith('No users to anonymize.');

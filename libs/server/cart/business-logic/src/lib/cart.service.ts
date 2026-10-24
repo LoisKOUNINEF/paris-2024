@@ -31,7 +31,9 @@ export class CartService {
 	async mergeGuestCartWithUserCart(identifiers: Required<ICartIdentifier>): Promise<Cart | null> {
 	  const userCart = await this.cartRepository.getUserCart(identifiers.userId);
 	  
-	  const guestCart = await this.cartRepository.getGuestCart(identifiers.guestToken)
+	  const guestCart = identifiers.guestToken
+	    ? await this.cartRepository.getGuestCart(identifiers.guestToken)
+	    : null;
 
 	  if (!guestCart) {
 	    return userCart || await this.cartRepository.createUserCart(identifiers.userId);

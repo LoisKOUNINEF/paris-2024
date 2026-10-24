@@ -12,6 +12,11 @@ export interface IOrderModel extends IBase {
   tickets: Array<ITicket>;
 }
 
+export interface IPaymentIntent {
+  clientSecret: string;
+  amount: number;
+}
+
 export interface IOrderTickets {
   orderId: string;
   totalPrice: number;

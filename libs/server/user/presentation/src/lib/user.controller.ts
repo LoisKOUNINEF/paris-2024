@@ -39,7 +39,7 @@ export class UserController {
     paramKey: 'id',
     entityService: UserService,
     findMethod: 'findOne',
-    ownershipField: 'userId',
+    ownershipField: 'id',
   })
   @OwnerCheck(true)
   @UseGuards(OwnerGuard)
@@ -77,7 +77,7 @@ export class UserController {
     paramKey: 'id',
     entityService: UserService,
     findMethod: 'findOne',
-    ownershipField: 'userId',
+    ownershipField: 'id',
   })
   @OwnerCheck(true)
   @UseGuards(OwnerGuard)

@@ -115,6 +115,13 @@ describe('CartRepository', () => {
   });
 
   describe('getGuestCart', () => {
+    it.each([undefined, ''])('should not query when guest token is %p', async (guestToken) => {
+      const result = await cartRepository.getGuestCart(guestToken as unknown as string);
+
+      expect(result).toBeNull();
+      expect(mockCartRepository.findOne).not.toHaveBeenCalled();
+    });
+
     it('should return guest cart when it exists', async () => {
       const guestToken = 'guest-token-123';
       mockCartRepository.findOne.mockResolvedValue(mockGuestCart);

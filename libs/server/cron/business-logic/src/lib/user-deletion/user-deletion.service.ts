@@ -34,6 +34,8 @@ export class UserDeletionService {
         deletedAt: LessThan(thresholdDate),
         isAnonymized: false,
       },
+      // soft-deleted rows are excluded by default
+      withDeleted: true,
     });
 
     if (usersToAnonymize.length === 0) {

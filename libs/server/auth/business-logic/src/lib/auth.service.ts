@@ -32,7 +32,7 @@ export class AuthService {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, createdAt, updatedAt, deletedAt, secretKey, ...rest } =
         user;
-      this.userRepository.updateLastLogin(user.id);
+      await this.userRepository.updateLastLogin(user.id);
       return rest;
     }
 
