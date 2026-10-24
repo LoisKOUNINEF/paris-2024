@@ -60,7 +60,7 @@ export class User extends BaseEntity implements IUser {
   @Matches(passwordRegex)
   @Exclude({ toPlainOnly: true })
   @ApiProperty({ 
-    type: 'text', 
+    type: 'string', 
     example: '10Characters+',
   })
   password: string;
@@ -72,7 +72,6 @@ export class User extends BaseEntity implements IUser {
     name: 'role'
   })
   @ApiProperty({
-    type: 'enum',
     enum: Roles,
     default: Roles.CUSTOMER,
   })
