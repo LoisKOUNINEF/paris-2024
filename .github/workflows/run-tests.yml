@@ -27,7 +27,10 @@ jobs:
         CYPRESS_INSTALL_BINARY: 0
 
     - name: Run Nx affected lint
-      run: npx nx show projects --affected --target=lint --parallel=3 --base=origin/main --head=HEAD
+      run: npx nx affected -t lint --parallel=3 --base=origin/main --head=HEAD
+
+    - name: Run Nx affected build
+      run: npx nx affected -t build --parallel=3 --base=origin/main --head=HEAD
 
     - name: Run Nx tests
       run: npx nx run-many --target=test --parallel=3 --passWithNoTests
