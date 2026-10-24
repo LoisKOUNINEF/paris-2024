@@ -16,7 +16,9 @@ export function app(): express.Express {
   const commonEngine = new CommonEngine({
     allowedHosts: [
       'studi-exam-jo.lois-kouninef.eu',
+      'www.studi-exam-jo.lois-kouninef.eu',
       'studi-exam-jo-staging.lois-kouninef.eu',
+      'www.studi-exam-jo-staging.lois-kouninef.eu',
       'localhost',
     ],
   });

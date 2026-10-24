@@ -38,7 +38,9 @@ async function bootstrap() {
   const allowedOrigins = isProduction
     ? [
       'https://studi-exam-jo.lois-kouninef.eu', 
+      'https://www.studi-exam-jo.lois-kouninef.eu',
       'https://studi-exam-jo-staging.lois-kouninef.eu',
+      'https://www.studi-exam-jo-staging.lois-kouninef.eu',
       ]
     : ['http://localhost:8090'];
 
