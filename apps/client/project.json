@@ -39,7 +39,7 @@
         "styles": ["apps/client/src/styles.scss"],
         "scripts": [],
         "server": "apps/client/src/main.server.ts",
-        "prerender": true,
+        "outputMode": "server",
         "ssr": {
           "entry": "apps/client/server.ts"
         }
