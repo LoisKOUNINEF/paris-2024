@@ -9,6 +9,11 @@
 		<lib-user-infos-form 
 			formGroupName="userInfos"
 		></lib-user-infos-form>
+		<lib-current-password-form
+			formGroupName="currentPassword"
+			[required]="false"
+			hint="Requis pour changer d'email."
+		></lib-current-password-form>
 		<lib-submit-button
 			content="Valider les modifications"
 			[isDisabled]=!editUserForm.valid

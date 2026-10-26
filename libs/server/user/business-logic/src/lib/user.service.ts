@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { ICartIdentifier, Roles, RoleValue } from '@paris-2024/shared-interfaces';
-import { UserRepository, CreateUserDto, User, UpdateUserDto } from '@paris-2024/server-data-access-user';
+import { UserRepository, CreateUserDto, User, UpdateUserDto, incorrectCurrentPassword } from '@paris-2024/server-data-access-user';
 import { WelcomeMailerService, EmailValidationMailerService } from '@paris-2024/server-business-logic-mailer';
 import { CartService } from '@paris-2024/server-business-logic-cart';
 import { Cart } from '@paris-2024/server-data-access-cart';
@@ -57,18 +58,47 @@ export class UserService {
 		await this.emailValidationService.sendValidationLink(        {
 			email: createdUser.email,
       emailVerificationToken: createdUser.emailVerificationToken
-    });		
-		await this.welcomeMailerService.sendWelcome(createdUser.email);
+    });
 	
 		return createdUser;
 	}
 
 	async verifyEmail(token: string): Promise<User | null> {
-		return await this.userRepository.verifyEmail(token);
+		const result = await this.userRepository.verifyEmail(token);
+		if (result && !result.isEmailChange) {
+			// the account only counts as created once its email is validated
+			await this.welcomeMailerService.sendWelcome(result.user.email);
+		}
+		return result?.user ?? null;
 	}
 
 	async update(id: User['id'], dto: UpdateUserDto): Promise<User | null> {
-		return await this.userRepository.update(id, dto);
+		const { currentPassword, email, ...changes } = dto;
+		const user = await this.userRepository.findOneById(id);
+		if (!user) { return null }
+
+		const emailChanged = !!email && email !== user.email;
+
+		if (changes.password || emailChanged) {
+			const isMatch = !!currentPassword && await bcrypt.compare(currentPassword, user.password);
+			if (!isMatch) {
+				incorrectCurrentPassword();
+				return null;
+			}
+		}
+
+		// the new email only replaces the current one once its owner validates it
+		if (emailChanged) {
+			const pending = await this.userRepository.requestEmailChange(id, email);
+			if (pending?.pendingEmail) {
+				await this.emailValidationService.sendValidationLink({
+					email: pending.pendingEmail,
+					emailVerificationToken: pending.emailVerificationToken,
+				});
+			}
+		}
+
+		return await this.userRepository.update(id, changes);
 	}
 
 	async delete(id: User['id']): Promise<User | undefined> {

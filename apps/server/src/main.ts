@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { Logger, ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { ClassSerializerInterceptor, Logger, ValidationPipe } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app/app.module';
@@ -77,6 +77,7 @@ async function bootstrap() {
 
   app.useGlobalGuards(new OriginGuard());
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);

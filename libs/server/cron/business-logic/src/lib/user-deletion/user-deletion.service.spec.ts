@@ -72,6 +72,7 @@ describe('UserDeletionService', () => {
         email: 'anon-user1@anonymous.com',
         firstName: 'Anonymized',
         lastName: 'User',
+        pendingEmail: null,
         isAnonymized: true,
       });
       
@@ -79,6 +80,7 @@ describe('UserDeletionService', () => {
         email: 'anon-user2@anonymous.com',
         firstName: 'Anonymized',
         lastName: 'User',
+        pendingEmail: null,
         isAnonymized: true,
       });
       

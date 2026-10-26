@@ -30,6 +30,7 @@ describe('EditUserFormComponent', () => {
     password: 'password123',
     role: 'customer',
     cartId: null,
+    pendingEmail: null,
     id: null,
     createdAt: null,
     updatedAt: null,
@@ -67,7 +68,8 @@ describe('EditUserFormComponent', () => {
     expect(component.editUserForm.get('userInfos')).toBeDefined();
     expect(component.editUserForm.value).toEqual({
       email: mockUserPlain,
-      userInfos: mockUserPlain
+      userInfos: mockUserPlain,
+      currentPassword: { currentPassword: '' },
     });
   });
 
@@ -75,29 +77,36 @@ describe('EditUserFormComponent', () => {
     jest.spyOn(component.submitted, 'emit');
     const updatedUserData = {
       email: { email: 'updated@example.com' },
-      userInfos: { firstName: 'Jane', lastName: 'Doe' }
+      userInfos: { firstName: 'Jane', lastName: 'Doe' },
+      currentPassword: { currentPassword: 'Current123#' },
     };
     component.editUserForm.patchValue(updatedUserData);
     component.onSubmit();
     expect(component.submitted.emit).toHaveBeenCalledWith({
       email: 'updated@example.com',
       firstName: 'Jane',
-      lastName: 'Doe'
+      lastName: 'Doe',
+      currentPassword: 'Current123#',
     });
   });
 
-  it('should parse user form correctly', () => {
+  it('should send the current password only when the email changes', () => {
     const updatedUserData = {
-      email: { email: 'updated@example.com' },
-      userInfos: { firstName: 'Jane', lastName: 'Doe' }
+      email: { email: 'test@example.com' },
+      userInfos: { firstName: 'Jane', lastName: 'Doe' },
+      currentPassword: { currentPassword: 'Current123#' },
     };
     component.editUserForm.patchValue(updatedUserData);
     const result = component['parseUserForm']();
     expect(result).toEqual({
-      email: 'updated@example.com',
+      email: 'test@example.com',
       firstName: 'Jane',
       lastName: 'Doe'
     });
+  });
+
+  it('should not require the current password', () => {
+    expect(component.editUserForm.get('currentPassword.currentPassword')?.valid).toBe(true);
   });
 
   it('should disable submit button when form is invalid', () => {
@@ -148,6 +157,7 @@ describe('EditUserFormComponent', () => {
       password: 'newpassword123',
       role: Roles.ADMIN,
       cartId: null,
+      pendingEmail: null,
       id: null,
       createdAt: null,
       updatedAt: null,
@@ -157,7 +167,9 @@ describe('EditUserFormComponent', () => {
     component.ngOnInit();
     expect(component.editUserForm.value).toEqual({
       email: newUserPlain,
-      userInfos: newUserPlain
+      userInfos: newUserPlain,
+      // the child block adds its control on its own init, which is not re-run here
+      currentPassword: {},
     });
   });
 });

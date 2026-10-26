@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { EmailFormComponent, UserInfosFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
+import { CurrentPasswordFormComponent, EmailFormComponent, UserInfosFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
 import { UserFormValue, User } from '@paris-2024/client-data-access-user';
 
 @Component({
@@ -9,6 +9,7 @@ import { UserFormValue, User } from '@paris-2024/client-data-access-user';
     ReactiveFormsModule, 
     EmailFormComponent, 
     UserInfosFormComponent, 
+    CurrentPasswordFormComponent,
     SubmitButtonComponent,
   ],
   templateUrl: './edit-user-form.component.html',
@@ -31,7 +32,8 @@ export class EditUserFormComponent implements OnInit {
       ),
       userInfos: this.formBuilder.group({...this.user}, 
         { validators: Validators.required }
-      )
+      ),
+      currentPassword: this.formBuilder.group({}),
     });
     this.populateFields();
   }
@@ -45,6 +47,10 @@ export class EditUserFormComponent implements OnInit {
       email: this.editUserForm.value.email.email,
       firstName: this.editUserForm.value.userInfos.firstName,
       lastName: this.editUserForm.value.userInfos.lastName
+    }
+    // only an email change needs the current password
+    if (userDtoValues.email !== this.user?.email) {
+      userDtoValues.currentPassword = this.editUserForm.value.currentPassword.currentPassword;
     }
     return userDtoValues;
   }

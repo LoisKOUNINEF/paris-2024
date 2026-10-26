@@ -68,6 +68,15 @@ describe('EditUserComponent', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/user']);
     });
 
+    it('should tell the user to confirm a new email', () => {
+      userService.update.mockReturnValue(of({ ...currentUser, pendingEmail: 'new@test.com' } as User));
+
+      component.editInfos({ ...formValue, currentPassword: 'Current1#password' });
+
+      expect(snackbarService.showSuccess).toHaveBeenCalledWith('Un lien de confirmation a été envoyé à new@test.com.');
+      expect(router.navigate).toHaveBeenCalledWith(['/user']);
+    });
+
     it('should stay on the page when the update fails', () => {
       userService.update.mockReturnValue(of(null as unknown as User));
 

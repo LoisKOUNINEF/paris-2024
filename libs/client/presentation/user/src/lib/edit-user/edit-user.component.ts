@@ -45,7 +45,10 @@ export class EditUserComponent implements OnInit, OnDestroy{
     return this.subscription = this.userService.update(user, this.user.id)
       .pipe(filter(res => !!res))
       .subscribe((res: User) => {
-        this.snackbarService.showSuccess('Modifications enregistrées.')
+        const message = res.pendingEmail
+          ? `Un lien de confirmation a été envoyé à ${res.pendingEmail}.`
+          : 'Modifications enregistrées.';
+        this.snackbarService.showSuccess(message)
           .afterDismissed()
         this.router.navigate(['/user']);
     })
