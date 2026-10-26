@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     outputs:
       affected_services: ${{ steps.get_affected_services.outputs.services }}
@@ -63,7 +63,7 @@ jobs:
 
   deploy:
     needs: build-and-publish
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       AFFECTED_SERVICES: ${{ needs.build-and-publish.outputs.affected_services }}
       STACK_NAME: "staging"

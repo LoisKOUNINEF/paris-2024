@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       STACK_NAME: "production"
       SERVER_PORT: "3000"
@@ -62,7 +62,9 @@ jobs:
             ./scripts/deployment/deploy.sh
 
   delete-old-images:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     permissions:
       contents: read
       packages: write
