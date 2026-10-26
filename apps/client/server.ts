@@ -1,68 +1,56 @@
-import { APP_BASE_HREF } from '@angular/common';
-import { CommonEngine } from '@angular/ssr/node';
+import {
+  AngularNodeAppEngine,
+  createNodeRequestHandler,
+  isMainModule,
+  writeResponseToNodeResponse,
+} from '@angular/ssr/node';
 import express from 'express';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
-import bootstrap from './src/main.server';
+import { dirname, resolve } from 'node:path';
 
-// The Express app is exported so that it can be used by serverless Functions.
-export function app(): express.Express {
-  const server = express();
-  const serverDistFolder = dirname(fileURLToPath(import.meta.url));
-  const browserDistFolder = resolve(serverDistFolder, '../browser');
-  const indexHtml = join(serverDistFolder, 'index.server.html');
+const serverDistFolder = dirname(fileURLToPath(import.meta.url));
+const browserDistFolder = resolve(serverDistFolder, '../browser');
 
-  // Hosts allowed to be rendered (SSRF protection). NG_ALLOWED_HOSTS overrides this list.
-  const commonEngine = new CommonEngine({
-    allowedHosts: [
-      'studi-exam-jo.lois-kouninef.eu',
-      'www.studi-exam-jo.lois-kouninef.eu',
-      'studi-exam-jo-staging.lois-kouninef.eu',
-      'www.studi-exam-jo-staging.lois-kouninef.eu',
-      'localhost',
-    ],
-  });
+const app = express();
 
-  server.set('view engine', 'html');
-  server.set('views', browserDistFolder);
+// Hosts allowed to be rendered (SSRF protection). NG_ALLOWED_HOSTS is only read when this list is not set.
+const angularApp = new AngularNodeAppEngine({
+  allowedHosts: [
+    'studi-exam-jo.lois-kouninef.eu',
+    'www.studi-exam-jo.lois-kouninef.eu',
+    'studi-exam-jo-staging.lois-kouninef.eu',
+    'www.studi-exam-jo-staging.lois-kouninef.eu',
+    'localhost',
+  ],
+});
 
-  // Example Express Rest API endpoints
-  // server.get('/api/**', (req, res) => { });
-  // Serve static files from /browser
-  server.get(
-    '**',
-    express.static(browserDistFolder, {
-      maxAge: '1y',
-      index: 'index.html',
-    })
-  );
+// Serve static files from /browser. Pages (prerendered or not) are left to the Angular engine,
+// so html is never served with the long cache meant for hashed assets.
+app.use(
+  express.static(browserDistFolder, {
+    maxAge: '1y',
+    index: false,
+    redirect: false,
+  })
+);
 
-  // All regular routes use the Angular engine
-  server.get('**', (req, res, next) => {
-    const { protocol, originalUrl, baseUrl, headers } = req;
+// Every other request is handled by Angular, following the render mode of app.routes.server.ts
+app.use((req, res, next) => {
+  angularApp
+    .handle(req)
+    .then((response) =>
+      response ? writeResponseToNodeResponse(response, res) : next()
+    )
+    .catch(next);
+});
 
-    commonEngine
-      .render({
-        bootstrap,
-        documentFilePath: indexHtml,
-        url: `${protocol}://${headers.host}${originalUrl}`,
-        publicPath: browserDistFolder,
-        providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
-      })
-      .then((html) => res.send(html))
-      .catch((err) => next(err));
-  });
-
-  return server;
-}
-
-function run(): void {
+if (isMainModule(import.meta.url)) {
   const port = process.env['PORT'] || 4222;
   // Start up the Node server
-  const server = app();
-  server.listen(port, () => {
+  app.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
 }
 
-run();
+// Request handler used by the Angular CLI (dev server, build) and serverless functions.
+export const reqHandler = createNodeRequestHandler(app);
