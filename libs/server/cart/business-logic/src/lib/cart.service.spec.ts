@@ -1,5 +1,6 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { BundleRepository } from '@paris-2024/server-data-access-bundle';
 import { CartRepository } from '@paris-2024/server-data-access-cart';
 import { ItemJunctionRepository } from '@paris-2024/server-data-access-item-junction';
 import { IItemJunctionModel } from '@paris-2024/shared-interfaces';
@@ -27,6 +28,10 @@ describe('CartService', () => {
     updateQuantity: jest.fn(),
   };
 
+  const mockBundleRepository = {
+    getOneById: jest.fn(),
+  };
+
   const userCart = { id: 'user-cart', userId: 'user-1', guestToken: null };
   const guestCart = { id: 'guest-cart', userId: null, guestToken: 'guest-token' };
   const identifiers = { userId: 'user-1', guestToken: 'guest-token' };
@@ -43,6 +48,7 @@ describe('CartService', () => {
         CartService,
         { provide: CartRepository, useValue: mockCartRepository },
         { provide: ItemJunctionRepository, useValue: mockItemJunctionRepository },
+        { provide: BundleRepository, useValue: mockBundleRepository },
       ],
     }).compile();
 
@@ -130,26 +136,18 @@ describe('CartService', () => {
     });
 
     it('should merge guest items into user cart and delete guest cart', async () => {
-      const guestJunctions = [junction];
-      const userJunctions = [{ ...junction, junction: 'junction-2', quantity: 1 }];
       mockCartRepository.getUserCart.mockResolvedValue(userCart);
       mockCartRepository.getGuestCart.mockResolvedValue(guestCart);
-      mockItemJunctionRepository.getManyByRelationshipId
-        .mockResolvedValueOnce(guestJunctions)
-        .mockResolvedValueOnce(userJunctions);
 
       await expect(service.mergeGuestCartWithUserCart(identifiers)).resolves.toBe(userCart);
 
-      expect(mockItemJunctionRepository.getManyByRelationshipId).toHaveBeenNthCalledWith(1, 'cart', 'guest-cart');
-      expect(mockItemJunctionRepository.getManyByRelationshipId).toHaveBeenNthCalledWith(2, 'cart', 'user-cart');
-      expect(mockItemJunctionRepository.mergeJunctions).toHaveBeenCalledWith('user-cart', guestJunctions, userJunctions);
+      expect(mockItemJunctionRepository.mergeJunctions).toHaveBeenCalledWith('user-cart', 'guest-cart');
       expect(mockCartRepository.delete).toHaveBeenCalledWith('guest-cart');
     });
 
     it('should delete guest cart only after items are merged', async () => {
       mockCartRepository.getUserCart.mockResolvedValue(userCart);
       mockCartRepository.getGuestCart.mockResolvedValue(guestCart);
-      mockItemJunctionRepository.getManyByRelationshipId.mockResolvedValue([]);
       mockItemJunctionRepository.mergeJunctions.mockRejectedValue(new Error('db failure'));
 
       await expect(service.mergeGuestCartWithUserCart(identifiers)).rejects.toThrow('db failure');
@@ -159,6 +157,21 @@ describe('CartService', () => {
 
   describe('addToCart', () => {
     const dto = { bundleId: 'bundle-1', quantity: 2 };
+
+    beforeEach(() => {
+      mockBundleRepository.getOneById.mockResolvedValue({ id: 'bundle-1', isAvailable: true });
+    });
+
+    it.each([
+      ['does not exist or is deleted', null],
+      ['is not available', { id: 'bundle-1', isAvailable: false }],
+    ])('should refuse a bundle that %s', async (_case, bundle) => {
+      mockBundleRepository.getOneById.mockResolvedValue(bundle);
+      mockCartRepository.getCart.mockResolvedValue(userCart);
+
+      await expect(service.addToCart({ userId: 'user-1' }, dto)).rejects.toThrow(NotFoundException);
+      expect(mockItemJunctionRepository.create).not.toHaveBeenCalled();
+    });
 
     it('should add item to existing cart', async () => {
       mockCartRepository.getCart.mockResolvedValue(userCart);
@@ -233,7 +246,7 @@ describe('CartService', () => {
       await service.updateItemQuantity({ guestToken: 'guest-token' }, dto);
 
       expect(mockItemJunctionRepository.getOne).toHaveBeenCalledWith('guest-cart', 'bundle-1');
-      expect(mockItemJunctionRepository.updateQuantity).toHaveBeenCalledWith('junction-1', 5);
+      expect(mockItemJunctionRepository.updateQuantity).toHaveBeenCalledWith({ id: 'junction-1' }, 5);
     });
 
     it('should return null if there is no cart', async () => {

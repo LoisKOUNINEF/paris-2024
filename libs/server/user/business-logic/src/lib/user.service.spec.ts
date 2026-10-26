@@ -34,7 +34,7 @@ describe('UserService', () => {
 
   const mockCartService = {
     createUserCart: jest.fn(),
-    getCartWithBundles: jest.fn(),
+    getGuestCart: jest.fn(),
     mergeGuestCartWithUserCart: jest.fn(),
   };
 
@@ -106,11 +106,11 @@ describe('UserService', () => {
     });
 
     it('should link guest cart to user', async () => {
-      mockCartService.getCartWithBundles.mockResolvedValue({ id: 'guest-cart', bundles: [] });
+      mockCartService.getGuestCart.mockResolvedValue({ id: 'guest-cart' });
 
       await service.create(createUserDto, false, 'guest-token');
 
-      expect(mockCartService.getCartWithBundles).toHaveBeenCalledWith({ guestToken: 'guest-token' });
+      expect(mockCartService.getGuestCart).toHaveBeenCalledWith('guest-token');
       expect(mockCartService.mergeGuestCartWithUserCart).toHaveBeenCalledWith({
         userId: 'user-1',
         guestToken: 'guest-token',
@@ -119,14 +119,14 @@ describe('UserService', () => {
     });
 
     it('should wait for guest cart to be linked so failures are not left unhandled', async () => {
-      mockCartService.getCartWithBundles.mockResolvedValue({ id: 'guest-cart', bundles: [] });
+      mockCartService.getGuestCart.mockResolvedValue({ id: 'guest-cart' });
       mockCartService.mergeGuestCartWithUserCart.mockRejectedValue(new Error('db failure'));
 
       await expect(service.create(createUserDto, false, 'guest-token')).rejects.toThrow('db failure');
     });
 
     it('should not link anything when guest cart does not exist', async () => {
-      mockCartService.getCartWithBundles.mockResolvedValue(null);
+      mockCartService.getGuestCart.mockResolvedValue(null);
 
       await service.create(createUserDto, false, 'guest-token');
 

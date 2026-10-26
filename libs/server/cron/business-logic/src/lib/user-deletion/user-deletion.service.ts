@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { LessThan, Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { User } from '@paris-2024/server-data-access-user';
 import { subDays, subYears } from 'date-fns';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,16 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 @Injectable()
 export class UserDeletionService {
   private readonly logger = new Logger(UserDeletionService.name);
-  private anonymizedUser = (userId: string) => {
-    return {
-      email: `anon-${userId}@anonymous.com`,
-      firstName: 'Anonymized',
-      lastName: 'User',
-      pendingEmail: null,
-      isAnonymized: true,
-    }
-  }
-
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -30,28 +20,23 @@ export class UserDeletionService {
   async anonymizeDeletedAccounts() {
     const thresholdDate = subDays(new Date(), 7);
 
-    const usersToAnonymize: Array<User> = await this.userRepository.find({
-      where: {
-        deletedAt: LessThan(thresholdDate),
-        isAnonymized: false,
-      },
-      // soft-deleted rows are excluded by default
-      withDeleted: true,
-    });
+    // one statement for every account: soft-deleted rows are not filtered out of updates
+    const result = await this.userRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({
+        email: () => `'anon-' || "id" || '@anonymous.com'`,
+        firstName: 'Anonymized',
+        lastName: 'User',
+        pendingEmail: null,
+        isAnonymized: true,
+      })
+      .where('"deleted_at" < :thresholdDate', { thresholdDate })
+      .andWhere('"is_anonymized" = false')
+      .returning('id')
+      .execute();
 
-    if (usersToAnonymize.length === 0) {
-      this.logger.log('No users to anonymize.');
-      return;
-    }
-
-    for (const user of usersToAnonymize) {
-      await this.userRepository.update(
-        user.id, 
-        this.anonymizedUser(user.id)
-      );
-
-      this.logger.log(`Anonymized user ID: ${user.id}`);
-    }
+    this.logUpdatedUsers(result, 'Anonymized user ID', 'No users to anonymize.');
   }
 
   @Cron(
@@ -61,27 +46,30 @@ export class UserDeletionService {
   async softDeleteInactiveAccounts() {
     const thresholdDate = subYears(new Date(), 2);
 
-    const usersToSoftDelete: Array<User> = await this.userRepository.find({
-      where: {
-        lastLoginAt: LessThan(thresholdDate),
-        deletedAt: undefined,
-      },
-    });
+    const result = await this.userRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({ deletedAt: () => 'CURRENT_TIMESTAMP' })
+      .where('"last_login_at" < :thresholdDate', { thresholdDate })
+      .andWhere('"deleted_at" IS NULL')
+      .returning('id')
+      .execute();
 
-    if (usersToSoftDelete.length === 0) {
-      this.logger.log('No users to softDelete.');
+    this.logUpdatedUsers(result, 'SoftDeleted user ID', 'No users to softDelete.');
+
+    return thresholdDate;
+  }
+
+  private logUpdatedUsers(result: UpdateResult, message: string, noUserMessage: string) {
+    const updatedUsers: Array<Pick<User, 'id'>> = result.raw ?? [];
+
+    if (updatedUsers.length === 0) {
+      this.logger.log(noUserMessage);
       return;
     }
 
-    for (const user of usersToSoftDelete) {
-      await this.userRepository.update(
-        user.id, 
-        { deletedAt: new Date() },
-      );
-
-      this.logger.log(`SoftDeleted user ID: ${user.id}`);
+    for (const user of updatedUsers) {
+      this.logger.log(`${message}: ${user.id}`);
     }
-
-    return thresholdDate;
   }
 }

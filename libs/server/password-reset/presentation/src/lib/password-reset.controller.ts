@@ -21,8 +21,9 @@ export class PasswordResetController {
     description: 'email to send token to',
   })
   @ApiBadRequestResponse()
-  async sendToken(@Body('email') email: PasswordReset['email']): Promise<{ msg: string }> {
-    await this.passwordResetService.sendLink(email);
+  // the whole body is needed for PasswordResetDto validation to run
+  async sendToken(@Body() dto: PasswordResetDto): Promise<{ msg: string }> {
+    await this.passwordResetService.sendLink(dto.email);
     return { msg: 'Reset link sent to your email.' };
   }
 

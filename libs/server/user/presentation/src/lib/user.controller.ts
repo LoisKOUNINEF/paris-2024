@@ -1,8 +1,8 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Request, UseGuards, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Request, ValidationPipe } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { UserService } from "@paris-2024/server-business-logic-user";
 import { CreateUserDto, UpdateUserDto, User } from "@paris-2024/server-data-access-user";
-import { Admin, CurrentUser, Owner, OwnerCheck, OwnerGuard } from '@paris-2024/server-business-logic-guards';
+import { Admin, CurrentUser, Owner, OwnerCheck } from '@paris-2024/server-business-logic-guards';
 import { RequestWithUser } from "@paris-2024/server-base-entity";
 
 @ApiTags('users')
@@ -42,7 +42,6 @@ export class UserController {
     ownershipField: 'id',
   })
   @OwnerCheck(true)
-  @UseGuards(OwnerGuard)
   updateUser(
     @CurrentUser() user: RequestWithUser["user"],
     @Param('id') id: User['id'],
@@ -83,15 +82,28 @@ export class UserController {
     ownershipField: 'id',
   })
   @OwnerCheck(true)
-  @UseGuards(OwnerGuard)
   deleteUser(
     @CurrentUser() user: RequestWithUser["user"],
     @Param('id') id: User['id'],
+    @Request() req: RequestWithUser,
   ): Promise<User | undefined> {
     if(!user || !user.id) {
       throw new HttpException('', HttpStatus.UNAUTHORIZED)
     }
-    return this.userService.delete(id)
+    return this.deleteAndLogout(user.id, id, req);
+  }
+
+  private async deleteAndLogout(currentUserId: string, id: User['id'], req: RequestWithUser): Promise<User | undefined> {
+    const deleted = await this.userService.delete(id);
+
+    // the session caches the user: a deleted account must not keep acting through it
+    if (currentUserId === id) {
+      await new Promise<void>((resolve, reject) => {
+        req.logout((err: Error) => err ? reject(err) : resolve());
+      });
+    }
+
+    return deleted;
   }
 	
 }

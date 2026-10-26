@@ -14,6 +14,7 @@ describe('TicketService', () => {
 
   const mockTicketRepository = {
     create: jest.fn(),
+    createMany: jest.fn(),
     findAll: jest.fn(),
     findAllFromUser: jest.fn(),
     findOneById: jest.fn(),
@@ -23,7 +24,6 @@ describe('TicketService', () => {
 
   const ticketDto = {
     userId: 'user-1',
-    orderId: 'order-1',
     userSecret: 'user-secret',
   };
 
@@ -42,19 +42,23 @@ describe('TicketService', () => {
     service = module.get<TicketService>(TicketService);
 
     (qrCode.toDataURL as jest.Mock).mockResolvedValue('data:image/png;base64,qr');
-    mockTicketRepository.create.mockImplementation(async (dto) => ({ id: 'ticket-1', ...dto }));
+    mockTicketRepository.createMany.mockImplementation(async (dtos) => dtos);
   });
 
-  describe('createTicket', () => {
+  describe('prepareTickets', () => {
     it('should throw if user secret is missing', async () => {
-      await expect(service.createTicket({ ...ticketDto, userSecret: '' }))
+      await expect(service.prepareTickets({ ...ticketDto, userSecret: '' }, 1))
         .rejects.toThrow(BadRequestException);
       expect(qrCode.toDataURL).not.toHaveBeenCalled();
-      expect(mockTicketRepository.create).not.toHaveBeenCalled();
+    });
+
+    it('should prepare the requested amount of tickets', async () => {
+      await expect(service.prepareTickets(ticketDto, 3)).resolves.toHaveLength(3);
+      expect(qrCode.toDataURL).toHaveBeenCalledTimes(3);
     });
 
     it('should encode validation url with user secret and token in qr code', async () => {
-      await service.createTicket(ticketDto);
+      await service.prepareTickets(ticketDto, 1);
 
       const qrCodeData = (qrCode.toDataURL as jest.Mock).mock.calls[0][0];
       expect(qrCodeData).toMatch(
@@ -62,42 +66,54 @@ describe('TicketService', () => {
       );
     });
 
-    it('should store the token hash, never the raw token', async () => {
-      await service.createTicket(ticketDto);
+    it('should keep the token hash, never the raw token', async () => {
+      const [ticket] = await service.prepareTickets(ticketDto, 1);
 
       const qrCodeData: string = (qrCode.toDataURL as jest.Mock).mock.calls[0][0];
       const token = qrCodeData.split(':').pop() as string;
-      const savedDto = mockTicketRepository.create.mock.calls[0][0];
 
-      expect(savedDto).toEqual({
+      expect(ticket).toEqual({
         ...ticketDto,
         qrCode: 'data:image/png;base64,qr',
         tokenHash: hash(token),
       });
-      expect(JSON.stringify(savedDto)).not.toContain(token);
-    });
-
-    it('should pass the transaction manager to the repository', async () => {
-      const manager = { name: 'transaction-manager' };
-
-      await service.createTicket(ticketDto, manager as never);
-
-      expect(mockTicketRepository.create).toHaveBeenCalledWith(expect.any(Object), manager);
+      expect(JSON.stringify(ticket)).not.toContain(token);
     });
 
     it('should generate a different token for each ticket', async () => {
-      await service.createTicket(ticketDto);
-      await service.createTicket(ticketDto);
+      const [first, second] = await service.prepareTickets(ticketDto, 2);
 
-      const [first, second] = mockTicketRepository.create.mock.calls.map(([dto]) => dto.tokenHash);
-      expect(first).not.toEqual(second);
+      expect(first.tokenHash).not.toEqual(second.tokenHash);
     });
 
-    it('should not save ticket if qr code generation fails', async () => {
+    it('should fail if a qr code cannot be generated', async () => {
       (qrCode.toDataURL as jest.Mock).mockRejectedValue(new Error('qr failure'));
 
-      await expect(service.createTicket(ticketDto)).rejects.toThrow('Failed to generate QR code.');
-      expect(mockTicketRepository.create).not.toHaveBeenCalled();
+      await expect(service.prepareTickets(ticketDto, 2)).rejects.toThrow('Failed to generate QR code.');
+    });
+  });
+
+  describe('saveTickets', () => {
+    const prepared = [
+      { ...ticketDto, qrCode: 'qr-1', tokenHash: 'h1' },
+      { ...ticketDto, qrCode: 'qr-2', tokenHash: 'h2' },
+    ];
+
+    it('should save all tickets of the order at once', async () => {
+      const manager = { name: 'transaction-manager' };
+
+      await service.saveTickets(prepared, 'order-1', manager as never);
+
+      expect(mockTicketRepository.createMany).toHaveBeenCalledTimes(1);
+      expect(mockTicketRepository.createMany).toHaveBeenCalledWith(
+        prepared.map((ticket) => ({ ...ticket, orderId: 'order-1' })),
+        manager,
+      );
+    });
+
+    it('should not hit the database without tickets', async () => {
+      await expect(service.saveTickets([], 'order-1')).resolves.toEqual([]);
+      expect(mockTicketRepository.createMany).not.toHaveBeenCalled();
     });
   });
 

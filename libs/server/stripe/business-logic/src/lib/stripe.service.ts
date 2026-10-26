@@ -1,8 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import Stripe from 'stripe';
 
 @Injectable()
 export class StripeService {
+  private readonly logger = new Logger(StripeService.name);
   private stripe: Stripe;
 
   constructor(@Inject('STRIPE_SECRET_KEY') private readonly secretKey: string) {
@@ -24,24 +25,28 @@ export class StripeService {
         }
       });
       return { clientSecret: paymentIntent.client_secret };
-    } catch {
-      throw new Error('Error creating payment intent');
+    } catch (error) {
+      // stripe details stay out of the response but are needed to diagnose the failure
+      this.logger.error('Error creating payment intent', error);
+      throw new InternalServerErrorException('Error creating payment intent', { cause: error });
     }
   }
 
   async retrievePaymentIntent(paymentIntentId: string): Promise<Stripe.PaymentIntent> {
     try {
       return await this.stripe.paymentIntents.retrieve(paymentIntentId);
-    } catch {
-      throw new Error('Error retrieving payment intent');
+    } catch (error) {
+      this.logger.error(`Error retrieving payment intent ${paymentIntentId}`, error);
+      throw new InternalServerErrorException('Error retrieving payment intent', { cause: error });
     }
   }
 
   async refund(paymentIntentId: string): Promise<Stripe.Refund> {
     try {
       return await this.stripe.refunds.create({ payment_intent: paymentIntentId });
-    } catch {
-      throw new Error('Error refunding payment intent');
+    } catch (error) {
+      this.logger.error(`Error refunding payment intent ${paymentIntentId}`, error);
+      throw new InternalServerErrorException('Error refunding payment intent', { cause: error });
     }
   }
 

@@ -5,7 +5,6 @@ import {
   Column,
   Entity,
   Generated,
-  Index,
   Unique,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -43,12 +42,11 @@ export class User extends BaseEntity implements IUser {
   @ApiProperty()
   lastName: string;
 
+  // indexed by the UQ_user_email constraint
   @Column({
     type: 'text',
-    unique: true,
     name: 'email'
   })
-  @Index('IDX_user_email')
   @IsEmail()
   @ApiProperty()
   email: string;

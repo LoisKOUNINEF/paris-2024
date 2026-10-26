@@ -90,12 +90,12 @@ describe('AuthController', () => {
       expect(req.logout).toHaveBeenCalled();
     });
 
-    it('should resolve with error message if logout fails', async () => {
+    it('should fail if logout fails', async () => {
       const req = {
         logout: jest.fn((done) => done(new Error('session store unavailable'))),
       } as unknown as RequestWithUser;
 
-      await expect(controller.logout(req)).resolves.toBe('session store unavailable');
+      await expect(controller.logout(req)).rejects.toThrow('session store unavailable');
     });
   });
 

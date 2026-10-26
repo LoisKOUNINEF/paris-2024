@@ -38,7 +38,7 @@ describe('PasswordResetController', () => {
       
       mockPasswordResetService.sendLink.mockResolvedValue(mockToken);
 
-      const result = await controller.sendToken(email);
+      const result = await controller.sendToken({ email });
 
       expect(passwordResetService.sendLink).toHaveBeenCalledWith(email);
       expect(result).toEqual({ msg: 'Reset link sent to your email.' });
@@ -50,7 +50,7 @@ describe('PasswordResetController', () => {
       
       mockPasswordResetService.sendLink.mockRejectedValue(error);
 
-      await expect(controller.sendToken(email)).rejects.toThrow(error);
+      await expect(controller.sendToken({ email })).rejects.toThrow(error);
       expect(passwordResetService.sendLink).toHaveBeenCalledWith(email);
     });
   });

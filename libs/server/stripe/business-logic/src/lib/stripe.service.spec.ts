@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 
 const mockPaymentIntentsCreate = jest.fn();
@@ -17,10 +18,16 @@ jest.mock('stripe', () => ({
 
 describe('StripeService', () => {
   let service: StripeService;
+  let errorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    errorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation();
     service = new StripeService('sk_test_key');
+  });
+
+  afterEach(() => {
+    errorSpy.mockRestore();
   });
 
   describe('createPaymentIntent', () => {
@@ -44,6 +51,14 @@ describe('StripeService', () => {
       mockPaymentIntentsCreate.mockRejectedValue(new Error('Invalid API Key provided: sk_test_key'));
 
       await expect(service.createPaymentIntent(4500, 'eur')).rejects.toThrow(/^Error creating payment intent$/);
+    });
+
+    it('should log the original stripe error', async () => {
+      const stripeError = new Error('amount_too_small');
+      mockPaymentIntentsCreate.mockRejectedValue(stripeError);
+
+      await expect(service.createPaymentIntent(10, 'eur')).rejects.toThrow();
+      expect(errorSpy).toHaveBeenCalledWith('Error creating payment intent', stripeError);
     });
   });
 
