@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PasswordReset } from '@paris-2024/server-data-access-password-reset';
+import { PASSWORD_RESET_TTL_HOURS, PasswordReset } from '@paris-2024/server-data-access-password-reset';
 import { subHours } from 'date-fns';
 import { LessThan, Repository } from 'typeorm';
 
@@ -19,7 +19,7 @@ export class PasswordResetExpirationService {
     { name: 'delete-old-pwd-reset-tokens' }
   )
   async deleteExpiredTokens() {
-    const treshold = subHours(new Date(), 1);
+    const treshold = subHours(new Date(), PASSWORD_RESET_TTL_HOURS);
 
     const expired: Array<PasswordReset> = await this.passwordResetRepository.find({
       where: { createdAt: LessThan(treshold) },

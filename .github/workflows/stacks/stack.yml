@@ -54,6 +54,7 @@ services:
       - ${PROJECT_LOWER}_${STACK_NAME}_session_secret
       - stripe_secret_key
       - admin_email
+      - smtp_host
 
   ${PROJECT_LOWER}-${STACK_NAME}-migrations:
     image: ghcr.io/${REPO_LOWER}-server:image-placeholder
@@ -116,7 +117,7 @@ services:
       - ${PROJECT_LOWER}-${STACK_NAME}-server
 
   postgres:
-    image: postgres:16.3-alpine3.20
+    image: postgres:16.15-alpine
     networks:
       - default
     environment:

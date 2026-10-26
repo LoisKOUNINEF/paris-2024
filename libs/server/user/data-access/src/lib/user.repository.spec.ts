@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserRepository } from './user.repository';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User } from './user.entity';
 import { createEntityMock } from '@paris-2024/shared-mocks';
@@ -26,6 +26,9 @@ const mockUser: User = {
   updatedAt: new Date(),
   emailVerified: true,
   emailVerificationToken: '',
+  pendingEmail: null,
+  anonymizationReminderSentAt: null,
+  inactivityReminderSentAt: null,
   hashPassword: async () => { return; } ,
   hashSecretKey: async () => { return; } ,
 }
@@ -133,10 +136,102 @@ describe('UserRepository', () => {
       mockUser.deletedAt = null;
     });
 
-    it('should throw ForbiddenException if user exists and is not deleted', async () => {
+    it('should clear reminder flags when a deleted user is restored', async () => {
+      const deletedUser = {
+        ...mockUser,
+        deletedAt: new Date(),
+        anonymizationReminderSentAt: new Date(),
+        inactivityReminderSentAt: new Date(),
+      } as User;
+      jest.spyOn(userRepo, 'findOne').mockResolvedValue(deletedUser);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear().mockImplementation(async (user) => user as User);
+
+      await userRepository.create(mockUser as any);
+
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({
+        anonymizationReminderSentAt: null,
+        inactivityReminderSentAt: null,
+      }));
+    });
+
+    it('should require a new email verification when a deleted user is restored', async () => {
+      const deletedUser = {
+        ...mockUser,
+        deletedAt: new Date(),
+        emailVerified: true,
+        emailVerificationToken: null,
+      } as unknown as User;
+      jest.spyOn(userRepo, 'findOne').mockResolvedValue(deletedUser);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear().mockImplementation(async (user) => user as User);
+
+      await userRepository.create({ ...mockUser } as any);
+
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({
+        emailVerified: false,
+        emailVerificationToken: expect.any(String),
+      }));
+      expect(saveSpy.mock.calls[0][0]).not.toHaveProperty('emailVerificationToken', null);
+    });
+
+    it('should apply the signup names and role when a deleted user is restored', async () => {
+      const deletedUser = {
+        ...mockUser,
+        deletedAt: new Date(),
+        firstName: 'Old',
+        lastName: 'Name',
+        role: Roles.CUSTOMER,
+      } as User;
+      jest.spyOn(userRepo, 'findOne').mockResolvedValue(deletedUser);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear().mockImplementation(async (user) => user as User);
+
+      await userRepository.create({
+        email: mockUser.email,
+        firstName: 'New',
+        lastName: 'Staff',
+        password: 'NewPassword1#',
+        role: Roles.STAFF,
+      } as any);
+
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({
+        firstName: 'New',
+        lastName: 'Staff',
+        password: 'NewPassword1#',
+        role: Roles.STAFF,
+      }));
+    });
+
+    it('should clear a pending email when a deleted user is restored', async () => {
+      const deletedUser = {
+        ...mockUser,
+        deletedAt: new Date(),
+        pendingEmail: 'pending@example.com',
+      } as User;
+      jest.spyOn(userRepo, 'findOne').mockResolvedValue(deletedUser);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear().mockImplementation(async (user) => user as User);
+
+      await userRepository.create({ ...mockUser } as any);
+
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ pendingEmail: null }));
+    });
+
+    it('should throw ConflictException if user exists and is not deleted', async () => {
       jest.spyOn(userRepo, 'findOne').mockResolvedValue(mockUser);
 
-      await expect(userRepository.create(mockUser as any)).rejects.toThrow(ForbiddenException);
+      await expect(userRepository.create(mockUser as any)).rejects.toThrow(ConflictException);
+    });
+
+    it('should not turn an existing customer into staff', async () => {
+      jest.spyOn(userRepo, 'findOne').mockResolvedValue({ ...mockUser, deletedAt: null } as User);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear();
+
+      await expect(userRepository.create({
+        email: mockUser.email,
+        firstName: 'Staff',
+        lastName: 'Member',
+        password: 'NewPassword1#',
+        role: Roles.STAFF,
+      } as any)).rejects.toThrow(ConflictException);
+      expect(saveSpy).not.toHaveBeenCalled();
     });
 
     it('should create and return a new user', async () => {
@@ -148,6 +243,82 @@ describe('UserRepository', () => {
       expect(result).toEqual(mockUser);
       expect(userRepo.create).toHaveBeenCalledWith(mockUser);
       expect(userRepo.save).toHaveBeenCalledWith(mockUser);
+    });
+  });
+
+  describe('verifyEmail', () => {
+    it('should mark the email as verified for a new account', async () => {
+      const user = { ...mockUser, emailVerified: false, emailVerificationToken: 'token' } as User;
+      jest.spyOn(userRepo, 'findOne').mockResolvedValue(user);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear().mockImplementation(async (user) => user as User);
+
+      const result = await userRepository.verifyEmail('token');
+
+      expect(result).toEqual({ user, isEmailChange: false });
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({
+        emailVerified: true,
+        emailVerificationToken: null,
+      }));
+    });
+
+    it('should swap in the pending email', async () => {
+      const user = { ...mockUser, pendingEmail: 'new@example.com', emailVerificationToken: 'token' } as User;
+      jest.spyOn(userRepo, 'findOne').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'findOneByEmail').mockResolvedValue(null);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear().mockImplementation(async (user) => user as User);
+
+      const result = await userRepository.verifyEmail('token');
+
+      expect(result).toEqual({ user, isEmailChange: true });
+      expect(userRepository.findOneByEmail).toHaveBeenCalledWith('new@example.com');
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({
+        email: 'new@example.com',
+        pendingEmail: null,
+        emailVerificationToken: null,
+      }));
+    });
+
+    it('should reject the pending email if it was taken in the meantime', async () => {
+      const user = { ...mockUser, pendingEmail: 'new@example.com', emailVerificationToken: 'token' } as User;
+      jest.spyOn(userRepo, 'findOne').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'findOneByEmail').mockResolvedValue({ ...mockUser, id: 'other' } as User);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear();
+
+      await expect(userRepository.verifyEmail('token')).rejects.toThrow(ConflictException);
+      expect(saveSpy).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException for an unknown token', async () => {
+      jest.spyOn(userRepo, 'findOne').mockResolvedValue(null);
+
+      await expect(userRepository.verifyEmail('unknown')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('requestEmailChange', () => {
+    it('should store the new email as pending with a fresh token', async () => {
+      jest.spyOn(userRepository, 'findOneById').mockResolvedValue({ ...mockUser } as User);
+      jest.spyOn(userRepository, 'findOneByEmail').mockResolvedValue(null);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear().mockImplementation(async (user) => user as User);
+
+      const result = await userRepository.requestEmailChange(mockUser.id, 'new@example.com');
+
+      expect(result).toEqual(expect.objectContaining({
+        email: mockUser.email,
+        pendingEmail: 'new@example.com',
+        emailVerificationToken: expect.any(String),
+      }));
+      expect(saveSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should reject an email used by another account', async () => {
+      jest.spyOn(userRepository, 'findOneById').mockResolvedValue({ ...mockUser } as User);
+      jest.spyOn(userRepository, 'findOneByEmail').mockResolvedValue({ ...mockUser, id: 'other' } as User);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear();
+
+      await expect(userRepository.requestEmailChange(mockUser.id, 'taken@example.com'))
+        .rejects.toThrow(ConflictException);
+      expect(saveSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -165,6 +336,20 @@ describe('UserRepository', () => {
       jest.spyOn(userRepository, 'findOneById').mockResolvedValue(undefined);
 
       await expect(userRepository.update(mockUser.id, mockUser as any)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('updateLastLogin', () => {
+    it('should update last login date and clear inactivity reminder flag', async () => {
+      jest.spyOn(userRepo, 'findOne').mockResolvedValue({ ...mockUser, inactivityReminderSentAt: new Date() } as User);
+      const saveSpy = jest.spyOn(userRepo, 'save').mockClear().mockImplementation(async (user) => user as User);
+
+      await userRepository.updateLastLogin(mockUser.id);
+
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({
+        lastLoginAt: expect.any(Date),
+        inactivityReminderSentAt: null,
+      }));
     });
   });
 

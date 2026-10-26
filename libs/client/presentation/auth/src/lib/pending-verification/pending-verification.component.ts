@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'lib-pending-verification',
-  standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './pending-verification.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pending-verification.component.scss',
 })
 export class PendingVerificationComponent {}

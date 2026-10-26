@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { User } from '@paris-2024/client-data-access-user';
 import { CommonFormComponent } from '../../common-form.component';
@@ -10,7 +10,6 @@ import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'lib-password-confirm-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule, 
@@ -19,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
     PwdCheckboxTextPipe,
   ],
   templateUrl: './password-confirm-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './password-confirm-form.component.scss',
 })
 export class PasswordConfirmFormComponent extends CommonFormComponent implements OnInit {

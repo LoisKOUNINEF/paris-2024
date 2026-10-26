@@ -1,8 +1,13 @@
+import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CartRepository } from './cart.repository';
 import { Cart } from './cart.entity';
 import { UpdateCartDto } from './cart.dto';
+
+// guest tokens must be uuids: keep them obviously fake so secret scanners do not flag them
+const GUEST_TOKEN = '00000000-0000-4000-8000-000000000001';
+const UNKNOWN_GUEST_TOKEN = '00000000-0000-4000-8000-000000000002';
 
 describe('CartRepository', () => {
   let cartRepository: CartRepository;
@@ -18,7 +23,7 @@ describe('CartRepository', () => {
   const mockGuestCart = {
     id: '2',
     userId: null,
-    guestToken: 'guest-token-123',
+    guestToken: GUEST_TOKEN,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -74,7 +79,7 @@ describe('CartRepository', () => {
 
 
     it('should return null when guest cart does not exist', async () => {
-      const guestToken = 'non-existent-token';
+      const guestToken = UNKNOWN_GUEST_TOKEN;
       mockCartRepository.findOne.mockResolvedValue(null);
 
       const result = await cartRepository['getGuestCart'](guestToken);
@@ -88,7 +93,7 @@ describe('CartRepository', () => {
 
   describe('createGuestCart', () => {
     it('should create a cart with guestToken', async () => {
-      const guestToken = 'guest-token-123';
+      const guestToken = GUEST_TOKEN;
       mockCartRepository.create.mockReturnValue(mockGuestCart);
       mockCartRepository.save.mockResolvedValue(mockGuestCart);
 
@@ -97,6 +102,13 @@ describe('CartRepository', () => {
       expect(mockCartRepository.create).toHaveBeenCalledWith({ guestToken });
       expect(mockCartRepository.save).toHaveBeenCalledWith(mockGuestCart);
       expect(result).toEqual(mockGuestCart);
+    });
+  });
+
+  describe('createGuestCart with an invalid token', () => {
+    it('should refuse a guest token that is not a uuid', async () => {
+      await expect(cartRepository.createGuestCart('not-a-uuid')).rejects.toThrow(BadRequestException);
+      expect(mockCartRepository.save).not.toHaveBeenCalled();
     });
   });
 
@@ -115,8 +127,15 @@ describe('CartRepository', () => {
   });
 
   describe('getGuestCart', () => {
+    it.each([undefined, '', 'not-a-uuid'])('should not query when guest token is %p', async (guestToken) => {
+      const result = await cartRepository.getGuestCart(guestToken as unknown as string);
+
+      expect(result).toBeNull();
+      expect(mockCartRepository.findOne).not.toHaveBeenCalled();
+    });
+
     it('should return guest cart when it exists', async () => {
-      const guestToken = 'guest-token-123';
+      const guestToken = GUEST_TOKEN;
       mockCartRepository.findOne.mockResolvedValue(mockGuestCart);
 
       const result = await cartRepository['getGuestCart'](guestToken);

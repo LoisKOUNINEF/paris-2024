@@ -101,6 +101,33 @@ describe('OriginGuard', () => {
       expect(() => guard.canActivate(mockContext)).toThrow(ForbiddenException);
     });
 
+    it.each([
+      'https://studi-exam-jo.lois-kouninef.eu.evil.com',
+      'https://studi-exam-jo.lois-kouninef.eu-evil.com',
+      'https://studi-exam-jo.lois-kouninef.eu@evil.com',
+      'https://www.studi-exam-jo-staging.lois-kouninef.eu.evil.com',
+    ])('should deny access for lookalike origin %s', (origin) => {
+      mockRequest.headers = { origin };
+
+      expect(() => guard.canActivate(mockContext)).toThrow(ForbiddenException);
+    });
+
+    it('should deny access for lookalike referer', () => {
+      mockRequest.headers = {
+        referer: 'https://studi-exam-jo.lois-kouninef.eu.evil.com/checkout'
+      };
+
+      expect(() => guard.canActivate(mockContext)).toThrow(ForbiddenException);
+    });
+
+    it('should allow access for referer with path on allowed origin', () => {
+      mockRequest.headers = {
+        referer: 'https://www.studi-exam-jo.lois-kouninef.eu/cart?step=2'
+      };
+
+      expect(guard.canActivate(mockContext)).toBe(true);
+    });
+
     it('should deny access for non-https protocol (except localhost)', () => {
       mockRequest.headers = {
         origin: 'http://studi-exam-jo.lois-kouninef.eu'

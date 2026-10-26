@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { User, UserDto, UserFormValue } from '@paris-2024/client-data-access-user';
 import { UserService } from '@paris-2024/client-data-access-user';
 import { FullUserFormComponent } from '@paris-2024/client-ui-forms';
@@ -8,9 +8,9 @@ import { SnackbarService } from '@paris-2024/client-utils';
 
 @Component({
   selector: 'lib-create-staff',
-  standalone: true,
   imports: [FullUserFormComponent],
   templateUrl: './create-staff.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './create-staff.component.scss',
 })
 export class CreateStaffComponent {
@@ -31,8 +31,7 @@ export class CreateStaffComponent {
     return this.subscription = this.userService.createStaffUser(user)
       .pipe(filter(res => !!res))
       .subscribe((res: User) => {
-        this.snackbarService.showSuccess('Membre du staff ajouté.')
-          .afterDismissed()
+        this.snackbarService.showSuccess('Membre du staff ajouté.');
         this.router.navigate(['/admin']);
     })
   }

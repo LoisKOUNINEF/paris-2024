@@ -5,7 +5,6 @@ import {
   Column,
   Entity,
   Generated,
-  Index,
   Unique,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -43,12 +42,11 @@ export class User extends BaseEntity implements IUser {
   @ApiProperty()
   lastName: string;
 
+  // indexed by the UQ_user_email constraint
   @Column({
     type: 'text',
-    unique: true,
     name: 'email'
   })
-  @Index('IDX_user_email')
   @IsEmail()
   @ApiProperty()
   email: string;
@@ -60,7 +58,7 @@ export class User extends BaseEntity implements IUser {
   @Matches(passwordRegex)
   @Exclude({ toPlainOnly: true })
   @ApiProperty({ 
-    type: 'text', 
+    type: 'string', 
     example: '10Characters+',
   })
   password: string;
@@ -72,7 +70,6 @@ export class User extends BaseEntity implements IUser {
     name: 'role'
   })
   @ApiProperty({
-    type: 'enum',
     enum: Roles,
     default: Roles.CUSTOMER,
   })
@@ -106,8 +103,31 @@ export class User extends BaseEntity implements IUser {
     nullable: true,
     name: 'email_verification_token'
   })
+  @Exclude({ toPlainOnly: true })
   @ApiProperty()
   emailVerificationToken: string;
+
+  @Column({
+    type: 'text',
+    nullable: true,
+    name: 'pending_email'
+  })
+  @ApiProperty()
+  pendingEmail: string | null;
+
+  @Column({
+    type: 'timestamptz',
+    nullable: true,
+    name: 'anonymization_reminder_sent_at'
+  })
+  anonymizationReminderSentAt: Date | null;
+
+  @Column({
+    type: 'timestamptz',
+    nullable: true,
+    name: 'inactivity_reminder_sent_at'
+  })
+  inactivityReminderSentAt: Date | null;
 
   @BeforeInsert()
   @BeforeUpdate()

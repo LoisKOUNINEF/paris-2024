@@ -62,14 +62,25 @@ describe('OrderService', () => {
     expect(apiRequestService.get).toHaveBeenCalledWith(`/orders/${orderId}`);
   });
 
-  it('should call newOrder', () => {
+  it('should call newOrder with the confirmed payment intent', () => {
     const newOrder: Order = { bundles: [], totalPrice: 1000, tickets: [] } as unknown as Order;
     apiRequestService.post.mockReturnValue(of(newOrder));
 
-    service.newOrder().subscribe(response => {
+    service.newOrder('pi_1').subscribe(response => {
       expect(response).toEqual(newOrder);
     });
 
-    expect(apiRequestService.post).toHaveBeenCalledWith('/orders');
+    expect(apiRequestService.post).toHaveBeenCalledWith('/orders', { paymentIntentId: 'pi_1' });
+  });
+
+  it('should request a payment intent without sending any amount', () => {
+    const paymentIntent = { clientSecret: 'pi_1_secret', amount: 1000 };
+    apiRequestService.post.mockReturnValue(of(paymentIntent));
+
+    service.createPaymentIntent().subscribe(response => {
+      expect(response).toEqual(paymentIntent);
+    });
+
+    expect(apiRequestService.post).toHaveBeenCalledWith('/orders/payment-intent');
   });
 });

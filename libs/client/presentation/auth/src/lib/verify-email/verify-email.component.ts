@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -7,9 +7,9 @@ import { LoadingSpinnerComponent } from '@paris-2024/client-ui-shared';
 
 @Component({
   selector: 'lib-verify-email',
-  standalone: true,
   imports: [LoadingSpinnerComponent],
   templateUrl: './verify-email.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './verify-email.component.scss',
 })
 export class VerifyEmailComponent implements OnInit, OnDestroy {
@@ -42,7 +42,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
     this.subscription = this.authService.verifyEmail(token)
       .subscribe((res) => {
         this.loading = false;
-        if (res === false) {
+        if (!res) {
           this.error = 'Lien de vérification invalide';
           return;
         } else {

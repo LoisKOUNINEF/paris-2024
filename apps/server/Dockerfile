@@ -1,23 +1,21 @@
-FROM node:22.3.0-alpine AS builder
+FROM node:24.22.1-alpine AS builder
 WORKDIR /usr/src/app
+ENV CYPRESS_INSTALL_BINARY=0
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npx nx run-many --target=build --projects=server,run-migrations,healthcheck --configuration=production && \
     npm install --package-lock-only --prefix dist/apps/server
 
-FROM node:22.3.0-bookworm-slim AS dependencies
+FROM node:24.22.1-bookworm-slim AS dependencies
 ENV NODE_ENV=production
 WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app/dist/apps/server/package*.json ./
 RUN npm ci && \
-    apt-get update && \
-    apt-get install -y build-essential python3 && \
-    npm rebuild bcrypt --build-from-source && \
     npm prune && npm cache clean --force && \
     rm -f .npmrc npm-debug.log
 
-FROM node:22.3.0-bookworm-slim
+FROM node:24.22.1-bookworm-slim
 ENV NODE_ENV=production
 RUN npm install -g pm2@latest && \
     npm cache clean --force && \

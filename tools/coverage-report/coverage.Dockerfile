@@ -1,10 +1,11 @@
-FROM node:22.3.0 AS builder
+FROM node:24.22.1 AS builder
 WORKDIR /usr/src/app
+ENV CYPRESS_INSTALL_BINARY=0
 COPY ../../ .
 RUN npm ci && \
 		npm run coverage-report
 
-FROM nginx:1.21-alpine
+FROM nginx:1.30.6-alpine
 
 RUN sed -i 's/listen  .*/listen 8090;/' /etc/nginx/conf.d/default.conf && \
 		mkdir /usr/share/nginx/html/coverage

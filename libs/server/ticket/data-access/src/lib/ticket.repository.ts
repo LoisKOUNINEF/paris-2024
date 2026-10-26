@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { EntityManager, Repository } from "typeorm";
 import { Ticket } from "./ticket.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -13,9 +13,16 @@ export class TicketRepository {
     private ticketRepository: Repository<Ticket>,
   ) {}
 
-  async create(dto: QrCodeTicketDto): Promise<Ticket> {
-    const ticket = this.ticketRepository.create(dto)
-    return await this.ticketRepository.save(ticket);
+  async create(dto: QrCodeTicketDto, manager?: EntityManager): Promise<Ticket> {
+    const repository = manager?.getRepository(Ticket) ?? this.ticketRepository;
+    const ticket = repository.create(dto)
+    return await repository.save(ticket);
+  }
+
+  async createMany(dtos: Array<QrCodeTicketDto>, manager?: EntityManager): Promise<Array<Ticket>> {
+    const repository = manager?.getRepository(Ticket) ?? this.ticketRepository;
+    const tickets = repository.create(dtos);
+    return await repository.save(tickets);
   }
 
   async findOneById(id: Ticket['id']): Promise<Ticket | undefined> {

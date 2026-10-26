@@ -147,9 +147,9 @@ export class OwnerGuard implements CanActivate {
     
     const ownershipField = options.ownershipField as string;
     const hasUnauthorizedAccess = entities.some(
-      item => item && 
-             typeof item === 'object' && 
-             ownershipField in item && 
+      item => !item || 
+             typeof item !== 'object' || 
+             !(ownershipField in item) || 
              item[ownershipField] !== user.id
     );
     
@@ -165,10 +165,12 @@ export class OwnerGuard implements CanActivate {
   ): void {
     if (user.role === 'admin') return;
     
-    if (!options.ownershipField || !entity || typeof entity !== 'object') return;
+    if (!options.ownershipField) return;
     
     const ownershipField = options.ownershipField as string;
-    if (!(ownershipField in entity)) return;
+    if (typeof entity !== 'object' || !(ownershipField in entity)) {
+      throw new ForbiddenException('Access denied');
+    }
     
     const ownerId = entity[ownershipField];
     if (ownerId !== user.id) {

@@ -1,11 +1,12 @@
-FROM node:22.3.0-alpine AS builder
+FROM node:24.22.1-alpine AS builder
 WORKDIR /usr/src/app
+ENV CYPRESS_INSTALL_BINARY=0
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npx nx build client --configuration=production
 
-FROM node:22.3.0-alpine
+FROM node:24.22.1-alpine
 RUN apk add --no-cache curl && \
     addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser

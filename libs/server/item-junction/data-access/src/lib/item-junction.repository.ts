@@ -1,9 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { In, Repository } from 'typeorm';
+import { DeleteResult, EntityManager, In, Repository } from 'typeorm';
 import { ItemJunction } from './item-junction.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateItemJunctionDto, UpdateItemJunctionDto } from './item-junction.dto';
 import { IItemJunctionModel } from '@paris-2024/shared-interfaces';
+
+// relies on the UQ_item_junction_cart_bundle constraint
+const ADD_QUANTITY_ON_CONFLICT = `
+  ON CONFLICT ("cart_id", "bundle_id")
+  DO UPDATE SET "quantity" = "item_junction"."quantity" + EXCLUDED."quantity", "updated_at" = now()
+`;
 
 @Injectable()
 export class ItemJunctionRepository {
@@ -16,9 +22,14 @@ export class ItemJunctionRepository {
     relationshipType: 'cart' | 'order',
     relationshipId: string
   ): Promise<Array<IItemJunctionModel>> {
+    // a cart only lists bundles that can still be bought, an order keeps the ones it was paid for
+    const bundleJoinCondition = relationshipType === 'cart'
+      ? 'item_junction.bundle_id::uuid = b.id AND b.deleted_at IS NULL AND b.is_available = true'
+      : 'item_junction.bundle_id::uuid = b.id';
+
     const result = await this.itemJunctionRepository
       .createQueryBuilder('item_junction')
-      .leftJoin('bundle', 'b', 'item_junction.bundle_id::uuid = b.id')
+      .innerJoin('bundle', 'b', bundleJoinCondition)
       .select([
         'item_junction.id AS junction',
         'item_junction.quantity AS quantity',
@@ -61,112 +72,80 @@ export class ItemJunctionRepository {
   }
 
   async getOneWithSales(bundleId: string): Promise<number> {
-    const itemJunctions = await this.itemJunctionRepository
+    const result = await this.itemJunctionRepository
       .createQueryBuilder('item_junction')
-      .select('item_junction')
+      .select('COALESCE(SUM(item_junction.quantity), 0)', 'sales')
       .where('item_junction.bundle_id = :id::uuid', { id: bundleId })
-      .andWhere('item_junction.order_id != null')
-      .getMany();
+      .andWhere('item_junction.order_id IS NOT NULL')
+      .getRawOne();
 
-    const sales = itemJunctions.reduce((acc: number, sale: ItemJunction) => {
-      return acc += sale.quantity
-    }, 0);
-
-    return sales;
+    // SUM returns a bigint, which pg hands back as a string
+    return Number(result?.sales ?? 0);
   }
 
   async getAllWithSales(bundleIds: Array<string>): Promise<Record<string, number>> {
-    interface SaleJunction {
-      bundle_id: string;
-      item_junction_quantity: number;
+    interface BundleSales {
+      bundleId: string;
+      sales: string;
     };
 
     if (!bundleIds.length) {
       return {};
     }
 
-    const itemJunctions = await this.itemJunctionRepository
+    const rows: Array<BundleSales> = await this.itemJunctionRepository
       .createQueryBuilder('item_junction')
-      .select(['item_junction.bundle_id', 'item_junction.quantity'])
+      .select('item_junction.bundle_id', 'bundleId')
+      .addSelect('SUM(item_junction.quantity)', 'sales')
       .where('item_junction.bundle_id IN (:...ids)', { ids: bundleIds })
       .andWhere('item_junction.order_id IS NOT NULL')
+      .groupBy('item_junction.bundle_id')
       .getRawMany();
 
-    const salesByBundleId = itemJunctions.reduce((acc: Record<string, number>, saleJunction: SaleJunction) => {
-      const bundleId = saleJunction.bundle_id;
-      
-      if (!acc[bundleId]) {
-        acc[bundleId] = 0;
-      }
-      
-      acc[bundleId] += saleJunction.item_junction_quantity;
-      return acc;
-    }, {});
-
-    bundleIds.forEach(id => {
-      if (salesByBundleId[id] === undefined) {
-        salesByBundleId[id] = 0;
-      }
+    const salesByBundleId: Record<string, number> = {};
+    bundleIds.forEach((id: string) => {
+      salesByBundleId[id] = 0;
+    });
+    rows.forEach((row: BundleSales) => {
+      salesByBundleId[row.bundleId] = Number(row.sales);
     });
 
     return salesByBundleId;
   }
 
-  async updateQuantity(id: ItemJunction['id'], quantity: number): Promise<ItemJunction | null> {
-    const itemJunction = await this.itemJunctionRepository.findOne({ 
-      where: { id: id } 
-    });
-    
-    if (!itemJunction) {
-      return null;
-    }
+  async updateQuantity(itemJunction: ItemJunction, quantity: number): Promise<ItemJunction> {
     if(quantity === 0) {
-      await this.remove(id);
+      await this.itemJunctionRepository.delete(itemJunction.id);
       return itemJunction;
     }
-    
-    await this.itemJunctionRepository.save(Object.assign(itemJunction, { quantity: quantity }));
-    return itemJunction;
+
+    await this.itemJunctionRepository.update(itemJunction.id, { quantity: quantity });
+    return Object.assign(itemJunction, { quantity: quantity });
   }
 
-  async mergeJunctions(
-    userCartId: string,
-    guestJunctions: Array<IItemJunctionModel>, 
-    userJunctions: Array<IItemJunctionModel>,
-  ): Promise<void> {
-    const userJunctionMap = new Map<string, IItemJunctionModel>();
-    userJunctions.forEach((junction: IItemJunctionModel) => {
-      userJunctionMap.set(junction.id, junction);
-    });
-      
-    for (const guestJunction of guestJunctions) {
-      const userJunction = userJunctionMap.get(guestJunction.id);
+  // moves every guest cart line into the user cart, adding quantities of bundles found in both
+  async mergeJunctions(userCartId: string, guestCartId: string): Promise<void> {
+    await this.itemJunctionRepository.manager.transaction(async (manager: EntityManager) => {
+      await manager.query(`
+        INSERT INTO "item_junction" ("cart_id", "bundle_id", "quantity")
+        SELECT $1::uuid, "bundle_id", "quantity" FROM "item_junction" WHERE "cart_id" = $2::uuid
+        ${ADD_QUANTITY_ON_CONFLICT}
+      `, [userCartId, guestCartId]);
 
-      if (userJunction) {
-        const newQuantity = userJunction.quantity + guestJunction.quantity;
-        await this.update(userJunction.junction, {
-          quantity: newQuantity,
-        });
-      } else {
-        await this.create({
-          cartId: userCartId,
-          bundleId: guestJunction.id,
-          quantity: guestJunction.quantity
-        });
-      }
-    }
-    for (const guestJunction of guestJunctions) {
-      await this.delete(guestJunction.junction);
-    }
+      await manager.getRepository(ItemJunction).delete({ cartId: guestCartId });
+    });
   }
 
   async create(dto: CreateItemJunctionDto): Promise<ItemJunction | null> {
     if (dto.cartId) {
-      const alreadyExists = await this.getOne(dto.cartId, dto.bundleId);
-      if (alreadyExists) {
-        const updatedQuantity = dto.quantity + alreadyExists.quantity;
-        return await this.updateQuantity(alreadyExists.id, updatedQuantity);
-      }
+      // single statement: concurrent add-to-cart requests cannot create duplicate lines
+      await this.itemJunctionRepository.query(`
+        INSERT INTO "item_junction" ("cart_id", "bundle_id", "quantity")
+        VALUES ($1::uuid, $2::uuid, $3)
+        ${ADD_QUANTITY_ON_CONFLICT}
+      `, [dto.cartId, dto.bundleId, dto.quantity]);
+
+      return await this.getOne(dto.cartId, dto.bundleId);
     }
     
     const itemJunction = this.itemJunctionRepository.create(dto);
@@ -185,28 +164,32 @@ export class ItemJunctionRepository {
     return await this.itemJunctionRepository.save(Object.assign(itemJunction, dto));
   }
 
-  async remove(id: ItemJunction['id']) {
-    const itemJunction = await this.itemJunctionRepository.findOne({
-      where: { id }
-    });
-
-    if (!itemJunction) return null;
-
-    return await this.itemJunctionRepository.delete(itemJunction.id);
+  async remove(id: ItemJunction['id']): Promise<DeleteResult | null> {
+    const result = await this.itemJunctionRepository.delete(id);
+    return result.affected ? result : null;
   }
 
-  async switchRelationship(ids: Array<ItemJunction['id']>, orderId: string): Promise<Array<ItemJunction> | null> {
-    const updateResult = await this.itemJunctionRepository
+  // only moves junctions still in a cart, and returns the ones now attached to the order:
+  // a concurrent order on the same cart gets fewer junctions back than it asked for
+  async switchRelationship(
+    ids: Array<ItemJunction['id']>,
+    orderId: string,
+    manager?: EntityManager,
+  ): Promise<Array<ItemJunction>> {
+    const repository = manager?.getRepository(ItemJunction) ?? this.itemJunctionRepository;
+    const updateResult = await repository
       .createQueryBuilder()
       .update(ItemJunction)
       // TODO: remove 'as any' bypass
       .set({ cartId: null as any, orderId: orderId })
       .whereInIds(ids)
+      .andWhere('cart_id IS NOT NULL')
       .execute();
     
     if (updateResult.affected && updateResult.affected > 0) {
-      return await this.itemJunctionRepository.findBy({
-        id : In(ids)
+      return await repository.findBy({
+        id : In(ids),
+        orderId: orderId,
       });
     }
     

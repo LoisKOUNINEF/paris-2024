@@ -8,7 +8,11 @@ new_yaml() {
 }
 
 pull_images() {
-  docker-compose -f "$STACK_NAME".yml pull
+  if docker compose version > /dev/null 2>&1; then
+    docker compose -f "$STACK_NAME".yml pull
+  else
+    docker-compose -f "$STACK_NAME".yml pull
+  fi
 }
 
 deploy_stack() {

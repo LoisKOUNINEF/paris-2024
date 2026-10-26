@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { UserDto, UserFormValue, User } from '@paris-2024/client-data-access-user';
@@ -8,9 +8,9 @@ import { GuestTokenService, SnackbarService } from '@paris-2024/client-utils';
 
 @Component({
   selector: 'lib-signup',
-  standalone: true,
   imports: [FullUserFormComponent],
   templateUrl: './signup.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './signup.component.scss',
 })
 export class SignupComponent implements OnDestroy {
@@ -33,8 +33,7 @@ export class SignupComponent implements OnDestroy {
       .pipe(filter(res => !!res))
       .subscribe((res: User) => {
         this.guestTokenService.clearGuestToken()
-        this.snackbarService.showSuccess('Compte créé.')
-        .afterDismissed()
+        this.snackbarService.showSuccess('Compte créé.');
         this.router.navigate(['auth/pending-verification'])
     })
   }

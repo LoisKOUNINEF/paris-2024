@@ -106,8 +106,8 @@ describe('ResetPasswordComponent', () => {
     component.resetPasswordForm.markAsTouched();
     component.resetPasswordForm.setErrors({ 'incorrect': true });
     fixture.detectChanges();
-    const submitButton = fixture.nativeElement.querySelector('lib-submit-button');
-    expect(submitButton.getAttribute('ng-reflect-is-disabled')).toBe('true');
+    const submitButton = fixture.nativeElement.querySelector('lib-submit-button button');
+    expect(submitButton.disabled).toBe(true);
   });
 
   it('should enable submit button when form is valid', fakeAsync(() => {
@@ -136,4 +136,27 @@ describe('ResetPasswordComponent', () => {
     const submitButton = fixture.debugElement.query(By.directive(SubmitButtonComponent)).componentInstance;
     expect(submitButton.isDisabled).toBe(false);
   }));
+
+  it('should stay on the reset page when the form is invalid', () => {
+    fixture.detectChanges();
+    expect(component.resetPasswordForm.valid).toBe(false);
+
+    component.resetPassword();
+
+    expect(passwordResetServiceMock.resetPwd).not.toHaveBeenCalled();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['password-reset/reset-password/test-token']);
+  });
+
+  it('should not navigate to login when the reset fails', () => {
+    passwordResetServiceMock.resetPwd.mockReturnValue(of(null));
+    component.ngOnInit();
+    component.resetPasswordForm = component['formBuilder'].group({
+      passwordConfirm: { password: 'newPassword1#', passwordConfirm: 'newPassword1#' },
+    });
+
+    component.resetPassword();
+
+    expect(passwordResetServiceMock.resetPwd).toHaveBeenCalledWith({ password: 'newPassword1#' }, 'test-token');
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+  });
 });

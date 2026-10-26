@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 export interface ILandingSection {
   title: string;
@@ -11,12 +11,12 @@ export interface ILandingSection {
 
 @Component({
   selector: 'lib-landing-section',
-  standalone: true,
   imports: [
     CommonModule,
     DatePipe,
   ],
   templateUrl: './landing-section.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './landing-section.component.scss',
 })
 export class LandingSectionComponent {

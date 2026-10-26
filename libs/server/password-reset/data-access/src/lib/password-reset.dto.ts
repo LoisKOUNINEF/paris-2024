@@ -16,7 +16,7 @@ export class PasswordResetBody {
   @Matches(passwordRegex)
   @Exclude({ toPlainOnly: true })
   @ApiProperty({ 
-    type: 'text', 
+    type: 'string', 
     example: '10Characters+',
   })
   password: string;

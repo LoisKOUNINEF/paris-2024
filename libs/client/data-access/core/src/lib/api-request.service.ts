@@ -1,14 +1,17 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { inject, Injectable, InjectionToken } from "@angular/core";
 import { catchError, Observable, of } from "rxjs";
+
+// base url of the API, provided by the app from its environment file
+export const API_URL = new InjectionToken<string>('API_URL', {
+  providedIn: 'root',
+  factory: () => '/api',
+});
 
 @Injectable({ providedIn: 'root'})
 export class ApiRequestService {
 
-  private readonly apiUrl = 
-    process.env['NODE_ENV'] === 'development' 
-    ? 'http://localhost:8080/api' 
-    : '/api';
+  private readonly apiUrl = inject(API_URL);
 
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),

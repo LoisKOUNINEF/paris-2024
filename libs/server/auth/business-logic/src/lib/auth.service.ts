@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from '@paris-2024/server-data-access-user';
 import { IUser } from '@paris-2024/shared-interfaces';
-import { emailNotVerified, incorrectPassword, userDoesntExist } from './auth.exceptions';
+import { emailNotVerified } from './auth.exceptions';
 
 @Injectable()
 export class AuthService {
@@ -10,16 +10,15 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<Partial<IUser> | null> {
     const user = await this.userRepository.findOneByEmail(email);
-    
-    if(!user) {
-      userDoesntExist();
+
+    // soft-deleted accounts are looked up too (emails stay unique), but cannot log in
+    if (!user || user.deletedAt !== null) {
       return null;
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      incorrectPassword()
       return null;
     }
 
@@ -28,14 +27,16 @@ export class AuthService {
       return null;
     }
 
-    if (user && isMatch) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, createdAt, updatedAt, deletedAt, secretKey, ...rest } =
-        user;
-      this.userRepository.updateLastLogin(user.id);
-      return rest;
-    }
+    await this.userRepository.updateLastLogin(user.id);
 
-    return null;
+    // req.user is a plain object, entity @Exclude rules do not apply: only expose what is needed
+    return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      isAnonymized: user.isAnonymized,
+    } as Partial<IUser>;
   }
 }

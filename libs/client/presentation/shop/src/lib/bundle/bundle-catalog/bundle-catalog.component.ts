@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BundleCardComponent } from '../bundle-card/bundle-card.component';
 import { AddToCartComponent } from '../../cart/add-to-cart/add-to-cart.component';
 import { SortArrayPipe } from '@paris-2024/client-utils';
@@ -7,13 +7,13 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'lib-bundle-catalog',
-  standalone: true,
   imports: [
     BundleCardComponent,
     AddToCartComponent,
   ],
   providers: [SortArrayPipe],
   templateUrl: './bundle-catalog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bundle-catalog.component.scss',
 })
 export class BundleCatalogComponent implements OnInit, OnDestroy {

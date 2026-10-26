@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { BundleRepository, bundleNotFound } from '@paris-2024/server-data-access-bundle';
 import { CartRepository, Cart, AddToCartDto, noIdentifierProvided } from '@paris-2024/server-data-access-cart';
 import { CreateItemJunctionDto, ItemJunction, ItemJunctionRepository } from '@paris-2024/server-data-access-item-junction';
 import { ICartIdentifier, ICartModel, IItemJunctionModel } from '@paris-2024/shared-interfaces';
@@ -8,7 +9,9 @@ import { DeleteResult } from 'typeorm';
 export class CartService {
 	constructor( 
 		private cartRepository: CartRepository,
-		private itemJunctionRepository: ItemJunctionRepository,	) {}
+		private itemJunctionRepository: ItemJunctionRepository,
+		private bundleRepository: BundleRepository,
+	) {}
 
 	async getCartWithBundles(identifier: ICartIdentifier): Promise<ICartModel | null> {
 	  const cart = await this.cartRepository.getCart(identifier);
@@ -31,7 +34,9 @@ export class CartService {
 	async mergeGuestCartWithUserCart(identifiers: Required<ICartIdentifier>): Promise<Cart | null> {
 	  const userCart = await this.cartRepository.getUserCart(identifiers.userId);
 	  
-	  const guestCart = await this.cartRepository.getGuestCart(identifiers.guestToken)
+	  const guestCart = identifiers.guestToken
+	    ? await this.cartRepository.getGuestCart(identifiers.guestToken)
+	    : null;
 
 	  if (!guestCart) {
 	    return userCart || await this.cartRepository.createUserCart(identifiers.userId);
@@ -45,10 +50,7 @@ export class CartService {
 	    return await this.cartRepository.update(guestCart.id, cartDto);
 	  }
 
-	  const guestJunctions = await this.itemJunctionRepository.getManyByRelationshipId('cart', guestCart.id);
-	  const userJunctions = await this.itemJunctionRepository.getManyByRelationshipId('cart', userCart.id);
-
-	  await this.itemJunctionRepository.mergeJunctions(userCart.id, guestJunctions, userJunctions);
+	  await this.itemJunctionRepository.mergeJunctions(userCart.id, guestCart.id);
 
 	  await this.cartRepository.delete(guestCart.id);
 
@@ -59,6 +61,13 @@ export class CartService {
 		identifier: ICartIdentifier, 
 		dto: CreateItemJunctionDto,
 	): Promise<ItemJunction |  null> {
+		// soft-deleted bundles are not found by getOneById
+		const bundle = await this.bundleRepository.getOneById(dto.bundleId);
+		if (!bundle || !bundle.isAvailable) {
+			bundleNotFound();
+			return null;
+		}
+
 		let cart = await this.cartRepository.getCart(identifier);
 		if (!cart) {
 	    if (identifier.userId) {
@@ -90,13 +99,17 @@ export class CartService {
 		const itemJunction = await this.itemJunctionRepository.getOne(cart.id, dto.bundleId);
 
 		if (itemJunction) {
-			return await this.itemJunctionRepository.updateQuantity(itemJunction.id, dto.quantity)
+			return await this.itemJunctionRepository.updateQuantity(itemJunction, dto.quantity)
 		}
 		return null;
 	}
 
 	async createUserCart(userId: string): Promise<Cart | undefined> {
 		return await this.cartRepository.createUserCart(userId);
+	}
+
+	async getGuestCart(guestToken: string): Promise<Cart | null> {
+		return await this.cartRepository.getGuestCart(guestToken);
 	}
 
 	async createGuestCart(guestToken: string): Promise<Cart | undefined> {

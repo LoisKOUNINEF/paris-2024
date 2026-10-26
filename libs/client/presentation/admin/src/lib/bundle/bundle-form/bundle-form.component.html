@@ -40,7 +40,7 @@
 			bundleForm.controls['price'].touched 
 			&& (bundleForm.controls['price'].hasError('required') 
 			|| bundleForm.controls['price'].hasError('min')
-			|| bundleForm.controls['ticketAmount'].hasError('pattern'))
+			|| bundleForm.controls['price'].hasError('pattern'))
 		) {
 			<mat-error>
 				Le prix doit être supérieur à 0.
