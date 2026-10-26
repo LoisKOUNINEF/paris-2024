@@ -1,6 +1,6 @@
 <main class="container">
 	<h2>Les Offres</h2>
-		@for(bundle of bundles; track bundle; let e = $even) {
+		@for(bundle of bundles; track bundle.id) {
 			<div class="bundle">
 				<lib-bundle-card
 				 [bundle]=bundle

@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { IBundleSales } from '@paris-2024/shared-interfaces';
-import { FormatPricePipe } from '@paris-2024/client-utils';
+import { FormatPricePipe, PlatformService } from '@paris-2024/client-utils';
 import { Router } from '@angular/router';
 import { BundleService } from '@paris-2024/client-data-access-bundle';
 import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
@@ -22,9 +22,12 @@ export class BundleCatalogComponent implements OnInit {
   constructor(
     private bundleService: BundleService, 
     private router: Router,
+    private platformService: PlatformService,
   ) {}
 
   ngOnInit() {
+    // the server render has no session cookie
+    if (!this.platformService.isBrowser) return;
     this.bundleService.getWithSales().subscribe((bundleSales) => {
       this.bundleSales = bundleSales;
     });

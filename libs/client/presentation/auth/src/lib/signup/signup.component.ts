@@ -33,8 +33,7 @@ export class SignupComponent implements OnDestroy {
       .pipe(filter(res => !!res))
       .subscribe((res: User) => {
         this.guestTokenService.clearGuestToken()
-        this.snackbarService.showSuccess('Compte créé.')
-        .afterDismissed()
+        this.snackbarService.showSuccess('Compte créé.');
         this.router.navigate(['auth/pending-verification'])
     })
   }

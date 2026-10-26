@@ -5,6 +5,7 @@ import { SubmitButtonComponent } from '@paris-2024/client-ui-form-building-block
 import { filter, Subscription, of, catchError } from 'rxjs';
 import { Bundle, BundleDto, BundleFormValue, BundleService } from '@paris-2024/client-data-access-bundle';
 import { ActivatedRoute, Router } from '@angular/router';
+import { PlatformService } from '@paris-2024/client-utils';
 
 @Component({
   selector: 'lib-bundle-values',
@@ -26,7 +27,8 @@ export class BundleValuesComponent implements OnInit, OnDestroy {
     protected formBuilder: FormBuilder,
     protected bundleService: BundleService,
     protected router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private platformService: PlatformService,
   ) {}
 
   ngOnInit(): void {
@@ -37,7 +39,8 @@ export class BundleValuesComponent implements OnInit, OnDestroy {
     });
     
     const bundleId = this.route.snapshot.paramMap.get('id');
-    if (bundleId) {
+    // the server render has no session cookie
+    if (bundleId && this.platformService.isBrowser) {
       this.loadBundle(bundleId);
     }
   }
@@ -86,12 +89,13 @@ export class BundleValuesComponent implements OnInit, OnDestroy {
   }
   
   createBundle(bundle: BundleDto): Subscription {
-    return this.subscription =
-      this.bundleService.create(bundle)
-        .pipe(filter(res => !!res))
-        .subscribe(() => {
-          this.router.navigate(['shop/bundles']);
-        });
+    const subscription = this.bundleService.create(bundle)
+      .pipe(filter(res => !!res))
+      .subscribe(() => {
+        this.router.navigate(['shop/bundles']);
+      });
+    this.subscription.add(subscription);
+    return subscription;
   }
   
   updateBundle(bundle: BundleDto): Subscription {
@@ -99,18 +103,23 @@ export class BundleValuesComponent implements OnInit, OnDestroy {
       return this.createBundle(bundle);
     }
     
-    return this.subscription = 
-      this.bundleService.update(bundle, this.bundle.id)
-        .pipe(filter(res => !!res))
-        .subscribe(() => {
-          this.router.navigate(['/admin/bundles/sales']);
-        });
+    const subscription = this.bundleService.update(bundle, this.bundle.id)
+      .pipe(filter(res => !!res))
+      .subscribe(() => {
+        this.router.navigate(['/admin/bundles/sales']);
+      });
+    this.subscription.add(subscription);
+    return subscription;
   }
 
-  deleteBundle(id: string) {
-    return this.subscription = this.bundleService.delete(id).subscribe(() => {
-      this.router.navigate(['/admin/bundles/sales'])
-    })
+  deleteBundle(id: string): Subscription {
+    const subscription = this.bundleService.delete(id)
+      .pipe(filter(res => !!res))
+      .subscribe(() => {
+        this.router.navigate(['/admin/bundles/sales'])
+      });
+    this.subscription.add(subscription);
+    return subscription;
   }
 
   ngOnDestroy(): void {

@@ -3,7 +3,7 @@
     <h2>Commande #{{orderTickets.orderId}}</h2>
     <p>Tickets</p>
     <div class="tickets-grid">
-      @for (ticket of orderTickets.tickets; track ticket) {
+      @for (ticket of orderTickets.tickets; track ticket.qrCode) {
         <div class="ticket">
           <img src="{{ticket.qrCode}}" alt="Qr Code" />
         </div>

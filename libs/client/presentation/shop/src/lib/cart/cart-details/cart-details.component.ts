@@ -26,6 +26,9 @@ export class CartDetailsComponent implements OnDestroy, OnInit {
   private destroy$ = new Subject<void>();
   private statusChecked$: Observable<boolean>;
   cart: Cart;
+  // computed when the cart changes rather than on every change detection
+  totalPrice = 0;
+  checkoutDisabled = false;
 
   constructor(
     private cartService: CartService,
@@ -55,6 +58,7 @@ export class CartDetailsComponent implements OnDestroy, OnInit {
       )
       .subscribe((cart: Cart) => {
         this.cart = cart;
+        this.updateSummary();
         this.cdr.markForCheck();
       });
   }
@@ -64,26 +68,13 @@ export class CartDetailsComponent implements OnDestroy, OnInit {
     this.destroy$.complete();
   }
 
-  totalPrice() {
-    return this.cart.bundles.reduce((acc: number, bundle: IItemJunctionModel) => {
-      return acc + bundle.quantity * bundle.price;
-    }, 0);
-  }
-
   createOrder() { 
     if (!this.authService.isAuth()) {
-      this.router.navigate(['auth/login']);
+      this.router.navigate(['auth/login'], { queryParams: { returnUrl: '/shop/cart' } });
       return;
     }      
     // the amount to pay is computed by the server
     this.router.navigate(['shop/checkout']);
-  }
-
-  checkoutDisabled(): boolean {
-    if (this.cart && this.cart.bundles.length < 1) {
-      return true;
-    }
-    return false;
   }
 
   onQuantityChange(bundleId: string, newQuantity: number) {
@@ -96,9 +87,16 @@ export class CartDetailsComponent implements OnDestroy, OnInit {
       } else {
         this.cart.bundles[index].quantity = newQuantity;
       }
+      this.updateSummary();
     }
     this.cdr.markForCheck();
   }
 
-
+  private updateSummary(): void {
+    const bundles = this.cart?.bundles ?? [];
+    this.totalPrice = bundles.reduce((acc: number, bundle: IItemJunctionModel) => {
+      return acc + bundle.quantity * bundle.price;
+    }, 0);
+    this.checkoutDisabled = !!this.cart && bundles.length < 1;
+  }
 }

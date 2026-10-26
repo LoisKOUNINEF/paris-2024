@@ -141,6 +141,16 @@ describe('BundleValuesComponent', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/admin/bundles/sales']);
     }));
 
+    it('should stay on the page when the delete fails', fakeAsync(() => {
+      bundleService.delete.mockReturnValue(of(null));
+      createComponent('bundle-1');
+      tick();
+
+      component.deleteBundle('bundle-1');
+
+      expect(router.navigate).not.toHaveBeenCalledWith(['/admin/bundles/sales']);
+    }));
+
     it('should fall back to the create page when the bundle cannot be loaded', () => {
       bundleService.findOneById.mockReturnValue(throwError(() => new Error('not found')));
 

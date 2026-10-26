@@ -28,13 +28,13 @@
 			<tr class="total">
 				<td colspan="2">Montant total</td>
 				<td>
-					{{ totalPrice() | formatPrice | currency:'symbol':'€':'1.2-2' }}
+					{{ totalPrice | formatPrice | currency:'symbol':'€':'1.2-2' }}
 				</td>
 				<td>
 					<button 
 						class="checkout-btn"
 						(click)=createOrder()
-						[disabled]="checkoutDisabled()"
+						[disabled]="checkoutDisabled"
 					>
 						Passer au paiement
 					</button>

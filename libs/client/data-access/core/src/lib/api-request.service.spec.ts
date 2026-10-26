@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { ApiRequestService } from './api-request.service';
+import { API_URL, ApiRequestService } from './api-request.service';
 
 describe('ApiRequestService', () => {
   let service: ApiRequestService;
@@ -36,17 +35,15 @@ describe('ApiRequestService', () => {
       req.flush(mockResponse);
     });
 
-    it('should target the local API in development', () => {
-      const previousEnv = process.env['NODE_ENV'];
-      process.env['NODE_ENV'] = 'development';
-      try {
-        const devService = TestBed.runInInjectionContext(
-          () => new ApiRequestService(TestBed.inject(HttpClient))
-        );
-        devService.get(mockPath).subscribe();
-      } finally {
-        process.env['NODE_ENV'] = previousEnv;
-      }
+    it('should target the API url provided by the app', () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [HttpClientTestingModule],
+        providers: [{ provide: API_URL, useValue: 'http://localhost:8080/api' }],
+      });
+      httpMock = TestBed.inject(HttpTestingController);
+
+      TestBed.inject(ApiRequestService).get(mockPath).subscribe();
 
       httpMock.expectOne(`http://localhost:8080/api${mockPath}`).flush(mockResponse);
     });
