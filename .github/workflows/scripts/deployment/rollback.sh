@@ -30,7 +30,7 @@ deploy_previous() {
 
   mv prev-"$STACK_NAME".yml "$STACK_NAME".yml
 
-  docker stack deploy -c "$STACK_NAME".yml "$PROJECT_LOWER"-"$STACK_NAME"
+  docker stack deploy --with-registry-auth -c "$STACK_NAME".yml "$PROJECT_LOWER"-"$STACK_NAME"
 }
 
 rollback() {
