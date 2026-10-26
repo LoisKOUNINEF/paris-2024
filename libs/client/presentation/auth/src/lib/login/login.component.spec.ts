@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { EMPTY, of } from 'rxjs';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { GuestTokenService, SnackbarService } from '@paris-2024/client-utils';
@@ -13,6 +13,7 @@ describe('LoginComponent', () => {
   let router: jest.Mocked<Router>;
   let snackbarService: jest.Mocked<SnackbarService>;
   let guestTokenService: jest.Mocked<GuestTokenService>;
+  let route: { snapshot: { queryParamMap: ReturnType<typeof convertToParamMap> } };
 
   const userFormValue = { email: 'test@test.com', password: 'Password123#' };
 
@@ -24,7 +25,10 @@ describe('LoginComponent', () => {
 
     router = {
       navigate: jest.fn(),
+      navigateByUrl: jest.fn(),
     } as unknown as jest.Mocked<Router>;
+
+    route = { snapshot: { queryParamMap: convertToParamMap({}) } };
 
     snackbarService = {
       showSuccess: jest.fn().mockReturnValue({ afterDismissed: () => of(undefined) }),
@@ -39,6 +43,7 @@ describe('LoginComponent', () => {
       providers: [
         { provide: AuthService, useValue: authService },
         { provide: Router, useValue: router },
+        { provide: ActivatedRoute, useValue: route },
         { provide: SnackbarService, useValue: snackbarService },
         { provide: GuestTokenService, useValue: guestTokenService },
       ],
@@ -66,6 +71,25 @@ describe('LoginComponent', () => {
       component.login(userFormValue);
 
       expect(router.navigate).toHaveBeenCalledWith(['/admin']);
+    });
+
+    it('should go back to the returnUrl set by a guard', () => {
+      authService.isAdmin.mockReturnValue(true);
+      route.snapshot.queryParamMap = convertToParamMap({ returnUrl: '/shop/checkout' });
+
+      component.login(userFormValue);
+
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/shop/checkout');
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should ignore a returnUrl pointing outside the app', () => {
+      route.snapshot.queryParamMap = convertToParamMap({ returnUrl: '//evil.com' });
+
+      component.login(userFormValue);
+
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledWith(['shop']);
     });
 
     it('should stay on the page when the login fails', () => {

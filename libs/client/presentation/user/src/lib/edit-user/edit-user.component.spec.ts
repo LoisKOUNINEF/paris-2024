@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { User, UserDto, UserService } from '@paris-2024/client-data-access-user';
 import { AuthService } from '@paris-2024/client-data-access-auth';
-import { SnackbarService } from '@paris-2024/client-utils';
+import { PlatformService, SnackbarService } from '@paris-2024/client-utils';
 import { EditUserComponent } from './edit-user.component';
 
 describe('EditUserComponent', () => {
@@ -13,10 +13,12 @@ describe('EditUserComponent', () => {
   let authService: jest.Mocked<AuthService>;
   let router: jest.Mocked<Router>;
   let snackbarService: jest.Mocked<SnackbarService>;
+  let platformService: { isBrowser: boolean };
 
   const currentUser = { id: 'user-1', email: 'test@test.com', firstName: 'Loïs', lastName: 'Test' } as User;
 
   beforeEach(async () => {
+    platformService = { isBrowser: true };
     userService = {
       findCurrentUser: jest.fn().mockReturnValue(of(currentUser)),
       update: jest.fn().mockReturnValue(of(currentUser)),
@@ -42,6 +44,7 @@ describe('EditUserComponent', () => {
         { provide: AuthService, useValue: authService },
         { provide: Router, useValue: router },
         { provide: SnackbarService, useValue: snackbarService },
+        { provide: PlatformService, useValue: platformService },
       ],
     })
     .overrideComponent(EditUserComponent, { set: { imports: [], template: '' } })
@@ -55,6 +58,15 @@ describe('EditUserComponent', () => {
   it('should load the current user', () => {
     expect(userService.findCurrentUser).toHaveBeenCalled();
     expect(component.user).toEqual(currentUser);
+  });
+
+  it('should not load the current user on the server', () => {
+    userService.findCurrentUser.mockClear();
+    platformService.isBrowser = false;
+
+    TestBed.createComponent(EditUserComponent).detectChanges();
+
+    expect(userService.findCurrentUser).not.toHaveBeenCalled();
   });
 
   describe('editInfos', () => {

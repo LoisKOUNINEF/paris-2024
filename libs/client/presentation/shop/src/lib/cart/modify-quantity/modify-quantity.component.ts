@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Cart, CartDto, CartFormValue, CartService } from '@paris-2024/client-data-access-cart';
 import { SnackbarService } from '@paris-2024/client-utils';
 import { Subscription } from 'rxjs';
@@ -27,7 +27,10 @@ export class ModifyQuantityComponent implements OnInit, OnDestroy {
     ) {}
 
   ngOnInit() {
-    this.quantityControl = new FormControl(this.quantity);
+    this.quantityControl = new FormControl(this.quantity, [
+      Validators.min(this.MIN_QUANTITY),
+      Validators.max(this.MAX_QUANTITY),
+    ]);
   }
 
   ngOnDestroy(): void {
@@ -37,23 +40,24 @@ export class ModifyQuantityComponent implements OnInit, OnDestroy {
   }
 
   updateQuantity(): void  {
+    if (this.quantityControl.invalid) return;
+    // an emptied input counts as 1, both for the server and the cart display
+    const quantity: number = this.quantityControl.value ?? 1;
     const dto: CartDto = {
-      quantity: this.quantityControl.value ?? 1,
+      quantity,
       bundleId: this.bundleId,
     };
 
     const cartDto = new CartDto(dto as CartFormValue);
 
-    this.subscription = this.cartService.updateQuantity(cartDto).subscribe({
-      next: (res: Cart) => {
-        if (!res) {
-          this.snackbarService.showError('Échec de la mise à jour.');
-          return;
-        }
-        this.quantityChanged.emit(this.quantityControl.value)
-        this.snackbarService.showInfo('Quantité mise à jour.');
-      },
-      error: () => this.snackbarService.showError('Échec de la mise à jour.')
+    // ApiRequestService maps http errors to null
+    this.subscription = this.cartService.updateQuantity(cartDto).subscribe((res: Cart) => {
+      if (!res) {
+        this.snackbarService.showError('Échec de la mise à jour.');
+        return;
+      }
+      this.quantityChanged.emit(quantity)
+      this.snackbarService.showInfo('Quantité mise à jour.');
     });
   }
 
@@ -72,10 +76,7 @@ export class ModifyQuantityComponent implements OnInit, OnDestroy {
   }
 
   isButtonDisabled(): boolean {
-    if (this.quantityControl.value && this.quantityControl.value !== this.quantity) {
-      return false;
-    }
-    return true;
+    return this.quantityControl.invalid || this.quantityControl.value === this.quantity;
   }
 
   isRemoveButton(): boolean {

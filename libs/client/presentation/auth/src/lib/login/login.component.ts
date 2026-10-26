@@ -1,5 +1,5 @@
 import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LoginFormComponent } from '@paris-2024/client-ui-forms';
 import { Subscription } from 'rxjs';
 import { UserDto, UserFormValue, User } from '@paris-2024/client-data-access-user';
@@ -19,6 +19,7 @@ export class LoginComponent implements OnDestroy {
   constructor(
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private snackbarService: SnackbarService,
     private guestTokenService: GuestTokenService,
   ) { }
@@ -33,9 +34,13 @@ export class LoginComponent implements OnDestroy {
     return this.subscription = this.authService.login(user)
       .subscribe((res: User) => {
         this.guestTokenService.clearGuestToken();
-        this.snackbarService.showSuccess('Vous êtes connecté.').afterDismissed();
+        this.snackbarService.showSuccess('Vous êtes connecté.');
         
-        if (this.authService.isAdmin()) {
+        // set by the route guards, only follow app-relative urls
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        if (returnUrl?.startsWith('/') && !returnUrl.startsWith('//')) {
+          this.router.navigateByUrl(returnUrl);
+        } else if (this.authService.isAdmin()) {
           this.router.navigate(['/admin']);
         } else {
           this.router.navigate(['shop']);

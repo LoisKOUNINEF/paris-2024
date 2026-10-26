@@ -14,7 +14,7 @@ describe('PaymentComponent', () => {
   let orderService: jest.Mocked<OrderService>;
   let router: jest.Mocked<Router>;
   let platformService: { isBrowser: boolean };
-  let card: { update: jest.Mock; mount: jest.Mock };
+  let card: { update: jest.Mock; mount: jest.Mock; destroy: jest.Mock };
   let elements: { create: jest.Mock };
 
   const createComponent = () => {
@@ -27,7 +27,7 @@ describe('PaymentComponent', () => {
 
   beforeEach(async () => {
     platformService = { isBrowser: true };
-    card = { update: jest.fn(), mount: jest.fn() };
+    card = { update: jest.fn(), mount: jest.fn(), destroy: jest.fn() };
     elements = { create: jest.fn().mockReturnValue(card) };
 
     stripeService = {
@@ -91,20 +91,24 @@ describe('PaymentComponent', () => {
       expect(button().disabled).toBe(false);
     });
 
-    it('should keep the pay button disabled while there is no payment intent', () => {
+    // ApiRequestService maps http errors (e.g. an empty cart) to null
+    it('should show an error, keep the button disabled and go back to the cart without a payment intent', () => {
       orderService.createPaymentIntent.mockReturnValue(of(null as never));
       createComponent();
 
       expect(component.error).toBe('Failed to create payment intent. Please try again.');
       expect(button().disabled).toBe(true);
+      expect(router.navigate).toHaveBeenCalledWith(['/shop/cart']);
     });
+  });
 
-    it('should show an error and go back to the cart when the request errors', () => {
-      orderService.createPaymentIntent.mockReturnValue(throwError(() => new Error('cart is empty')));
+  describe('ngOnDestroy', () => {
+    it('should destroy the Stripe card element', () => {
       createComponent();
 
-      expect(component.error).toBe('Failed to create payment intent. Please try again.');
-      expect(router.navigate).toHaveBeenCalledWith(['/shop/cart']);
+      fixture.destroy();
+
+      expect(card.destroy).toHaveBeenCalled();
     });
   });
 
@@ -113,6 +117,14 @@ describe('PaymentComponent', () => {
 
     it('should do nothing without a payment intent', () => {
       component.clientSecret = null;
+
+      component.confirmPayment();
+
+      expect(stripeService.confirmCardPayment).not.toHaveBeenCalled();
+    });
+
+    it('should do nothing before the card element is mounted', () => {
+      component.card = undefined as never;
 
       component.confirmPayment();
 
@@ -202,15 +214,6 @@ describe('PaymentComponent', () => {
 
     it('should show an error and stay on the page when the order is not created', () => {
       orderService.newOrder.mockReturnValue(of(null as unknown as Order));
-
-      component.completeCheckout('pi_1');
-
-      expect(router.navigate).not.toHaveBeenCalled();
-      expect(component.error).toBe('Failed to complete checkout. Please try again.');
-    });
-
-    it('should show an error when the server rejects the order', () => {
-      orderService.newOrder.mockReturnValue(throwError(() => new Error('invalid payment')));
 
       component.completeCheckout('pi_1');
 

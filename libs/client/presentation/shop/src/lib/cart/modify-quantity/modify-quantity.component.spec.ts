@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { Cart, CartService } from '@paris-2024/client-data-access-cart';
 import { SnackbarService } from '@paris-2024/client-utils';
 import { ModifyQuantityComponent } from './modify-quantity.component';
@@ -76,6 +76,16 @@ describe('ModifyQuantityComponent', () => {
       expect(component.isButtonDisabled()).toBe(false);
     });
 
+    it('should enable the update button to remove the bundle at zero', () => {
+      component.quantityControl.setValue(0);
+      expect(component.isButtonDisabled()).toBe(false);
+    });
+
+    it('should disable the update button above the maximum', () => {
+      component.quantityControl.setValue(component.MAX_QUANTITY + 1);
+      expect(component.isButtonDisabled()).toBe(true);
+    });
+
     it('should switch to a remove button at zero', () => {
       expect(component.isRemoveButton()).toBe(false);
 
@@ -122,13 +132,25 @@ describe('ModifyQuantityComponent', () => {
       expect(snackbarService.showError).toHaveBeenCalledWith('Échec de la mise à jour.');
     });
 
-    it('should show an error when the request errors', () => {
-      cartService.updateQuantity.mockReturnValue(throwError(() => new Error('fail')));
-      component.quantityControl.setValue(5);
+    it('should send and emit 1 when the input is emptied', () => {
+      cartService.updateQuantity.mockReturnValue(of({ bundles: [] } as unknown as Cart));
+      const emitSpy = jest.spyOn(component.quantityChanged, 'emit');
+      component.quantityControl.setValue(null);
 
       component.updateQuantity();
 
-      expect(snackbarService.showError).toHaveBeenCalledWith('Échec de la mise à jour.');
+      expect(cartService.updateQuantity).toHaveBeenCalledWith(
+        expect.objectContaining({ quantity: 1 })
+      );
+      expect(emitSpy).toHaveBeenCalledWith(1);
+    });
+
+    it('should not send a quantity above the maximum', () => {
+      component.quantityControl.setValue(component.MAX_QUANTITY + 1);
+
+      component.updateQuantity();
+
+      expect(cartService.updateQuantity).not.toHaveBeenCalled();
     });
   });
 });

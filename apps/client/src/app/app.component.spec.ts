@@ -61,10 +61,17 @@ describe('AppComponent', () => {
       expect(component.loading).toBe(false);
     });
 
-    it('should not check user status on the server', () => {
+    it('should scroll to top after each navigation in the browser', () => {
+      component.ngOnInit();
+      routerEvents.next(new NavigationEnd(1, '/test-url', '/test-url'));
+      expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
+    });
+
+    it('should not check user status nor listen to navigation on the server', () => {
       platformService.isBrowser = false;
       component.ngOnInit();
       expect(authService.checkUserStatus).not.toHaveBeenCalled();
+      expect(routerEvents.observed).toBe(false);
     });
   });
 
@@ -87,13 +94,13 @@ describe('AppComponent', () => {
   describe('ngOnDestroy', () => {
     it('should unsubscribe from all subscriptions', () => {
       component.ngOnInit();
-      component.recallJsFuntions();
       expect(component.subscriptions.length).toBe(2);
 
       component.ngOnDestroy();
 
       expect(component.subscriptions.every(s => s.closed)).toBe(true);
       expect(userStatus$.observed).toBe(false);
+      expect(routerEvents.observed).toBe(false);
     });
   });
 });

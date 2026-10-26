@@ -6,7 +6,7 @@
 				<th>Prix</th>
 				<th>Nombre de ventes</th>
 			</tr>
-			@for (bundleSale of bundleSales; track bundleSale) {
+			@for (bundleSale of bundleSales; track bundleSale.bundle.id) {
 				<tr>
 					<td>{{ bundleSale.bundle.name }}</td>
 					<td>

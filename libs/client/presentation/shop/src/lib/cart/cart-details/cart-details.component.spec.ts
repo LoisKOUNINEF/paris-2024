@@ -116,13 +116,13 @@ describe('CartDetailsComponent', () => {
     it('should sum price × quantity of every bundle', () => {
       createComponent(makeCart([bundle('a', 1000, 2), bundle('b', 2550, 3)]));
 
-      expect(component.totalPrice()).toBe(9650);
+      expect(component.totalPrice).toBe(9650);
     });
 
     it('should be zero for an empty cart', () => {
       createComponent(makeCart([]));
 
-      expect(component.totalPrice()).toBe(0);
+      expect(component.totalPrice).toBe(0);
     });
   });
 
@@ -130,13 +130,13 @@ describe('CartDetailsComponent', () => {
     it('should be disabled for an empty cart', () => {
       createComponent(makeCart([]));
 
-      expect(component.checkoutDisabled()).toBe(true);
+      expect(component.checkoutDisabled).toBe(true);
     });
 
     it('should be enabled when the cart has bundles', () => {
       createComponent(makeCart([bundle('a', 1000, 1)]));
 
-      expect(component.checkoutDisabled()).toBe(false);
+      expect(component.checkoutDisabled).toBe(false);
     });
   });
 
@@ -146,7 +146,7 @@ describe('CartDetailsComponent', () => {
 
       component.createOrder();
 
-      expect(router.navigate).toHaveBeenCalledWith(['auth/login']);
+      expect(router.navigate).toHaveBeenCalledWith(['auth/login'], { queryParams: { returnUrl: '/shop/cart' } });
       expect(router.navigate).toHaveBeenCalledTimes(1);
     });
 
@@ -179,13 +179,21 @@ describe('CartDetailsComponent', () => {
       component.onQuantityChange('b', 4);
 
       expect(component.cart.bundles.find(b => b.id === 'b')?.quantity).toBe(4);
-      expect(component.totalPrice()).toBe(3000);
+      expect(component.totalPrice).toBe(3000);
     });
 
     it('should remove the bundle when the quantity is zero', () => {
       component.onQuantityChange('a', 0);
 
       expect(component.cart.bundles.map(b => b.id)).toEqual(['b']);
+      expect(component.totalPrice).toBe(1000);
+    });
+
+    it('should disable the checkout once the last bundle is removed', () => {
+      component.onQuantityChange('a', 0);
+      component.onQuantityChange('b', 0);
+
+      expect(component.checkoutDisabled).toBe(true);
     });
 
     it('should ignore unknown bundles', () => {

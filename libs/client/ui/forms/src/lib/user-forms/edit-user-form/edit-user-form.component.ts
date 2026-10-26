@@ -27,10 +27,10 @@ export class EditUserFormComponent implements OnInit {
 
   ngOnInit(): void { 
     this.editUserForm = this.formBuilder.group({
-      email: this.formBuilder.group({...this.user}, 
+      email: this.formBuilder.group({}, 
         { validators: Validators.required }
       ),
-      userInfos: this.formBuilder.group({...this.user}, 
+      userInfos: this.formBuilder.group({}, 
         { validators: Validators.required }
       ),
       currentPassword: this.formBuilder.group({}),
@@ -55,13 +55,18 @@ export class EditUserFormComponent implements OnInit {
     return userDtoValues;
   }
 
+  // the child blocks add their controls (with validators) on their own init, patch once they exist
   private populateFields() {
-    if(this.user) {
-      this.editUserForm.patchValue({
-        email: this.user.email,
-        firstName: this.user.firstName,
-        lastName: this.user.lastName,
-      })
-    }
+    queueMicrotask(() => {
+      if(this.user) {
+        this.editUserForm.patchValue({
+          email: { email: this.user.email },
+          userInfos: {
+            firstName: this.user.firstName,
+            lastName: this.user.lastName,
+          },
+        })
+      }
+    });
   }
 }

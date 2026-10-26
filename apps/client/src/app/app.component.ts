@@ -38,6 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (this.platformService.isBrowser) {
       this.checkUserStatus();
+      this.recallJsFuntions();
     }
   }
 

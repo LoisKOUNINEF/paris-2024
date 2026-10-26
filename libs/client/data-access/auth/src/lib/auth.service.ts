@@ -45,6 +45,9 @@ export class AuthService {
         if(response.user.role === 'admin') {
           this.isAdmin.set(true);
         }
+        if(response.user.role === 'staff' || response.user.role === 'admin') {
+          this.isStaff.set(true);
+        }
         this.isAuth.set(true);
         this.statusChecked.set(true);
         return response;

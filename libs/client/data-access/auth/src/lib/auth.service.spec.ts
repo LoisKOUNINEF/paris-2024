@@ -78,7 +78,22 @@ describe('AuthService', () => {
       service.login(mockUserDto).subscribe();
 
       expect(service.isAuth()).toBe(true);
+      expect(service.isStaff()).toBe(false);
       expect(service.isAdmin()).toBe(false);
+    });
+
+    it('should set isStaff for a staff member and an admin', () => {
+      apiRequestServiceMock.post.mockReturnValue(of(loginResponse('staff')));
+      service.login(mockUserDto).subscribe();
+
+      expect(service.isStaff()).toBe(true);
+      expect(service.isAdmin()).toBe(false);
+
+      service.isStaff.set(false);
+      apiRequestServiceMock.post.mockReturnValue(of(loginResponse('admin')));
+      service.login(mockUserDto).subscribe();
+
+      expect(service.isStaff()).toBe(true);
     });
 
     it('should not emit nor authenticate when login fails', () => {

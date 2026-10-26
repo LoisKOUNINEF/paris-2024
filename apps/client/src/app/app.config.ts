@@ -9,6 +9,8 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import localeFr from '@angular/common/locales/fr';
 import { registerLocaleData } from '@angular/common';
 import { provideNgxStripe } from 'ngx-stripe';
+import { API_URL } from '@paris-2024/client-data-access-core';
+import { environment } from '../environments/environment';
 registerLocaleData(localeFr);
 
 const STRIPE_PUBLIC = 'pk_test_51RGkDRFbzLUVwZpTJzmYSedGqjGowEpNrejVRIt5tWwYTJOEkWKbugiIs8nWrjnaGFTEBCaSlPIsCeXwn8UOE4DQ00DbLPhpew';
@@ -24,6 +26,10 @@ export const appConfig: ApplicationConfig = {
     ),
     provideAnimations(),
     provideNgxStripe(STRIPE_PUBLIC), 
+    {
+      provide: API_URL,
+      useValue: environment.apiUrl
+    },
     {
       provide: LOCALE_ID, 
       useValue: "fr-FR" 

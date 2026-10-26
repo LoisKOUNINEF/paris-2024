@@ -8,7 +8,7 @@ export const staffRoutes: Routes = [
 			{
 				path: '',
 				pathMatch: 'full',
-				redirectTo: 'ticket-validity'
+				redirectTo: '/'
 			},
 			{
 				path: 'ticket-validity/:qrCode', 

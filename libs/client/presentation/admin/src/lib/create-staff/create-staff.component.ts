@@ -31,8 +31,7 @@ export class CreateStaffComponent {
     return this.subscription = this.userService.createStaffUser(user)
       .pipe(filter(res => !!res))
       .subscribe((res: User) => {
-        this.snackbarService.showSuccess('Membre du staff ajouté.')
-          .afterDismissed()
+        this.snackbarService.showSuccess('Membre du staff ajouté.');
         this.router.navigate(['/admin']);
     })
   }
