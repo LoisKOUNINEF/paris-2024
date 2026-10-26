@@ -6,7 +6,7 @@ import { TicketService } from '@paris-2024/server-business-logic-ticket';
 import { UserService } from '@paris-2024/server-business-logic-user';
 import { ItemJunctionRepository } from '@paris-2024/server-data-access-item-junction';
 import { Order, OrderRepository } from '@paris-2024/server-data-access-order';
-import { Ticket, TicketDto } from '@paris-2024/server-data-access-ticket';
+import { Ticket } from '@paris-2024/server-data-access-ticket';
 import { User } from '@paris-2024/server-data-access-user';
 import { ICartModel, IItemJunctionModel, IOrderTickets, IPaymentIntent } from '@paris-2024/shared-interfaces';
 import { DataSource, EntityManager, QueryFailedError } from 'typeorm';
@@ -128,7 +128,7 @@ export class OrderService {
       throw new NotFoundException('no cart or no user')
     }
 
-    const junctionItems = await this.junctionRepository.getManyByRelationshipId('cart', cart.id);
+    const junctionItems = cart.bundles;
 
     return {
       cart,
@@ -147,10 +147,13 @@ export class OrderService {
       paymentIntentId,
     };
 
-    const junctionIds = junctionItems.reduce((acc: Array<string>, junction: IItemJunctionModel) => {
-      acc.push(junction.junction);
-      return acc;
-    }, []);
+    const junctionIds = junctionItems.map((junction: IItemJunctionModel) => junction.junction);
+
+    // qr code generation is slow: keep it out of the transaction
+    const preparedTickets = await this.ticketService.prepareTickets(
+      { userId: user.id, userSecret: user.secretKey },
+      ticketAmount,
+    );
 
     let result: { newOrder: Order, tickets: Array<Ticket> };
     try {
@@ -162,12 +165,7 @@ export class OrderService {
           throw new ConflictException('cart items were already ordered');
         }
 
-        const ticketDto = {
-          userId: user.id,
-          orderId: newOrder.id,
-          userSecret: user.secretKey
-        };
-        const tickets = await this.generateTickets(ticketAmount, ticketDto, manager);
+        const tickets = await this.ticketService.saveTickets(preparedTickets, newOrder.id, manager);
 
         return { newOrder, tickets };
       });
@@ -175,6 +173,10 @@ export class OrderService {
       // a concurrent request already created the order for this payment
       if (error instanceof QueryFailedError && (error.driverError as { code?: string })?.code === UNIQUE_VIOLATION) {
         throw new ConflictException('payment was already used for an order');
+      }
+      // another payment ordered the same cart items first: this payment bought nothing
+      if (error instanceof ConflictException) {
+        await this.refund(paymentIntentId);
       }
       throw error;
     }
@@ -196,20 +198,6 @@ export class OrderService {
       this.logger.error(`Failed to send tickets of order ${newOrder.id}`, error);
     }
     return newOrder;
-  }
-
-  private async generateTickets(
-    ticketAmount: number,
-    ticketDto: Pick<TicketDto, 'userId' | 'userSecret' | 'orderId'>,
-    manager: EntityManager,
-  ): Promise<Array<Ticket>> {
-    const tickets: Array<Ticket> = [];
-
-    for (let i = 0; i < ticketAmount; i++) {
-      const ticket = await this.ticketService.createTicket(ticketDto, manager);
-      if (ticket) tickets.push(ticket);
-    }
-    return tickets;
   }
 
   private computeTotalTicketAmount(itemJunctions: Array<IItemJunctionModel>): number {

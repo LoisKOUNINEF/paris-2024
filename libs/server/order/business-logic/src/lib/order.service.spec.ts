@@ -28,7 +28,8 @@ describe('OrderService', () => {
   };
 
   const mockTicketService = {
-    createTicket: jest.fn(),
+    prepareTickets: jest.fn(),
+    saveTickets: jest.fn(),
   };
 
   const mockJunctionRepository = {
@@ -63,13 +64,14 @@ describe('OrderService', () => {
     secretKey: 'user-secret',
   };
 
-  const mockCart = { id: 'cart-1', userId: 'user-1', bundles: [] };
 
   // total: 3 * 50 + 2 * 150 = 450 cents, tickets: 3 * 1 + 2 * 4 = 11
   const mockJunctions: Array<IItemJunctionModel> = [
     { junction: 'junction-1', id: 'bundle-1', name: 'Solo', amount: 1, price: 50, quantity: 3 },
     { junction: 'junction-2', id: 'bundle-2', name: 'Family', amount: 4, price: 150, quantity: 2 },
   ];
+
+  const cartWith = (bundles: Array<IItemJunctionModel>) => ({ id: 'cart-1', userId: 'user-1', bundles });
 
   const mockOrder = { id: 'order-1', userId: 'user-1', totalPrice: 450, paymentIntentId: 'pi_1' };
 
@@ -101,9 +103,8 @@ describe('OrderService', () => {
 
     service = module.get<OrderService>(OrderService);
 
-    mockCartService.getCartWithBundles.mockResolvedValue(mockCart);
+    mockCartService.getCartWithBundles.mockResolvedValue(cartWith(mockJunctions));
     mockUserService.getUserWithSecret.mockResolvedValue(mockUser);
-    mockJunctionRepository.getManyByRelationshipId.mockResolvedValue(mockJunctions);
     mockOrderRepository.findByPaymentIntentId.mockResolvedValue(null);
     mockOrderRepository.create.mockResolvedValue(mockOrder);
     mockStripeService.retrievePaymentIntent.mockResolvedValue(succeededPayment);
@@ -112,9 +113,12 @@ describe('OrderService', () => {
     mockJunctionRepository.switchRelationship.mockImplementation(async (ids: Array<string>) =>
       ids.map((id) => ({ id })),
     );
-    mockTicketService.createTicket.mockImplementation(async () => ({
-      qrCode: `qr-${mockTicketService.createTicket.mock.calls.length}`,
-    }));
+    mockTicketService.prepareTickets.mockImplementation(async (_dto, amount: number) =>
+      Array.from({ length: amount }, (_, i) => ({ qrCode: `qr-${i + 1}` })),
+    );
+    mockTicketService.saveTickets.mockImplementation(async (tickets: Array<object>, orderId: string) =>
+      tickets.map((ticket) => ({ ...ticket, orderId })),
+    );
   });
 
   afterEach(() => {
@@ -135,7 +139,7 @@ describe('OrderService', () => {
     });
 
     it('should throw if cart is empty', async () => {
-      mockJunctionRepository.getManyByRelationshipId.mockResolvedValue([]);
+      mockCartService.getCartWithBundles.mockResolvedValue(cartWith([]));
 
       await expect(service.preparePayment('user-1')).rejects.toThrow(BadRequestException);
       expect(mockStripeService.createPaymentIntent).not.toHaveBeenCalled();
@@ -192,7 +196,7 @@ describe('OrderService', () => {
       });
 
       it('should refund and reject when cart was emptied after payment', async () => {
-        mockJunctionRepository.getManyByRelationshipId.mockResolvedValue([]);
+        mockCartService.getCartWithBundles.mockResolvedValue(cartWith([]));
 
         await expect(service.create('user-1', 'pi_1')).rejects.toThrow(ConflictException);
         expect(mockStripeService.refund).toHaveBeenCalledWith('pi_1');
@@ -237,11 +241,11 @@ describe('OrderService', () => {
       expect(mockOrderRepository.create).not.toHaveBeenCalled();
     });
 
-    it('should read junctions of the user cart', async () => {
+    it('should read junctions of the user cart only once', async () => {
       await service.create('user-1', 'pi_1');
 
       expect(mockCartService.getCartWithBundles).toHaveBeenCalledWith({ userId: 'user-1' });
-      expect(mockJunctionRepository.getManyByRelationshipId).toHaveBeenCalledWith('cart', 'cart-1');
+      expect(mockJunctionRepository.getManyByRelationshipId).not.toHaveBeenCalled();
     });
 
     it('should create order with cart total and payment intent', async () => {
@@ -266,16 +270,24 @@ describe('OrderService', () => {
     it('should create one ticket per seat with user secret', async () => {
       await service.create('user-1', 'pi_1');
 
-      expect(mockTicketService.createTicket).toHaveBeenCalledTimes(11);
-      expect(mockTicketService.createTicket).toHaveBeenCalledWith({
-        userId: 'user-1',
-        orderId: 'order-1',
-        userSecret: 'user-secret',
-      }, mockManager);
+      expect(mockTicketService.prepareTickets).toHaveBeenCalledWith(
+        { userId: 'user-1', userSecret: 'user-secret' },
+        11,
+      );
+      const [savedTickets, orderId] = mockTicketService.saveTickets.mock.calls[0];
+      expect(savedTickets).toHaveLength(11);
+      expect(orderId).toBe('order-1');
+    });
+
+    it('should generate qr codes before opening the transaction', async () => {
+      await service.create('user-1', 'pi_1');
+
+      expect(mockTicketService.prepareTickets.mock.invocationCallOrder[0])
+        .toBeLessThan(mockDataSource.transaction.mock.invocationCallOrder[0]);
     });
 
     it('should send tickets by email and return the order', async () => {
-      mockJunctionRepository.getManyByRelationshipId.mockResolvedValue([mockJunctions[0]]);
+      mockCartService.getCartWithBundles.mockResolvedValue(cartWith([mockJunctions[0]]));
       mockStripeService.retrievePaymentIntent.mockResolvedValue({ ...succeededPayment, amount_received: 150 });
 
       const result = await service.create('user-1', 'pi_1');
@@ -288,21 +300,6 @@ describe('OrderService', () => {
       });
       expect(result).toBe(mockOrder);
     });
-
-    it('should skip tickets that failed to generate', async () => {
-      mockJunctionRepository.getManyByRelationshipId.mockResolvedValue([mockJunctions[0]]);
-      mockStripeService.retrievePaymentIntent.mockResolvedValue({ ...succeededPayment, amount_received: 150 });
-      mockTicketService.createTicket
-        .mockResolvedValueOnce({ qrCode: 'qr-1' })
-        .mockResolvedValueOnce(undefined)
-        .mockResolvedValueOnce({ qrCode: 'qr-3' });
-
-      await service.create('user-1', 'pi_1');
-
-      expect(mockOnOrderMailer.sendTickets).toHaveBeenCalledWith(
-        expect.objectContaining({ qrCodes: ['qr-1', 'qr-3'] }),
-      );
-    });
   });
 
   describe('create transaction', () => {
@@ -312,11 +309,11 @@ describe('OrderService', () => {
       expect(mockDataSource.transaction).toHaveBeenCalledTimes(1);
       expect(mockOrderRepository.create).toHaveBeenCalledWith(expect.anything(), mockManager);
       expect(mockJunctionRepository.switchRelationship).toHaveBeenCalledWith(expect.anything(), 'order-1', mockManager);
-      expect(mockTicketService.createTicket).toHaveBeenCalledWith(expect.anything(), mockManager);
+      expect(mockTicketService.saveTickets).toHaveBeenCalledWith(expect.anything(), 'order-1', mockManager);
     });
 
     it('should fail and not send tickets when a ticket cannot be created', async () => {
-      mockTicketService.createTicket.mockRejectedValue(new Error('Failed to generate QR code.'));
+      mockTicketService.prepareTickets.mockRejectedValue(new Error('Failed to generate QR code.'));
 
       await expect(service.create('user-1', 'pi_1')).rejects.toThrow('Failed to generate QR code.');
       expect(mockOnOrderMailer.sendTickets).not.toHaveBeenCalled();
@@ -326,8 +323,15 @@ describe('OrderService', () => {
       mockJunctionRepository.switchRelationship.mockResolvedValue([{ id: 'junction-1' }]);
 
       await expect(service.create('user-1', 'pi_1')).rejects.toThrow(ConflictException);
-      expect(mockTicketService.createTicket).not.toHaveBeenCalled();
+      expect(mockTicketService.saveTickets).not.toHaveBeenCalled();
       expect(mockOnOrderMailer.sendTickets).not.toHaveBeenCalled();
+    });
+
+    it('should refund the payment when another order already took the cart items', async () => {
+      mockJunctionRepository.switchRelationship.mockResolvedValue([{ id: 'junction-1' }]);
+
+      await expect(service.create('user-1', 'pi_1')).rejects.toThrow(ConflictException);
+      expect(mockStripeService.refund).toHaveBeenCalledWith('pi_1');
     });
 
     it('should reject when a concurrent request already used the payment', async () => {
@@ -336,6 +340,8 @@ describe('OrderService', () => {
 
       await expect(service.create('user-1', 'pi_1')).rejects.toThrow(ConflictException);
       expect(mockOnOrderMailer.sendTickets).not.toHaveBeenCalled();
+      // the payment belongs to the order created by the concurrent request
+      expect(mockStripeService.refund).not.toHaveBeenCalled();
     });
 
     it('should send tickets only once the transaction is committed', async () => {

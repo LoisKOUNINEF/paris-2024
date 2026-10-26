@@ -87,22 +87,50 @@ describe('UserController', () => {
   });
 
   describe('deleteUser', () => {
+    const requestWithLogout = (error: Error | null = null) => ({
+      logout: jest.fn((done: (err: Error | null) => void) => done(error)),
+    }) as unknown as RequestWithUser;
+
     it('should delete the current user', async () => {
-      await controller.deleteUser(currentUser, 'user-1');
+      await controller.deleteUser(currentUser, 'user-1', requestWithLogout());
 
       expect(mockUserService.delete).toHaveBeenCalledWith('user-1');
+    });
+
+    it('should log out a user who deleted their own account', async () => {
+      const req = requestWithLogout();
+
+      await controller.deleteUser(currentUser, 'user-1', req);
+
+      expect(req.logout).toHaveBeenCalled();
+      expect(mockUserService.delete.mock.invocationCallOrder[0])
+        .toBeLessThan((req.logout as jest.Mock).mock.invocationCallOrder[0]);
+    });
+
+    it('should fail if the session cannot be closed', async () => {
+      await expect(controller.deleteUser(currentUser, 'user-1', requestWithLogout(new Error('session store down'))))
+        .rejects.toThrow('session store down');
     });
 
     it('should delete the user designated by the id param', async () => {
       const admin = { id: 'admin-1', role: Roles.ADMIN };
 
-      await controller.deleteUser(admin, 'user-2');
+      await controller.deleteUser(admin, 'user-2', requestWithLogout());
 
       expect(mockUserService.delete).toHaveBeenCalledWith('user-2');
     });
 
+    it('should keep the admin logged in when deleting another user', async () => {
+      const admin = { id: 'admin-1', role: Roles.ADMIN };
+      const req = requestWithLogout();
+
+      await controller.deleteUser(admin, 'user-2', req);
+
+      expect(req.logout).not.toHaveBeenCalled();
+    });
+
     it('should throw unauthorized without user', () => {
-      expect(() => controller.deleteUser(undefined, 'user-1')).toThrow(HttpException);
+      expect(() => controller.deleteUser(undefined, 'user-1', requestWithLogout())).toThrow(HttpException);
     });
   });
 

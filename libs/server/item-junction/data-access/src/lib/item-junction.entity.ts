@@ -1,9 +1,10 @@
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, Unique } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntity } from '@paris-2024/server-base-entity';
 import { IItemJunction } from '@paris-2024/shared-interfaces';
 
 @Entity()
+@Unique('UQ_item_junction_cart_bundle', ['cartId', 'bundleId'])
 export class ItemJunction extends BaseEntity implements IItemJunction {
   @ApiProperty()
   @Column('integer', { 

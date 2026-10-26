@@ -48,7 +48,7 @@ export class UserService {
 				dto.cartId = cart.id;
 			}
 		} else {
-			const cart = await this.cartService.getCartWithBundles({guestToken});
+			const cart = await this.cartService.getGuestCart(guestToken);
 			if (cart) {
 				dto.cartId = cart.id;
 				await this.linkCart({ userId: createdUser.id, guestToken: guestToken })

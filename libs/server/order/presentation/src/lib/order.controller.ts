@@ -1,7 +1,7 @@
 import { Body, Controller, Get, UseGuards, Request, HttpException, HttpStatus, Post } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { OrderService } from "@paris-2024/server-business-logic-order";
-import { Admin, AuthenticatedGuard, Owner, CurrentUser, CurrentEntity, OwnerGuard, OwnerCheck } from '@paris-2024/server-business-logic-guards';
+import { Admin, AuthenticatedGuard, Owner, CurrentUser, CurrentEntity, OwnerCheck } from '@paris-2024/server-business-logic-guards';
 import { NewOrderDto, Order } from "@paris-2024/server-data-access-order";
 import { RequestWithUser } from "@paris-2024/server-base-entity";
 import { IOrderTickets, IPaymentIntent } from "@paris-2024/shared-interfaces";
@@ -35,16 +35,17 @@ export class OrderController {
     ownershipField: 'userId',
     useCurrentUser: true,
   })
+  // OwnerGuard is global (APP_GUARD): it already loaded the orders, do not fetch them again
   @OwnerCheck(true)
-  @UseGuards(OwnerGuard)
   getUserOrders(
     @CurrentUser() user: RequestWithUser["user"],
-  ): Promise<Array<Order> | undefined> {
+    @CurrentEntity() orders: Array<Order>,
+  ): Array<Order> {
     const userId = user?.id;
     if (!userId) {
       throw new HttpException('You must be logged in to gain access to this page', HttpStatus.BAD_REQUEST);
     }
-    return this.orderService.getAllFromUser(userId);
+    return orders;
   }
 
   @Get(':id')
@@ -59,7 +60,6 @@ export class OrderController {
     ownershipField: 'userId',
   })
   @OwnerCheck(true)
-  @UseGuards(OwnerGuard)
   getOrder(
     @CurrentUser() user: RequestWithUser["user"],
     @CurrentEntity() order: Order,

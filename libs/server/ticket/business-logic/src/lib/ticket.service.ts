@@ -1,37 +1,54 @@
 import { randomUUID } from 'crypto';
 import * as qrCode from 'qrcode';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { failedToGenerateQrCode, Ticket, TicketDto, TicketRepository, ticketDoesntExist } from '@paris-2024/server-data-access-ticket';
+import { failedToGenerateQrCode, QrCodeTicketDto, Ticket, TicketDto, TicketRepository, ticketDoesntExist } from '@paris-2024/server-data-access-ticket';
 import { TicketValidity } from '@paris-2024/shared-interfaces';
 import { hash } from '@paris-2024/server-utils';
 import { EntityManager } from 'typeorm';
+
+export type PreparedTicket = Omit<QrCodeTicketDto, 'orderId'>;
 
 @Injectable()
 export class TicketService {
   constructor(private ticketRepository: TicketRepository) {}
 
-  async createTicket(
-    dto: Pick<TicketDto, 'userId' | 'userSecret' | 'orderId'>,
-    manager?: EntityManager,
-  ): Promise<Ticket | undefined> {
-    const token = randomUUID();
-    const tokenHash = hash(token);
+  // qr codes do not depend on the order: they can be generated before its transaction is opened
+  async prepareTickets(
+    dto: Pick<TicketDto, 'userId' | 'userSecret'>,
+    amount: number,
+  ): Promise<Array<PreparedTicket>> {
     if(!dto.userSecret) { 
       throw new BadRequestException('No user secret key')
     }
-    const concatenatedSecrets = dto.userSecret + ':' + token;
-    
-    const qrCode = await this.generateQrCode(concatenatedSecrets);
 
-    if (!qrCode) {
-      return;
+    return await Promise.all(
+      Array.from({ length: amount }, () => this.prepareTicket(dto)),
+    );
+  }
+
+  async saveTickets(
+    tickets: Array<PreparedTicket>,
+    orderId: string,
+    manager?: EntityManager,
+  ): Promise<Array<Ticket>> {
+    if (tickets.length === 0) {
+      return [];
     }
+    return await this.ticketRepository.createMany(
+      tickets.map((ticket: PreparedTicket) => ({ ...ticket, orderId })),
+      manager,
+    );
+  }
 
-    const newTicket = await this.ticketRepository.create({
-      ...dto, qrCode, tokenHash,
-    }, manager)
+  private async prepareTicket(dto: Pick<TicketDto, 'userId' | 'userSecret'>): Promise<PreparedTicket> {
+    const token = randomUUID();
+    const tokenHash = hash(token);
+    const concatenatedSecrets = dto.userSecret + ':' + token;
 
-    return newTicket;
+    // throws when the qr code cannot be generated
+    const qrCode = await this.generateQrCode(concatenatedSecrets) as string;
+
+    return { ...dto, qrCode, tokenHash };
   }
 
   private async generateQrCode(data: string): Promise<string | undefined> {

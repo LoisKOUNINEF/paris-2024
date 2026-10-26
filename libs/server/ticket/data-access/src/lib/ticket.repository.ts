@@ -19,6 +19,12 @@ export class TicketRepository {
     return await repository.save(ticket);
   }
 
+  async createMany(dtos: Array<QrCodeTicketDto>, manager?: EntityManager): Promise<Array<Ticket>> {
+    const repository = manager?.getRepository(Ticket) ?? this.ticketRepository;
+    const tickets = repository.create(dtos);
+    return await repository.save(tickets);
+  }
+
   async findOneById(id: Ticket['id']): Promise<Ticket | undefined> {
     const ticket = await this.ticketRepository.findOne({
       where: { id: id }

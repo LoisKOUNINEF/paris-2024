@@ -43,8 +43,10 @@ export class BundleRepository {
   }
 
   async create(dto: CreateBundleDto): Promise<Bundle> {
-    const bundleExists = await this.bundleRepository.findOneBy({
-      name: dto.name,
+    // names stay unique across soft-deleted bundles: reuse the deleted one instead of inserting
+    const bundleExists = await this.bundleRepository.findOne({
+      where: { name: dto.name },
+      withDeleted: true,
     });
 
     if (bundleExists && bundleExists.deletedAt === null) {
@@ -52,7 +54,7 @@ export class BundleRepository {
     }
 
     if (bundleExists && bundleExists.deletedAt) {
-      this.restore(bundleExists, dto);
+      return await this.restore(bundleExists, dto);
     }
     
     const newBundle = this.bundleRepository.create(dto);

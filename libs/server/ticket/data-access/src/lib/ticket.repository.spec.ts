@@ -112,4 +112,20 @@ describe('TicketRepository', () => {
       expect(mockRepository.save).not.toHaveBeenCalled();
     });
   });
+
+  describe('createMany', () => {
+    it('should save all tickets in one call through the transaction manager', async () => {
+      const dtos = [
+        { userId: 'user-1', orderId: 'order-1', userSecret: 's', tokenHash: 'h1', qrCode: 'qr-1' },
+        { userId: 'user-1', orderId: 'order-1', userSecret: 's', tokenHash: 'h2', qrCode: 'qr-2' },
+      ];
+      const transactionRepository = { create: jest.fn((value) => value), save: jest.fn(async (value) => value) };
+      const manager = { getRepository: jest.fn(() => transactionRepository) };
+
+      await ticketRepository.createMany(dtos, manager as unknown as EntityManager);
+
+      expect(transactionRepository.save).toHaveBeenCalledTimes(1);
+      expect(transactionRepository.save).toHaveBeenCalledWith(dtos);
+    });
+  });
 });

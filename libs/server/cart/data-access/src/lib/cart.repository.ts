@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { uuidRegex } from '@paris-2024/shared-utils';
 import { Repository } from 'typeorm';
 import { ICartIdentifier } from '@paris-2024/shared-interfaces';
 import { Cart } from './cart.entity';
@@ -32,6 +33,9 @@ export class CartRepository {
   }
 
   async createGuestCart(guestToken: string): Promise<Cart> {
+    if (!uuidRegex.test(guestToken)) {
+      throw new BadRequestException({ msg: 'Guest token must be a uuid.' });
+    }
     const alreadyExists = await this.getGuestCart(guestToken);
     if (alreadyExists) {
       return alreadyExists;
@@ -50,8 +54,9 @@ export class CartRepository {
   }
 
   async getGuestCart(guestToken: string): Promise<Cart | null> {
-    // typeorm drops undefined values from `where`, which would match any cart
-    if (!guestToken) {
+    // typeorm drops undefined values from `where`, which would match any cart,
+    // and a value that is not a uuid makes postgres fail on the uuid column
+    if (!guestToken || !uuidRegex.test(guestToken)) {
       return null;
     }
     return await this.cartRepository.findOne({

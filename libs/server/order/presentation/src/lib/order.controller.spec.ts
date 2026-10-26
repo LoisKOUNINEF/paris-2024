@@ -93,15 +93,14 @@ describe('OrderController', () => {
 
   describe('getUserOrders', () => {
     it('should throw if user is not logged in', () => {
-      expect(() => controller.getUserOrders(undefined)).toThrow(HttpException);
+      expect(() => controller.getUserOrders(undefined, [])).toThrow(HttpException);
     });
 
-    it('should return orders of current user', async () => {
-      mockOrderService.getAllFromUser.mockResolvedValue([]);
+    it('should return the orders loaded by the ownership guard without fetching them again', () => {
+      const orders = [{ id: 'order-1', userId: 'user-1' }] as unknown as Array<Order>;
 
-      await controller.getUserOrders(currentUser);
-
-      expect(mockOrderService.getAllFromUser).toHaveBeenCalledWith('user-1');
+      expect(controller.getUserOrders(currentUser, orders)).toBe(orders);
+      expect(mockOrderService.getAllFromUser).not.toHaveBeenCalled();
     });
   });
 
@@ -115,6 +114,20 @@ describe('OrderController', () => {
 
   describe('ownership metadata', () => {
     const reflector = new Reflector();
+
+    it('getUserOrders should let the ownership guard load the orders of the current user', () => {
+      const options = reflector.get<OwnershipGuardOptions>(
+        OWNERSHIP_GUARD_OPTIONS,
+        OrderController.prototype.getUserOrders,
+      );
+
+      expect(reflector.get('owner', OrderController.prototype.getUserOrders)).toBe(true);
+      expect(options).toEqual(expect.objectContaining({
+        useCurrentUser: true,
+        findByUserMethod: 'getAllFromUser',
+        ownershipField: 'userId',
+      }));
+    });
 
     it('getOrder should check ownership on userId of fetched order', () => {
       const options = reflector.get<OwnershipGuardOptions>(

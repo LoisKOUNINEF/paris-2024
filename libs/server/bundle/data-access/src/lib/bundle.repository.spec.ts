@@ -168,13 +168,13 @@ describe('BundleRepository', () => {
       };
       
       const newBundle = { id: 'NewBundleId', ...createDto, deletedAt: null };
-      mockRepository.findOneBy.mockResolvedValue(null);
+      mockRepository.findOne.mockResolvedValue(null);
       mockRepository.create.mockReturnValue(newBundle);
       mockRepository.save.mockResolvedValue(newBundle);
 
       const result = await bundleRepository.create(createDto);
 
-      expect(mockRepository.findOneBy).toHaveBeenCalledWith({ name: createDto.name });
+      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { name: createDto.name }, withDeleted: true });
       expect(mockRepository.create).toHaveBeenCalledWith(createDto);
       expect(mockRepository.save).toHaveBeenCalledWith(newBundle);
       expect(result).toEqual(newBundle);
@@ -189,12 +189,31 @@ describe('BundleRepository', () => {
       };
       
       const existingBundle = { id: 'ExistingBundleId', ...createDto, deletedAt: null };
-      mockRepository.findOneBy.mockResolvedValue(existingBundle);
+      mockRepository.findOne.mockResolvedValue(existingBundle);
 
       await expect(bundleRepository.create(createDto)).rejects.toThrow('Bundle already exists');
-      expect(mockRepository.findOneBy).toHaveBeenCalledWith({ name: createDto.name });
+      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { name: createDto.name }, withDeleted: true });
       expect(mockRepository.create).not.toHaveBeenCalled();
       expect(mockRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('should restore a soft-deleted bundle with the same name instead of inserting a new one', async () => {
+      const createDto: CreateBundleDto = {
+        name: 'Deleted Bundle',
+        price: 150,
+        ticketAmount: 7,
+        isAvailable: true,
+      };
+
+      const deletedBundle = { id: 'DeletedBundleId', name: 'Deleted Bundle', price: 100, ticketAmount: 5, deletedAt: new Date() };
+      mockRepository.findOne.mockResolvedValue(deletedBundle);
+      mockRepository.save.mockImplementation(async (bundle) => bundle);
+
+      const result = await bundleRepository.create(createDto);
+
+      expect(mockRepository.create).not.toHaveBeenCalled();
+      expect(mockRepository.save).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ id: 'DeletedBundleId', ...createDto, deletedAt: null });
     });
   });
 

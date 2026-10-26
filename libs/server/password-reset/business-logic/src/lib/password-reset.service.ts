@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { passwordNotAppropriate, tokenNotFound, User, userNotFound, UserRepository } from '@paris-2024/server-data-access-user';
-import { PasswordResetRepository } from '@paris-2024/server-data-access-password-reset';
+import { PASSWORD_RESET_TTL_HOURS, PasswordReset, PasswordResetRepository } from '@paris-2024/server-data-access-password-reset';
+import { subHours } from 'date-fns';
 import { PasswordResetMailerService } from '@paris-2024/server-business-logic-mailer';
 import { passwordRegex } from '@paris-2024/shared-utils';
 
@@ -20,9 +21,11 @@ export class PasswordResetService {
       return;
     }
 
+    // every request gets a fresh token: a resent old one could expire right after being received,
+    // and links sent before stop working
     const alreadyExists = await this.passwordResetRepository.findOneByEmail(email);
     if (alreadyExists) {
-      return await this.passwordResetMailerService.sendResetLink(alreadyExists);
+      await this.passwordResetRepository.remove(alreadyExists.id);
     }
 
     const pwdReset = await this.passwordResetRepository.create(email);
@@ -43,6 +46,13 @@ export class PasswordResetService {
       return null;
     }
 
+    // the cleanup cron only runs hourly
+    if (this.isExpired(pwdReset)) {
+      await this.passwordResetRepository.remove(id);
+      tokenNotFound();
+      return null;
+    }
+
     const user = await this.userRepository.findOneByEmail(pwdReset.email);
 
     if (!user) {
@@ -58,5 +68,9 @@ export class PasswordResetService {
     await this.passwordResetRepository.remove(id);
 
     return updatedUser;
+  }
+
+  private isExpired(pwdReset: PasswordReset): boolean {
+    return pwdReset.createdAt < subHours(new Date(), PASSWORD_RESET_TTL_HOURS);
   }
 }
