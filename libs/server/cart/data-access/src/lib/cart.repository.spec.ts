@@ -5,6 +5,10 @@ import { CartRepository } from './cart.repository';
 import { Cart } from './cart.entity';
 import { UpdateCartDto } from './cart.dto';
 
+// guest tokens must be uuids: keep them obviously fake so secret scanners do not flag them
+const GUEST_TOKEN = '00000000-0000-4000-8000-000000000001';
+const UNKNOWN_GUEST_TOKEN = '00000000-0000-4000-8000-000000000002';
+
 describe('CartRepository', () => {
   let cartRepository: CartRepository;
 
@@ -19,7 +23,7 @@ describe('CartRepository', () => {
   const mockGuestCart = {
     id: '2',
     userId: null,
-    guestToken: '9b2f6c1e-4d3a-4f6b-8c2d-1a2b3c4d5e6f',
+    guestToken: GUEST_TOKEN,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -75,7 +79,7 @@ describe('CartRepository', () => {
 
 
     it('should return null when guest cart does not exist', async () => {
-      const guestToken = '0f8e7d6c-5b4a-4c3d-9e2f-1a0b9c8d7e6f';
+      const guestToken = UNKNOWN_GUEST_TOKEN;
       mockCartRepository.findOne.mockResolvedValue(null);
 
       const result = await cartRepository['getGuestCart'](guestToken);
@@ -89,7 +93,7 @@ describe('CartRepository', () => {
 
   describe('createGuestCart', () => {
     it('should create a cart with guestToken', async () => {
-      const guestToken = '9b2f6c1e-4d3a-4f6b-8c2d-1a2b3c4d5e6f';
+      const guestToken = GUEST_TOKEN;
       mockCartRepository.create.mockReturnValue(mockGuestCart);
       mockCartRepository.save.mockResolvedValue(mockGuestCart);
 
@@ -131,7 +135,7 @@ describe('CartRepository', () => {
     });
 
     it('should return guest cart when it exists', async () => {
-      const guestToken = '9b2f6c1e-4d3a-4f6b-8c2d-1a2b3c4d5e6f';
+      const guestToken = GUEST_TOKEN;
       mockCartRepository.findOne.mockResolvedValue(mockGuestCart);
 
       const result = await cartRepository['getGuestCart'](guestToken);
