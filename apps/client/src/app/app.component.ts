@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NavigationCancel, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AuthService } from '@paris-2024/client-data-access-auth';
@@ -9,16 +9,15 @@ import { PlatformService } from '@paris-2024/client-utils';
 import { filter, Subscription } from 'rxjs';
 
 @Component({
-  standalone: true,
   imports: [
-    CommonModule,
     LoadingSpinnerComponent,
-    NavbarComponent, 
-    RouterModule, 
+    NavbarComponent,
+    RouterModule,
     MatSnackBarModule,
   ],
   selector: 'app-root',
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit, OnDestroy {
@@ -39,6 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (this.platformService.isBrowser) {
       this.checkUserStatus();
+      this.recallJsFuntions();
     }
   }
 

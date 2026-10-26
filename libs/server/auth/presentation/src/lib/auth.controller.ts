@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Request, UseGuards, Headers, Param } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UserService } from "@paris-2024/server-business-logic-user";
@@ -42,13 +41,9 @@ export class AuthController {
 	async login(
     @Request() req: RequestWithUser, 
     @Headers('x-guest-token') guestToken: string,
-    err?: Error
   ) {
     if (!req.user) {
     	throw new HttpException('Login failed', HttpStatus.UNAUTHORIZED);
-    }
-    if (err) {
-      return err.message;
     }
     if (req.user.id){
       await this.cartService.mergeGuestCartWithUserCart({ userId: req.user?.id, guestToken })
@@ -57,11 +52,12 @@ export class AuthController {
 	}
 
   @Post('logout')
-  logout(@Request() req: RequestWithUser): any {
+  logout(@Request() req: RequestWithUser): Promise<{ msg: string }> {
     return new Promise((resolve, reject) => {
       req.logout((err: Error) => {
+        // a failed logout leaves the session open: it must not answer with a success status
         if (err) {
-          return resolve(err.message);
+          return reject(err);
         }
         resolve({ msg: 'Logged out' });
       });

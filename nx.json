@@ -41,6 +41,23 @@
         "componentTestingTargetName": "component-test",
         "ciTargetName": "e2e-ci"
       }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      },
+      "include": [
+        "apps/client/**/*",
+        "tools/generators/tagged-lib-generators/**/*"
+      ]
+    },
+    {
+      "plugin": "@nx/jest/plugin",
+      "options": {
+        "targetName": "e2e"
+      },
+      "include": ["apps/server-e2e/**/*"]
     }
   ],
   "targetDefaults": {
@@ -52,8 +69,7 @@
     "test": {
       "cache": true,
       "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "executor": "@nx/jest:jest"
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"]
     },
     "e2e-ci--**/*": {
       "dependsOn": ["^build"]
@@ -89,7 +105,8 @@
       "unitTestRunner": "jest"
     },
     "@nx/angular:component": {
-      "style": "scss"
+      "style": "scss",
+      "type": "component"
     },
     "@paris-2024/angular-tagged-lib": {
       "factory": "./tools/generators/tagged-lib-generators/angular-tagged-lib/generator",
@@ -105,6 +122,54 @@
       "factory": "./tools/generators/tagged-lib-generators/tagged-lib/generator",
       "schema": "./tools/generators/tagged-lib-generators/tagged-lib/schema.json",
       "description": "Generate a TS library with tags"
+    },
+    "@schematics/angular:component": {
+      "type": "component"
+    },
+    "@nx/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@nx/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@nx/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@nx/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@nx/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@nx/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@nx/angular:resolver": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
     }
+  },
+  "affected": {
+    "legacy": true
   }
 }

@@ -8,6 +8,7 @@ export class User extends BaseModel implements IUser {
   password: string;
   role: Roles;
   cartId: string;
+  pendingEmail?: string | null;
 
   constructor(
     email: User['email'],

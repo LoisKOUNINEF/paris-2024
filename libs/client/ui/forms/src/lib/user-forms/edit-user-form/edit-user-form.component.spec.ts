@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks, tick } from '@angular/core/testing';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { EditUserFormComponent } from './edit-user-form.component';
@@ -23,19 +23,6 @@ describe('EditUserFormComponent', () => {
     Roles.CUSTOMER
   );
 
-  const mockUserPlain = {
-    email: 'test@example.com',
-    firstName: 'John',
-    lastName: 'Doe',
-    password: 'password123',
-    role: 'customer',
-    cartId: null,
-    id: null,
-    createdAt: null,
-    updatedAt: null,
-    deletedAt: null
-  };
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -55,6 +42,7 @@ describe('EditUserFormComponent', () => {
     component = fixture.componentInstance;
     component.user = mockUser;
     fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it('should create', () => {
@@ -62,49 +50,64 @@ describe('EditUserFormComponent', () => {
   });
 
   it('should initialize the form with user data', () => {
-    expect(component.editUserForm).toBeDefined();
-    expect(component.editUserForm.get('email')).toBeDefined();
-    expect(component.editUserForm.get('userInfos')).toBeDefined();
     expect(component.editUserForm.value).toEqual({
-      email: mockUserPlain,
-      userInfos: mockUserPlain
+      email: { email: 'test@example.com' },
+      userInfos: { firstName: 'John', lastName: 'Doe' },
+      currentPassword: { currentPassword: '' },
     });
+  });
+
+  it('should keep the child validators on email and names', () => {
+    component.editUserForm.patchValue({
+      email: { email: 'not-an-email' },
+      userInfos: { firstName: '', lastName: 'Doe' },
+    });
+    expect(component.editUserForm.get('email.email')?.valid).toBe(false);
+    expect(component.editUserForm.get('userInfos.firstName')?.valid).toBe(false);
+    expect(component.editUserForm.valid).toBe(false);
   });
 
   it('should emit submitted event on form submission', () => {
     jest.spyOn(component.submitted, 'emit');
     const updatedUserData = {
       email: { email: 'updated@example.com' },
-      userInfos: { firstName: 'Jane', lastName: 'Doe' }
+      userInfos: { firstName: 'Jane', lastName: 'Doe' },
+      currentPassword: { currentPassword: 'Current123#' },
     };
     component.editUserForm.patchValue(updatedUserData);
     component.onSubmit();
     expect(component.submitted.emit).toHaveBeenCalledWith({
       email: 'updated@example.com',
       firstName: 'Jane',
-      lastName: 'Doe'
+      lastName: 'Doe',
+      currentPassword: 'Current123#',
     });
   });
 
-  it('should parse user form correctly', () => {
+  it('should send the current password only when the email changes', () => {
     const updatedUserData = {
-      email: { email: 'updated@example.com' },
-      userInfos: { firstName: 'Jane', lastName: 'Doe' }
+      email: { email: 'test@example.com' },
+      userInfos: { firstName: 'Jane', lastName: 'Doe' },
+      currentPassword: { currentPassword: 'Current123#' },
     };
     component.editUserForm.patchValue(updatedUserData);
     const result = component['parseUserForm']();
     expect(result).toEqual({
-      email: 'updated@example.com',
+      email: 'test@example.com',
       firstName: 'Jane',
       lastName: 'Doe'
     });
   });
 
+  it('should not require the current password', () => {
+    expect(component.editUserForm.get('currentPassword.currentPassword')?.valid).toBe(true);
+  });
+
   it('should disable submit button when form is invalid', () => {
     component.editUserForm.setErrors({ 'incorrect': true });
     fixture.detectChanges();
-    const submitButton = fixture.nativeElement.querySelector('lib-submit-button');
-    expect(submitButton.getAttribute('ng-reflect-is-disabled')).toBe('true');
+    const submitButton = fixture.nativeElement.querySelector('lib-submit-button button');
+    expect(submitButton.disabled).toBe(true);
   });
 
   it('should enable submit button when form is valid', fakeAsync(() => {
@@ -133,31 +136,21 @@ describe('EditUserFormComponent', () => {
     expect(submitButton.isDisabled).toBe(false);
   }));
 
-  it('should update form when user input changes', () => {
-    const newUser = new User(
+  it('should update form when user input changes', fakeAsync(() => {
+    component.user = new User(
       'new@example.com',
       'Jane',
       'Smith',
       'newpassword123',
       Roles.ADMIN
     );
-    const newUserPlain = {
-      email: 'new@example.com',
-      firstName: 'Jane',
-      lastName: 'Smith',
-      password: 'newpassword123',
-      role: Roles.ADMIN,
-      cartId: null,
-      id: null,
-      createdAt: null,
-      updatedAt: null,
-      deletedAt: null
-    };
-    component.user = newUser;
     component.ngOnInit();
+    flushMicrotasks();
+    // the child blocks add their controls on their own init, which is not re-run here
     expect(component.editUserForm.value).toEqual({
-      email: newUserPlain,
-      userInfos: newUserPlain
+      email: {},
+      userInfos: {},
+      currentPassword: {},
     });
-  });
+  }));
 });

@@ -1,19 +1,19 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { User, UserDto, UserFormValue, UserService } from '@paris-2024/client-data-access-user';
 import { AuthService } from '@paris-2024/client-data-access-auth';
 import { EditUserFormComponent, EditPasswordFormComponent } from '@paris-2024/client-ui-forms';
-import { SnackbarService } from '@paris-2024/client-utils';
+import { PlatformService, SnackbarService } from '@paris-2024/client-utils';
 import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'lib-edit-user',
-  standalone: true,
   imports: [
     EditUserFormComponent,
     EditPasswordFormComponent,
   ],
   templateUrl: './edit-user.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './edit-user.component.scss',
 })
 export class EditUserComponent implements OnInit, OnDestroy{
@@ -25,9 +25,12 @@ export class EditUserComponent implements OnInit, OnDestroy{
     private authService: AuthService,
     private router: Router,
     private snackbarService: SnackbarService,
+    private platformService: PlatformService,
   ) { }
 
   ngOnInit(): void {
+    // the server render has no session cookie
+    if (!this.platformService.isBrowser) return;
     this.userService.findCurrentUser()
       .pipe(filter(res => !!res))
       .subscribe((user) => {
@@ -45,8 +48,10 @@ export class EditUserComponent implements OnInit, OnDestroy{
     return this.subscription = this.userService.update(user, this.user.id)
       .pipe(filter(res => !!res))
       .subscribe((res: User) => {
-        this.snackbarService.showSuccess('Modifications enregistrées.')
-          .afterDismissed()
+        const message = res.pendingEmail
+          ? `Un lien de confirmation a été envoyé à ${res.pendingEmail}.`
+          : 'Modifications enregistrées.';
+        this.snackbarService.showSuccess(message);
         this.router.navigate(['/user']);
     })
   }
@@ -56,8 +61,7 @@ export class EditUserComponent implements OnInit, OnDestroy{
     return this.subscription = this.userService.update(user, this.user.id)
       .pipe(filter(res => !!res))
       .subscribe((res: User) => {
-        this.snackbarService.showSuccess('Mot de passe modifié.')
-          .afterDismissed()
+        this.snackbarService.showSuccess('Mot de passe modifié.');
         this.router.navigate(['/user']);
     })  
   }
@@ -66,8 +70,7 @@ export class EditUserComponent implements OnInit, OnDestroy{
     return this.subscription = this.userService.delete(this.user.id)
       .pipe(filter(res => !!res))
       .subscribe((res: User) => {
-        this.snackbarService.showSuccess('Compte suspendu.')
-          .afterDismissed()
+        this.snackbarService.showSuccess('Compte suspendu.');
         this.authService.logout()
           .subscribe(() => this.router.navigate(['/']) 
         );

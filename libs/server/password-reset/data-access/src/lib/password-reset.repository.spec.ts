@@ -11,7 +11,7 @@ describe('PasswordResetRepository', () => {
     save: jest.fn(),
     findOne: jest.fn(),
     findOneBy: jest.fn(),
-    remove: jest.fn(),
+    delete: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -128,57 +128,20 @@ describe('PasswordResetRepository', () => {
   });
 
   describe('remove', () => {
-    it('should remove a password reset entity when found', async () => {
-      const id = 'uuid-123';
-      const mockPasswordReset = {
-        id,
-        email: 'test@example.com',
-        createdAt: new Date(),
-      } as PasswordReset;
+    it('should delete the password reset entity without reading it first', async () => {
+      const deleteResult = { affected: 1, raw: [] };
+      mockPasswordResetRepository.delete.mockResolvedValue(deleteResult);
 
-      mockPasswordResetRepository.findOne.mockResolvedValue(mockPasswordReset);
-      mockPasswordResetRepository.remove.mockResolvedValue(mockPasswordReset);
-
-      const result = await service.remove(id);
-
-      expect(mockPasswordResetRepository.findOne).toHaveBeenCalledWith({
-        where: { id },
-      });
-      expect(mockPasswordResetRepository.remove).toHaveBeenCalledWith(mockPasswordReset);
-      expect(result).toEqual(mockPasswordReset);
+      await expect(service.remove('uuid-123')).resolves.toBe(deleteResult);
+      expect(mockPasswordResetRepository.delete).toHaveBeenCalledWith('uuid-123');
+      expect(mockPasswordResetRepository.findOne).not.toHaveBeenCalled();
     });
 
-    it('should return undefined when entity to remove is not found', async () => {
-      const id = 'non-existent-id';
-
-      mockPasswordResetRepository.findOne.mockResolvedValue(null);
-
-      const result = await service.remove(id);
-
-      expect(mockPasswordResetRepository.findOne).toHaveBeenCalledWith({
-        where: { id },
-      });
-      expect(mockPasswordResetRepository.remove).not.toHaveBeenCalled();
-      expect(result).toBeUndefined();
-    });
-
-    it('should throw an error if remove operation fails', async () => {
-      const id = 'uuid-123';
-      const mockPasswordReset = {
-        id,
-        email: 'test@example.com',
-        createdAt: new Date(),
-      } as PasswordReset;
+    it('should throw an error if delete operation fails', async () => {
       const error = new Error('Database error');
+      mockPasswordResetRepository.delete.mockRejectedValue(error);
 
-      mockPasswordResetRepository.findOne.mockResolvedValue(mockPasswordReset);
-      mockPasswordResetRepository.remove.mockRejectedValue(error);
-
-      await expect(service.remove(id)).rejects.toThrow(error);
-      expect(mockPasswordResetRepository.findOne).toHaveBeenCalledWith({
-        where: { id },
-      });
-      expect(mockPasswordResetRepository.remove).toHaveBeenCalledWith(mockPasswordReset);
+      await expect(service.remove('uuid-123')).rejects.toThrow(error);
     });
   });
 });

@@ -1,11 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'lib-olympic-rings',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './olympic-rings.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './olympic-rings.component.scss',
 })
 export class OlympicRingsComponent {

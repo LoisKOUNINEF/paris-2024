@@ -4,7 +4,6 @@ import { PasswordResetRepository } from '@paris-2024/server-data-access-password
 import { User, UserRepository } from '@paris-2024/server-data-access-user';
 import { PasswordResetMailerService } from '@paris-2024/server-business-logic-mailer';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { passwordRegex } from '@paris-2024/shared-utils';
 import { createEntityMock } from '@paris-2024/shared-mocks';
 import { Roles } from '@paris-2024/shared-interfaces';
 
@@ -26,6 +25,9 @@ const mockUser: User = {
   updatedAt: new Date(),
   emailVerified: true,
   emailVerificationToken: '',
+  pendingEmail: null,
+  anonymizationReminderSentAt: null,
+  inactivityReminderSentAt: null,
   hashPassword: async () => { return; } ,
   hashSecretKey: async () => { return; } ,
 }
@@ -34,7 +36,6 @@ jest.mock('@paris-2024/server-data-access-user', () => {
   const originalModule = jest.requireActual('@paris-2024/server-data-access-user');
   return {
     ...originalModule,
-    passwordRegex: { test: () => true },
     userNotFound: jest.fn(() => {
       throw new NotFoundException('User not found');
     }),
@@ -54,6 +55,8 @@ describe('PasswordResetService', () => {
   let mailerService: jest.Mocked<PasswordResetMailerService>;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PasswordResetService,
@@ -90,26 +93,33 @@ describe('PasswordResetService', () => {
   });
 
   describe('sendLink()', () => {
-    it('should throw if user not found', async () => {
-      userRepository.findOneByEmail.mockReturnValue(undefined as any);
+    it('should not create token nor send email for unknown email', async () => {
+      userRepository.findOneByEmail.mockResolvedValue(null);
 
-      await expect(service.sendLink('nonexistent@example.com')).rejects.toThrow(NotFoundException);
+      await expect(service.sendLink('nonexistent@example.com')).resolves.toBeUndefined();
+      expect(passwordResetRepository.findOneByEmail).not.toHaveBeenCalled();
+      expect(passwordResetRepository.create).not.toHaveBeenCalled();
+      expect(mailerService.sendResetLink).not.toHaveBeenCalled();
     });
 
-    it('should send email if reset token already exists', async () => {
-      const existingReset = { email: 'john.doe@example.com' };
-      userRepository.findOneByEmail.mockReturnValue(mockUser as any);
+    it('should replace an existing reset token with a fresh one', async () => {
+      const existingReset = { id: 'old-token', email: 'john.doe@example.com' };
+      const newReset = { id: 'new-token', email: 'john.doe@example.com' };
+      userRepository.findOneByEmail.mockResolvedValue(mockUser);
       passwordResetRepository.findOneByEmail.mockResolvedValue(existingReset as any);
+      passwordResetRepository.create.mockResolvedValue(newReset as any);
       mailerService.sendResetLink.mockResolvedValue('ok');
 
       const result = await service.sendLink('john.doe@example.com');
-      expect(mailerService.sendResetLink).toHaveBeenCalledWith(existingReset);
+      expect(passwordResetRepository.remove).toHaveBeenCalledWith('old-token');
+      expect(passwordResetRepository.create).toHaveBeenCalledWith('john.doe@example.com');
+      expect(mailerService.sendResetLink).toHaveBeenCalledWith(newReset);
       expect(result).toBe('ok');
     });
 
     it('should create token and send email if none exists', async () => {
       const newReset = { email: 'john.doe@example.com' };
-      userRepository.findOneByEmail.mockReturnValue(mockUser as any);
+      userRepository.findOneByEmail.mockResolvedValue(mockUser);
       passwordResetRepository.findOneByEmail.mockResolvedValue(null);
       passwordResetRepository.create.mockResolvedValue(newReset as any);
       mailerService.sendResetLink.mockResolvedValue('sent');
@@ -123,9 +133,9 @@ describe('PasswordResetService', () => {
 
   describe('reset()', () => {
     it('should throw if password does not match regex', async () => {
-      const regex = passwordRegex;
-      const badPwd = 'badpwd'
-      expect(regex.test(badPwd)).toBe(false);
+      await expect(service.reset('token123', 'badpwd')).rejects.toThrow(BadRequestException);
+      expect(passwordResetRepository.findOne).not.toHaveBeenCalled();
+      expect(userRepository.update).not.toHaveBeenCalled();
     });
 
     it('should throw if reset token not found', async () => {
@@ -133,8 +143,17 @@ describe('PasswordResetService', () => {
       await expect(service.reset('token123', '10Characters+')).rejects.toThrow(NotFoundException);
     });
 
+    it('should reject and delete a token older than one hour', async () => {
+      const sentAt = new Date(Date.now() - 61 * 60 * 1000);
+      passwordResetRepository.findOne.mockResolvedValue({ email: mockUser.email, createdAt: sentAt } as any);
+
+      await expect(service.reset('token123', '10Characters+')).rejects.toThrow(NotFoundException);
+      expect(passwordResetRepository.remove).toHaveBeenCalledWith('token123');
+      expect(userRepository.update).not.toHaveBeenCalled();
+    });
+
     it('should throw if user not found by email', async () => {
-      passwordResetRepository.findOne.mockResolvedValue({ email: 'missing@example.com' } as any);
+      passwordResetRepository.findOne.mockResolvedValue({ email: 'missing@example.com', createdAt: new Date() } as any);
       userRepository.findOneByEmail.mockResolvedValue(null);
       await expect(service.reset('test-id', '10Characters+')).rejects.toThrow(NotFoundException);
     });
@@ -147,7 +166,7 @@ describe('PasswordResetService', () => {
         hashSecretKey: async () => { return; } ,
       };
 
-      passwordResetRepository.findOne.mockResolvedValue({ email: mockUser.email } as any);
+      passwordResetRepository.findOne.mockResolvedValue({ email: mockUser.email, createdAt: new Date() } as any);
       userRepository.findOneByEmail.mockResolvedValue(mockUser);
       userRepository.update.mockResolvedValue(updatedUser);
 
@@ -155,6 +174,15 @@ describe('PasswordResetService', () => {
       expect(userRepository.update).toHaveBeenCalledWith(mockUser.id, { password: '10Characters+' });
       expect(passwordResetRepository.remove).toHaveBeenCalledWith('token123');
       expect(result).toEqual(updatedUser);
+    });
+
+    it('should wait for token removal so failures are not left unhandled', async () => {
+      passwordResetRepository.findOne.mockResolvedValue({ email: mockUser.email, createdAt: new Date() } as any);
+      userRepository.findOneByEmail.mockResolvedValue(mockUser);
+      userRepository.update.mockResolvedValue(mockUser);
+      passwordResetRepository.remove.mockRejectedValue(new Error('db failure'));
+
+      await expect(service.reset('token123', '10Characters+')).rejects.toThrow('db failure');
     });
   });
 });

@@ -6,12 +6,14 @@ export class UserDto implements Partial<IUser> {
 	firstName?: User['firstName'];
 	lastName?: User['lastName'];
 	password?: User['password'];
+	currentPassword?: User['password'];
 
 	constructor(formValue: UserFormValue) {
 		this.email = formValue.email;
 		this.firstName = formValue.firstName;
 		this.lastName = formValue.lastName;
 		this.password = formValue.password;
+		this.currentPassword = formValue.currentPassword;
 	}
 }
 
@@ -20,4 +22,5 @@ export interface UserFormValue {
 	firstName?: User['firstName'];
 	lastName?: User['lastName'];
 	password?: User['password'];
+	currentPassword?: User['password'];
 }

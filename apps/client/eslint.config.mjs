@@ -1,5 +1,5 @@
 import nx from '@nx/eslint-plugin';
-import baseConfig from '../../eslint.config.mjs';
+import baseConfig from '../../eslint.config.js';
 
 export default [
   ...baseConfig,
@@ -30,5 +30,14 @@ export default [
     files: ['**/*.html'],
     // Override or add rules here
     rules: {},
+  },
+  {
+    files: ['**/*.ts'],
+    rules: {
+      '@angular-eslint/prefer-standalone': 'off',
+      '@angular-eslint/prefer-inject': 'off',
+      // Components keep Eager change detection (set by the Angular 22 migration)
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
+    },
   },
 ];

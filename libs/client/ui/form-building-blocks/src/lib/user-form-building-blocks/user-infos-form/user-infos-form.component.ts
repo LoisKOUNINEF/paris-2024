@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -17,13 +17,13 @@ export const USER_INFOS_DEFAULT: UserInfos = {
 
 @Component({
   selector: 'lib-user-infos-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule, 
     MatFormFieldModule, 
     MatInputModule,
   ],
   templateUrl: './user-infos-form.component.html',  
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './user-infos-form.component.scss',
 
 })

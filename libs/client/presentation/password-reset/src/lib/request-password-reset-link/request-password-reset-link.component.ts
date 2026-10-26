@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EmailFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
@@ -8,13 +8,13 @@ import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'lib-request-password-reset-link',
-  standalone: true,
   imports: [
     ReactiveFormsModule, 
     EmailFormComponent, 
     SubmitButtonComponent,
   ],
   templateUrl: './request-password-reset-link.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './request-password-reset-link.component.scss',
 })
 export class RequestPasswordResetLinkComponent implements OnInit, OnDestroy {

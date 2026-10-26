@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { User } from '@paris-2024/client-data-access-user';
 import { CommonFormComponent } from '../../common-form.component';
@@ -9,7 +9,6 @@ import { passwordRegex } from '@paris-2024/shared-utils';
 
 @Component({
   selector: 'lib-password-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule, 
@@ -18,6 +17,7 @@ import { passwordRegex } from '@paris-2024/shared-utils';
     PwdCheckboxTextPipe,
   ],
   templateUrl: './password-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './password-form.component.scss',
 })
 export class PasswordFormComponent extends CommonFormComponent implements OnInit {

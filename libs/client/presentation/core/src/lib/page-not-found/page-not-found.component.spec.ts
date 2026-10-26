@@ -3,17 +3,14 @@ import { Router } from '@angular/router';
 import { PageNotFoundComponent } from './page-not-found.component';
 import { PlatformService } from '@paris-2024/client-utils';
 import { RouteButtonComponent } from '@paris-2024/client-ui-shared';
-import { BehaviorSubject } from 'rxjs';
 
 describe('PageNotFoundComponent', () => {
-  const routerEvents = new BehaviorSubject<any>(null);
   let component: PageNotFoundComponent;
   let fixture: ComponentFixture<PageNotFoundComponent>;
   let router: Router;
 
   const routerMock = {
     navigate: jest.fn(),
-    events: routerEvents.asObservable(),
   };
 
   const platformServiceMock = {
@@ -104,6 +101,13 @@ describe('PageNotFoundComponent', () => {
       component['decreaseCountdown']();
       expect(redirectSpy).toHaveBeenCalled();
     });
+
+    it('should redirect only once', fakeAsync(() => {
+      component.time = 1;
+      component['countdownToRedirect']();
+      tick(3000);
+      expect(router.navigate).toHaveBeenCalledTimes(1);
+    }));
   });
 
   describe('template integration', () => {

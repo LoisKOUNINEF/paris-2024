@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { 
   EmailFormComponent, 
@@ -10,7 +10,6 @@ import { UserFormValue } from '@paris-2024/client-data-access-user';
 
 @Component({
   selector: 'lib-full-user-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     EmailFormComponent,
@@ -19,6 +18,7 @@ import { UserFormValue } from '@paris-2024/client-data-access-user';
     SubmitButtonComponent,
   ],
   templateUrl: './full-user-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './full-user-form.component.scss',
 })
 export class FullUserFormComponent implements OnInit {

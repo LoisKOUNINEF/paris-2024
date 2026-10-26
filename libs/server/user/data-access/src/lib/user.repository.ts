@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { User } from './user.entity';
-import { Roles, RoleValue } from '@paris-2024/shared-interfaces';
+import { RoleValue } from '@paris-2024/shared-interfaces';
 import {
   createAdminIsForbidden,
   userAlreadyExists,
@@ -84,15 +84,11 @@ export class UserRepository {
       return this.restore(userExists, createUserDto);
     };
 
-    if(userExists && createUserDto.role === Roles.STAFF) {
-      return this.update(userExists.id, createUserDto);
-    };
-
     userAlreadyExists();
     return null;
   }
 
-  async verifyEmail(token: string): Promise<User | null> {
+  async verifyEmail(token: string): Promise<{ user: User, isEmailChange: boolean } | null> {
     const user = await this.userRepository.findOne({
       where: {
         emailVerificationToken: token
@@ -103,8 +99,42 @@ export class UserRepository {
       return null;
     }
 
+    if (user.pendingEmail) {
+      // the address may have been taken since the change was requested
+      if (await this.findOneByEmail(user.pendingEmail)) {
+        userAlreadyExists();
+        return null;
+      }
+
+      await this.userRepository.save(Object.assign(user, {
+        email: user.pendingEmail,
+        pendingEmail: null,
+        emailVerificationToken: null,
+      }));
+      return { user, isEmailChange: true };
+    }
+
     await this.userRepository.save(Object.assign(user, {emailVerified: true, emailVerificationToken: null}))
-    return user;
+    return { user, isEmailChange: false };
+  }
+
+  async requestEmailChange(id: User['id'], email: User['email']): Promise<User | null> {
+    const user = await this.findOneById(id);
+
+    if (!user) {
+      userNotFound();
+      return null;
+    }
+
+    if (await this.findOneByEmail(email)) {
+      userAlreadyExists();
+      return null;
+    }
+
+    return await this.userRepository.save(Object.assign(user, {
+      pendingEmail: email,
+      emailVerificationToken: createToken(),
+    }));
   }
 
   async update(id: User['id'], updateUserDto: UpdateUserDto): Promise<User | null> {
@@ -140,7 +170,7 @@ export class UserRepository {
     
     return await this.userRepository.save(Object.assign(
       user, 
-      { lastLoginAt: new Date() }
+      { lastLoginAt: new Date(), inactivityReminderSentAt: null }
     ));
   }
 
@@ -153,9 +183,21 @@ export class UserRepository {
     });
     if (!restored) return null;
 
+    restored.firstName = dto.firstName;
+    restored.lastName = dto.lastName;
     restored.password = dto.password;
+    if (dto.role) {
+      restored.role = dto.role;
+    }
+
+    // whoever signs up again must prove they own the inbox before using the account
+    restored.emailVerified = false;
+    restored.emailVerificationToken = createToken();
+    restored.pendingEmail = null;
 
     restored.lastLoginAt = new Date();
+    restored.anonymizationReminderSentAt = null;
+    restored.inactivityReminderSentAt = null;
 
     return this.userRepository.save(restored);
   }

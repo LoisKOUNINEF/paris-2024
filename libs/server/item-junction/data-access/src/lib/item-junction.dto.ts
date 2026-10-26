@@ -1,23 +1,23 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsNumber, IsString, IsOptional, Min } from 'class-validator';
+import { IsInt, IsOptional, IsUUID, Min } from 'class-validator';
 
 export class CreateItemJunctionDto {
   @ApiProperty({ description: 'Quantity of items', minimum: 1, default: 1 })
-  @IsNumber()
+  @IsInt()
   @Min(1)
   quantity: number;
 
   @ApiProperty({ description: 'Bundle identifier' })
-  @IsString()
+  @IsUUID()
   bundleId: string;
 
   @ApiProperty({ description: 'Cart identifier', required: false })
-  @IsString()
+  @IsUUID()
   @IsOptional()
   cartId?: string;
 
   @ApiProperty({ description: 'Order identifier', required: false })
-  @IsString()
+  @IsUUID()
   @IsOptional()
   orderId?: string;
 }

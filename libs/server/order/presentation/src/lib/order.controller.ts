@@ -1,11 +1,10 @@
-import { Controller, Get, UseGuards, Request, HttpException, HttpStatus, Post } from "@nestjs/common";
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, UseGuards, Request, HttpException, HttpStatus, Post } from "@nestjs/common";
+import { ApiBadRequestResponse, ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { OrderService } from "@paris-2024/server-business-logic-order";
-import { Admin, AuthenticatedGuard, Owner, CurrentUser, CurrentEntity, OwnerGuard, OwnerCheck } from '@paris-2024/server-business-logic-guards';
-import { Order } from "@paris-2024/server-data-access-order";
+import { Admin, AuthenticatedGuard, Owner, CurrentUser, CurrentEntity, OwnerCheck } from '@paris-2024/server-business-logic-guards';
+import { NewOrderDto, Order } from "@paris-2024/server-data-access-order";
 import { RequestWithUser } from "@paris-2024/server-base-entity";
-import { IOrderTickets } from "@paris-2024/shared-interfaces";
-// import { IOrderTickets } from "@paris-2024/shared-interfaces";
+import { IOrderTickets, IPaymentIntent } from "@paris-2024/shared-interfaces";
 
 @ApiTags('orders')
 @Controller('orders')
@@ -36,16 +35,17 @@ export class OrderController {
     ownershipField: 'userId',
     useCurrentUser: true,
   })
+  // OwnerGuard is global (APP_GUARD): it already loaded the orders, do not fetch them again
   @OwnerCheck(true)
-  @UseGuards(OwnerGuard)
   getUserOrders(
     @CurrentUser() user: RequestWithUser["user"],
-  ): Promise<Array<Order> | undefined> {
+    @CurrentEntity() orders: Array<Order>,
+  ): Array<Order> {
     const userId = user?.id;
     if (!userId) {
       throw new HttpException('You must be logged in to gain access to this page', HttpStatus.BAD_REQUEST);
     }
-    return this.orderService.getAllFromUser(userId);
+    return orders;
   }
 
   @Get(':id')
@@ -60,7 +60,6 @@ export class OrderController {
     ownershipField: 'userId',
   })
   @OwnerCheck(true)
-  @UseGuards(OwnerGuard)
   getOrder(
     @CurrentUser() user: RequestWithUser["user"],
     @CurrentEntity() order: Order,
@@ -68,17 +67,34 @@ export class OrderController {
     return order as unknown as IOrderTickets;
   }
 
-  @Post()
+  @Post('payment-intent')
   @UseGuards(AuthenticatedGuard)
   @ApiCreatedResponse({
-    type: Order,
-    description: 'creates an order',
+    description: 'creates a payment intent for the amount of the user cart',
   })
-  create(@Request() req: RequestWithUser): Promise<Order | undefined> {
+  @ApiBadRequestResponse({ description: 'cart is empty' })
+  createPaymentIntent(@Request() req: RequestWithUser): Promise<IPaymentIntent> {
     const userId = req.user?.id;
     if (!userId) {
       throw new HttpException('You must be logged in to gain access to this page', HttpStatus.BAD_REQUEST);
     }
-    return this.orderService.create(userId);
+    return this.orderService.preparePayment(userId);
+  }
+
+  @Post()
+  @UseGuards(AuthenticatedGuard)
+  @ApiBody({ type: NewOrderDto })
+  @ApiCreatedResponse({
+    type: Order,
+    description: 'creates an order from the user cart once its payment succeeded',
+  })
+  @ApiBadRequestResponse({ description: 'payment is missing, not succeeded or not owned by the user' })
+  @ApiConflictResponse({ description: 'cart changed during payment (refunded) or payment already used' })
+  create(@Request() req: RequestWithUser, @Body() dto: NewOrderDto): Promise<Order | undefined> {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new HttpException('You must be logged in to gain access to this page', HttpStatus.BAD_REQUEST);
+    }
+    return this.orderService.create(userId, dto.paymentIntentId);
   }
 }

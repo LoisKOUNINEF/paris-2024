@@ -34,12 +34,12 @@ services:
         window: 120s
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.rule=Host(`${DOMAIN_NAME}`, `www.${DOMAIN_NAME}`) && PathPrefix(`/api`)"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.rule=(Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)) && PathPrefix(`/api`)"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.entrypoints=websecure"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.tls.certresolver=letsencrypt"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server.service=${PROJECT_LOWER}-${STACK_NAME}-server"
         - "traefik.http.services.${PROJECT_LOWER}-${STACK_NAME}-server.loadbalancer.server.port=${SERVER_PORT}"
-        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.rule=Host(`${DOMAIN_NAME}`, `www.${DOMAIN_NAME}`) && PathPrefix(`/docs`)"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.rule=(Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)) && PathPrefix(`/docs`)"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.entrypoints=websecure"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.tls.certresolver=letsencrypt"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-server-docs.service=${PROJECT_LOWER}-${STACK_NAME}-server"
@@ -54,6 +54,7 @@ services:
       - ${PROJECT_LOWER}_${STACK_NAME}_session_secret
       - stripe_secret_key
       - admin_email
+      - smtp_host
 
   ${PROJECT_LOWER}-${STACK_NAME}-migrations:
     image: ghcr.io/${REPO_LOWER}-server:image-placeholder
@@ -107,7 +108,7 @@ services:
         window: 120s
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.rule=Host(`${DOMAIN_NAME}`, `www.${DOMAIN_NAME}`) && PathPrefix(`/`)"
+        - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.rule=(Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)) && PathPrefix(`/`)"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.entrypoints=websecure"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.tls.certresolver=letsencrypt"
         - "traefik.http.routers.${PROJECT_LOWER}-${STACK_NAME}-client.service=${PROJECT_LOWER}-${STACK_NAME}-client"
@@ -116,7 +117,7 @@ services:
       - ${PROJECT_LOWER}-${STACK_NAME}-server
 
   postgres:
-    image: postgres:16.3-alpine3.20
+    image: postgres:16.15-alpine
     networks:
       - default
     environment:

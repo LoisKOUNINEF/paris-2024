@@ -9,9 +9,17 @@ describe('UserDeletionService', () => {
   let service: UserDeletionService;
   let loggerSpy: jest.SpyInstance;
 
+  const mockQueryBuilder = {
+    update: jest.fn().mockReturnThis(),
+    set: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    returning: jest.fn().mockReturnThis(),
+    execute: jest.fn(),
+  };
+
   const mockUserRepository = {
-    find: jest.fn(),
-    update: jest.fn(),
+    createQueryBuilder: jest.fn(() => mockQueryBuilder),
   };
 
   beforeEach(async () => {
@@ -37,152 +45,98 @@ describe('UserDeletionService', () => {
   });
 
   describe('anonymizeDeletedAccounts', () => {
-    it('should not anonymize any users when none match criteria', async () => {
-      mockUserRepository.find.mockResolvedValue([]);
+    it('should log when no users match criteria', async () => {
+      mockQueryBuilder.execute.mockResolvedValue({ raw: [], affected: 0 });
 
       await service.anonymizeDeletedAccounts();
 
-      expect(mockUserRepository.find).toHaveBeenCalledTimes(1);
-      expect(mockUserRepository.find).toHaveBeenCalledWith({
-        where: {
-          deletedAt: expect.any(Object),
-          isAnonymized: false,
-        },
-      });
-      expect(mockUserRepository.update).not.toHaveBeenCalled();
       expect(loggerSpy).toHaveBeenCalledWith('No users to anonymize.');
     });
 
-    it('should anonymize users deleted more than 7 days ago', async () => {
-      const mockUsers = [
-        { id: 'user1', email: 'user1@example.com', isAnonymized: false },
-        { id: 'user2', email: 'user2@example.com', isAnonymized: false },
-      ];
-      mockUserRepository.find.mockResolvedValue(mockUsers);
-      mockUserRepository.update.mockResolvedValue(undefined);
+    it('should anonymize every matching user in a single update', async () => {
+      mockQueryBuilder.execute.mockResolvedValue({ raw: [{ id: 'user1' }, { id: 'user2' }], affected: 2 });
 
       await service.anonymizeDeletedAccounts();
 
-      expect(mockUserRepository.find).toHaveBeenCalledTimes(1);
-      
-      expect(mockUserRepository.update).toHaveBeenCalledTimes(2);
-      
-      expect(mockUserRepository.update).toHaveBeenCalledWith('user1', {
-        email: 'anon-user1@anonymous.com',
+      expect(mockQueryBuilder.execute).toHaveBeenCalledTimes(1);
+      const changes = mockQueryBuilder.set.mock.calls[0][0];
+      expect(changes).toEqual(expect.objectContaining({
         firstName: 'Anonymized',
         lastName: 'User',
+        pendingEmail: null,
         isAnonymized: true,
-      });
-      
-      expect(mockUserRepository.update).toHaveBeenCalledWith('user2', {
-        email: 'anon-user2@anonymous.com',
-        firstName: 'Anonymized',
-        lastName: 'User',
-        isAnonymized: true,
-      });
-      
+      }));
+      expect(changes.email()).toBe(`'anon-' || "id" || '@anonymous.com'`);
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('"is_anonymized" = false');
       expect(loggerSpy).toHaveBeenCalledWith('Anonymized user ID: user1');
       expect(loggerSpy).toHaveBeenCalledWith('Anonymized user ID: user2');
     });
 
-    it('should use the correct threshold date for finding users', async () => {
-      mockUserRepository.find.mockResolvedValue([]);
+    it('should only anonymize accounts deleted more than 7 days ago', async () => {
+      mockQueryBuilder.execute.mockResolvedValue({ raw: [], affected: 0 });
       
       const currentDate = new Date('2023-01-30T00:00:00Z');
-      const expectedThresholdDate = subDays(currentDate, 7);
-      
-      jest.spyOn(global, 'Date').mockImplementation(() => currentDate as any);
+      jest.useFakeTimers().setSystemTime(currentDate);
 
       await service.anonymizeDeletedAccounts();
 
-      const findCall = mockUserRepository.find.mock.calls[0][0];
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        '"deleted_at" < :thresholdDate',
+        { thresholdDate: subDays(currentDate, 7) },
+      );
       
-      expect(findCall.where.deletedAt.value).toEqual(expectedThresholdDate);
-      
-      jest.restoreAllMocks();
+      jest.useRealTimers();
     });
 
-    it('should handle errors gracefully', async () => {
-      const error = new Error('Database error');
-      mockUserRepository.find.mockRejectedValue(error);
-      
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    it('should propagate database errors', async () => {
+      mockQueryBuilder.execute.mockRejectedValue(new Error('Database error'));
 
       await expect(service.anonymizeDeletedAccounts()).rejects.toThrow('Database error');
-      
-      consoleErrorSpy.mockRestore();
     });
   });
 
   describe('softDeleteInactiveAccounts', () => {
-    it('should not softDelete any users when none match criteria', async () => {
-      mockUserRepository.find.mockResolvedValue([]);
+    it('should log when no users match criteria', async () => {
+      mockQueryBuilder.execute.mockResolvedValue({ raw: [], affected: 0 });
 
       await service.softDeleteInactiveAccounts();
 
-      expect(mockUserRepository.find).toHaveBeenCalledTimes(1);
-      expect(mockUserRepository.find).toHaveBeenCalledWith({
-        where: {
-          lastLoginAt: expect.any(Object),
-          deletedAt: undefined,
-        },
-      });
-      expect(mockUserRepository.update).not.toHaveBeenCalled();
       expect(loggerSpy).toHaveBeenCalledWith('No users to softDelete.');
     });
 
-    it('should softDelete users inactive since more than 24 months', async () => {
-      const mockUsers = [
-        { id: 'user1', email: 'user1@example.com', lastLoginAt: new Date() },
-        { id: 'user2', email: 'user2@example.com', lastLoginAt: new Date() },
-      ];
-      mockUserRepository.find.mockResolvedValue(mockUsers);
-      mockUserRepository.update.mockResolvedValue(undefined);
+    it('should softDelete every inactive user in a single update', async () => {
+      mockQueryBuilder.execute.mockResolvedValue({ raw: [{ id: 'user1' }, { id: 'user2' }], affected: 2 });
 
       await service.softDeleteInactiveAccounts();
 
-      expect(mockUserRepository.find).toHaveBeenCalledTimes(1);
-      
-      expect(mockUserRepository.update).toHaveBeenCalledTimes(2);
-      
-      expect(mockUserRepository.update).toHaveBeenCalledWith('user1', {
-        deletedAt: expect.any(Object),
-      });
-      
-      expect(mockUserRepository.update).toHaveBeenCalledWith('user2', {
-        deletedAt: expect.any(Object),
-      });
-      
+      expect(mockQueryBuilder.execute).toHaveBeenCalledTimes(1);
+      expect(mockQueryBuilder.set.mock.calls[0][0].deletedAt()).toBe('CURRENT_TIMESTAMP');
+      // updates do not skip soft-deleted rows by themselves
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('"deleted_at" IS NULL');
       expect(loggerSpy).toHaveBeenCalledWith('SoftDeleted user ID: user1');
       expect(loggerSpy).toHaveBeenCalledWith('SoftDeleted user ID: user2');
     });
 
-    it('should use the correct threshold date for finding users', async () => {
-      mockUserRepository.find.mockResolvedValue([]);
+    it('should only softDelete users inactive for more than 2 years', async () => {
+      mockQueryBuilder.execute.mockResolvedValue({ raw: [], affected: 0 });
       
       const currentDate = new Date('2023-01-30T00:00:00Z');
-      const expectedThresholdDate = subYears(currentDate, 2);
-      
-      jest.spyOn(global, 'Date').mockImplementation(() => currentDate as any);
+      jest.useFakeTimers().setSystemTime(currentDate);
 
       await service.softDeleteInactiveAccounts();
 
-      const findCall = mockUserRepository.find.mock.calls[0][0];
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        '"last_login_at" < :thresholdDate',
+        { thresholdDate: subYears(currentDate, 2) },
+      );
       
-      expect(findCall.where.lastLoginAt.value).toEqual(expectedThresholdDate);
-      
-      jest.restoreAllMocks();
+      jest.useRealTimers();
     });
 
-    it('should handle errors gracefully', async () => {
-      const error = new Error('Database error');
-      mockUserRepository.find.mockRejectedValue(error);
-      
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    it('should propagate database errors', async () => {
+      mockQueryBuilder.execute.mockRejectedValue(new Error('Database error'));
 
       await expect(service.softDeleteInactiveAccounts()).rejects.toThrow('Database error');
-      
-      consoleErrorSpy.mockRestore();
     });
   });
 });

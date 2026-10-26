@@ -3,23 +3,11 @@
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/server/data-source/src",
   "projectType": "library",
-  "tags": [
-    "scope:server",
-    "type:data-access"
-  ],
+  "tags": ["scope:server", "type:data-access"],
   "targets": {
     "build": {
-      "executor": "nx:run-commands",
-      "options":{
-        "commands":[
-          { 
-            "command": "nx build-main server-data-source"
-          },
-          { 
-            "command": "nx build-migrations server-data-source"
-          }
-        ]
-      }
+      "executor": "nx:noop",
+      "dependsOn": ["build-main", "build-migrations"]
     },
     "build-main": {
       "executor": "@nx/esbuild:esbuild",
@@ -28,34 +16,34 @@
         "outputPath": "dist/libs/server/data-source",
         "main": "libs/server/data-source/data-source/src/index.ts",
         "tsConfig": "libs/server/data-source/data-source/tsconfig.lib.json",
-        "assets": [
-          "libs/server/data-source/data-source/*.md"
-        ],
-        "format": ["cjs"],
-      },
+        "assets": ["libs/server/data-source/data-source/*.md"],
+        "format": ["cjs"]
+      }
     },
     "build-migrations": {
       "executor": "nx:run-commands",
-      "options":{
-        "commands":[
+      "dependsOn": ["build-main"],
+      "outputs": [
+        "{workspaceRoot}/dist/libs/server/data-source/data-source/migrations"
+      ],
+      "options": {
+        "commands": [
           {
-            "command":"npx tsc libs/server/data-source/data-source/src/migrations/*.ts --outDir dist/libs/server/data-source/data-source/migrations"
+            "command": "npx tsc -p libs/server/data-source/data-source/tsconfig.migrations.json"
           }
         ]
       }
     },
     "test": {
-      "executor": "@nx/jest:jest",
+      "options": {
+        "verbose": true
+      },
       "configurations": {
         "coverage": {
           "options": {
-            "codeCoverage": true,
+            "codeCoverage": true
           }
         }
-      },
-      "options": {
-        "jestConfig": "libs/server/data-source/data-source/jest.config.ts",
-        "verbose": true
       }
     },
     "typeorm": {

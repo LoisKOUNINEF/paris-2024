@@ -3,7 +3,7 @@
     type="button"
     class="quantity-btn quantity-decrease"
     (click)="decreaseQuantity()"
-    [disabled]="quantityControl.value && quantityControl.value <= MIN_QUANTITY"
+    [disabled]="(quantityControl.value ?? MIN_QUANTITY) <= MIN_QUANTITY"
   >
     −
   </button>
@@ -18,14 +18,14 @@
     type="button"
     class="quantity-btn quantity-decrease"
     (click)="increaseQuantity()"
-    [disabled]="quantityControl.value && quantityControl.value >= MAX_QUANTITY"
+    [disabled]="(quantityControl.value ?? MIN_QUANTITY) >= MAX_QUANTITY"
   >
     +
   </button>
   <button 
     (click)="updateQuantity()" 
     class="button"
-    [disabled]="quantityControl.value === quantity"
+    [disabled]="isButtonDisabled()"
   >
     {{ isRemoveButton() ? 'Supprimer' : 'Modifier' }}
   </button>

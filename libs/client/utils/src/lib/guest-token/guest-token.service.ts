@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { v4 as uuidv4 } from 'uuid';
 import { PlatformService } from '../platform-service/platform.service';
 
 const GUEST_TOKEN_KEY = 'guest_token';
@@ -17,7 +16,7 @@ export class GuestTokenService {
     const existingToken = sessionStorage.getItem(GUEST_TOKEN_KEY);
     if (existingToken) return existingToken;
 
-    const newToken = uuidv4();
+    const newToken = crypto.randomUUID();
     sessionStorage.setItem(GUEST_TOKEN_KEY, newToken);
     return newToken;
   }

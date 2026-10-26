@@ -1,5 +1,5 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'server-business-logic-auth',
   preset: '../../../../jest.preset.js',
   testEnvironment: 'node',

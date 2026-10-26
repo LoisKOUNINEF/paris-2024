@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 
 export function userNotFound() {
   throw new NotFoundException({
@@ -7,7 +7,7 @@ export function userNotFound() {
 }
 
 export function userAlreadyExists() {
-  throw new ForbiddenException({
+  throw new ConflictException({
     msg: 'User with this email already exists',
   });
 }
@@ -15,6 +15,12 @@ export function userAlreadyExists() {
 export function createAdminIsForbidden() {
   throw new ForbiddenException({
     msg: 'Cannot create an Admin user. Contact your system administrator.',
+  });
+}
+
+export function incorrectCurrentPassword() {
+  throw new BadRequestException({
+    msg: 'Current password is incorrect',
   });
 }
 

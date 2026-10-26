@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { MailerOptions, MailerOptionsFactory } from '@nestjs-modules/mailer';
 import * as path from 'path';
 import { getEnvValue } from '@paris-2024/server-utils';

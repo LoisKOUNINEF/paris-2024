@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonFormComponent } from '../../common-form.component';
 import { User } from '@paris-2024/client-data-access-user';
@@ -7,13 +7,13 @@ import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'lib-email-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule, 
     MatInputModule,
   ],
   templateUrl: './email-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './email-form.component.scss',
 })
 export class EmailFormComponent extends CommonFormComponent implements OnInit {

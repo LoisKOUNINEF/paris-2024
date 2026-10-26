@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PasswordConfirmFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
@@ -8,13 +8,13 @@ import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'lib-reset-password',
-  standalone: true,
   imports: [
     ReactiveFormsModule, 
     PasswordConfirmFormComponent,
     SubmitButtonComponent,
   ],
   templateUrl: './reset-password.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './reset-password.component.scss',
 })
 export class ResetPasswordComponent implements OnInit, OnDestroy {
@@ -44,7 +44,7 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
 
   resetPassword(): Subscription | Promise<boolean> {
     if(!this.resetPasswordForm.valid) {
-      return this.router.navigate([`password-reset/${this.token}`])
+      return this.router.navigate([`password-reset/reset-password/${this.token}`])
     } 
     const user = new UserDto({
       password: this.resetPasswordForm.value.passwordConfirm.password,
