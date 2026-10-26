@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserFormValue } from '@paris-2024/client-data-access-user';
-import { PasswordConfirmFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
+import { CurrentPasswordFormComponent, PasswordConfirmFormComponent, SubmitButtonComponent } from '@paris-2024/client-ui-form-building-blocks';
 
 @Component({
   selector: 'lib-edit-password-form',
   imports: [
     ReactiveFormsModule, 
+    CurrentPasswordFormComponent,
     PasswordConfirmFormComponent, 
     SubmitButtonComponent
   ],
@@ -24,6 +25,7 @@ export class EditPasswordFormComponent {
 
   ngOnInit(): void { 
     this.editPasswordForm = this.formBuilder.group({
+      currentPassword: this.formBuilder.group({}),
       passwordConfirm: this.formBuilder.group({}, 
         { validators: Validators.required }
       ),
@@ -37,6 +39,7 @@ export class EditPasswordFormComponent {
   protected parseUserForm(): UserFormValue {
     const userDtoValues: UserFormValue = {
       password: this.editPasswordForm.value.passwordConfirm.password,
+      currentPassword: this.editPasswordForm.value.currentPassword.currentPassword,
     }
     return userDtoValues;
   }

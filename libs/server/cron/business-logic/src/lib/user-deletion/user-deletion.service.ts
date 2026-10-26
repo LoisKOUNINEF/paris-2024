@@ -13,6 +13,7 @@ export class UserDeletionService {
       email: `anon-${userId}@anonymous.com`,
       firstName: 'Anonymized',
       lastName: 'User',
+      pendingEmail: null,
       isAnonymized: true,
     }
   }

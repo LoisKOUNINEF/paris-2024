@@ -1,9 +1,13 @@
+import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import * as bcrypt from 'bcrypt';
 import { CartService } from '@paris-2024/server-business-logic-cart';
 import { EmailValidationMailerService, WelcomeMailerService } from '@paris-2024/server-business-logic-mailer';
 import { CreateUserDto, UserRepository } from '@paris-2024/server-data-access-user';
 import { Roles } from '@paris-2024/shared-interfaces';
 import { UserService } from './user.service';
+
+jest.mock('bcrypt', () => ({ compare: jest.fn() }));
 
 describe('UserService', () => {
   let service: UserService;
@@ -15,6 +19,7 @@ describe('UserService', () => {
     getUserWithSecret: jest.fn(),
     create: jest.fn(),
     verifyEmail: jest.fn(),
+    requestEmailChange: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
   };
@@ -128,15 +133,116 @@ describe('UserService', () => {
       expect(mockCartService.mergeGuestCartWithUserCart).not.toHaveBeenCalled();
     });
 
-    it('should send validation link and welcome emails', async () => {
+    it('should send the validation link but not the welcome email', async () => {
       const result = await service.create(createUserDto, false);
 
       expect(mockEmailValidationService.sendValidationLink).toHaveBeenCalledWith({
         email: 'john.doe@example.com',
         emailVerificationToken: 'verification-token',
       });
+      expect(mockWelcomeMailerService.sendWelcome).not.toHaveBeenCalled();
+      expect(result).toBe(createdUser);
+    });
+  });
+
+  describe('verifyEmail', () => {
+    it('should send the welcome email once the email is verified', async () => {
+      mockUserRepository.verifyEmail.mockResolvedValue({ user: createdUser, isEmailChange: false });
+
+      const result = await service.verifyEmail('verification-token');
+
+      expect(mockUserRepository.verifyEmail).toHaveBeenCalledWith('verification-token');
       expect(mockWelcomeMailerService.sendWelcome).toHaveBeenCalledWith('john.doe@example.com');
       expect(result).toBe(createdUser);
+    });
+
+    it('should not send the welcome email when confirming an email change', async () => {
+      mockUserRepository.verifyEmail.mockResolvedValue({ user: createdUser, isEmailChange: true });
+
+      const result = await service.verifyEmail('verification-token');
+
+      expect(mockWelcomeMailerService.sendWelcome).not.toHaveBeenCalled();
+      expect(result).toBe(createdUser);
+    });
+
+    it('should not send the welcome email when verification fails', async () => {
+      mockUserRepository.verifyEmail.mockResolvedValue(null);
+
+      const result = await service.verifyEmail('unknown-token');
+
+      expect(mockWelcomeMailerService.sendWelcome).not.toHaveBeenCalled();
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('update', () => {
+    const storedUser = {
+      id: 'user-1',
+      email: 'john.doe@example.com',
+      password: '$2b$10$hash',
+    };
+    const compare = bcrypt.compare as jest.Mock;
+
+    beforeEach(() => {
+      mockUserRepository.findOneById.mockResolvedValue(storedUser);
+      mockUserRepository.update.mockImplementation(async (id, changes) => ({ ...storedUser, ...changes }));
+    });
+
+    it('should update names without the current password', async () => {
+      await service.update('user-1', { firstName: 'Jane', email: 'john.doe@example.com' });
+
+      expect(compare).not.toHaveBeenCalled();
+      expect(mockUserRepository.requestEmailChange).not.toHaveBeenCalled();
+      expect(mockUserRepository.update).toHaveBeenCalledWith('user-1', { firstName: 'Jane' });
+    });
+
+    it('should reject a password change without the current password', async () => {
+      await expect(service.update('user-1', { password: 'NewPassword1#' }))
+        .rejects.toThrow(BadRequestException);
+      expect(mockUserRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should reject a password change with a wrong current password', async () => {
+      compare.mockResolvedValue(false);
+
+      await expect(service.update('user-1', { password: 'NewPassword1#', currentPassword: 'wrong' }))
+        .rejects.toThrow(BadRequestException);
+      expect(compare).toHaveBeenCalledWith('wrong', '$2b$10$hash');
+      expect(mockUserRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should change the password with the right current password', async () => {
+      compare.mockResolvedValue(true);
+
+      await service.update('user-1', { password: 'NewPassword1#', currentPassword: 'OldPassword1#' });
+
+      expect(mockUserRepository.update).toHaveBeenCalledWith('user-1', { password: 'NewPassword1#' });
+    });
+
+    it('should reject an email change with a wrong current password', async () => {
+      compare.mockResolvedValue(false);
+
+      await expect(service.update('user-1', { email: 'new@example.com', currentPassword: 'wrong' }))
+        .rejects.toThrow(BadRequestException);
+      expect(mockUserRepository.requestEmailChange).not.toHaveBeenCalled();
+    });
+
+    it('should send the validation link to the new email without changing the current one', async () => {
+      compare.mockResolvedValue(true);
+      mockUserRepository.requestEmailChange.mockResolvedValue({
+        ...storedUser,
+        pendingEmail: 'new@example.com',
+        emailVerificationToken: 'change-token',
+      });
+
+      await service.update('user-1', { email: 'new@example.com', currentPassword: 'OldPassword1#' });
+
+      expect(mockUserRepository.requestEmailChange).toHaveBeenCalledWith('user-1', 'new@example.com');
+      expect(mockEmailValidationService.sendValidationLink).toHaveBeenCalledWith({
+        email: 'new@example.com',
+        emailVerificationToken: 'change-token',
+      });
+      expect(mockUserRepository.update).toHaveBeenCalledWith('user-1', {});
     });
   });
 

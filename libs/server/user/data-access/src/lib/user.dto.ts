@@ -1,8 +1,8 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsEmail, Matches } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 import { Roles } from '@paris-2024/shared-interfaces';
 import { Exclude } from 'class-transformer';
-import { PartialType } from '@nestjs/mapped-types';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { passwordRegex } from '@paris-2024/shared-utils';
 
 export class CreateUserDto {
@@ -15,11 +15,15 @@ export class CreateUserDto {
   @ApiProperty({
     example: 'Jane',
   })
+  @IsString()
+  @IsNotEmpty()
   firstName: string;
 
   @ApiProperty({
     example: 'Doe',
   })
+  @IsString()
+  @IsNotEmpty()
   lastName: string;
 
   @ApiProperty({ 
@@ -35,6 +39,16 @@ export class CreateUserDto {
   cartId: string;
 }
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {}
+export class UpdateUserDto extends PartialType(
+  OmitType(CreateUserDto, ['role', 'cartId'] as const),
+) {
+  @ApiProperty({
+    required: false,
+    description: 'required to change the email or the password',
+  })
+  @IsOptional()
+  @IsString()
+  currentPassword?: string;
+}
 
 export class LoginDto extends PickType(CreateUserDto, ['email', 'password'] as const) {}

@@ -105,8 +105,17 @@ export class User extends BaseEntity implements IUser {
     nullable: true,
     name: 'email_verification_token'
   })
+  @Exclude({ toPlainOnly: true })
   @ApiProperty()
   emailVerificationToken: string;
+
+  @Column({
+    type: 'text',
+    nullable: true,
+    name: 'pending_email'
+  })
+  @ApiProperty()
+  pendingEmail: string | null;
 
   @Column({
     type: 'timestamptz',

@@ -1,5 +1,5 @@
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { userNotFound, userAlreadyExists, passwordNotAppropriate, tokenNotFound } from './user.exceptions';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { userNotFound, userAlreadyExists, incorrectCurrentPassword, passwordNotAppropriate, tokenNotFound } from './user.exceptions';
 
 describe('Custom Exception Functions', () => {
   
@@ -16,14 +16,29 @@ describe('Custom Exception Functions', () => {
     }
   });
 
-  it('should throw ForbiddenException when userAlreadyExists is called', () => {
+  it('should throw ConflictException when userAlreadyExists is called', () => {
+    expect.assertions(2);
     try {
       userAlreadyExists();
     } catch (error) {
-      expect(error).toBeInstanceOf(ForbiddenException);
-      if (error instanceof ForbiddenException) {
+      expect(error).toBeInstanceOf(ConflictException);
+      if (error instanceof ConflictException) {
         expect(error.getResponse()).toEqual({
           msg: 'User with this email already exists',
+        });
+      }
+    }
+  });
+
+  it('should throw BadRequestException when incorrectCurrentPassword is called', () => {
+    expect.assertions(2);
+    try {
+      incorrectCurrentPassword();
+    } catch (error) {
+      expect(error).toBeInstanceOf(BadRequestException);
+      if (error instanceof BadRequestException) {
+        expect(error.getResponse()).toEqual({
+          msg: 'Current password is incorrect',
         });
       }
     }

@@ -67,25 +67,42 @@ describe('UserController', () => {
     it('should update the current user', async () => {
       const dto = { firstName: 'Jane' };
 
-      await controller.updateUser(currentUser, dto);
+      await controller.updateUser(currentUser, 'user-1', dto);
 
       expect(mockUserService.update).toHaveBeenCalledWith('user-1', dto);
     });
 
+    it('should update the user designated by the id param', async () => {
+      const admin = { id: 'admin-1', role: Roles.ADMIN };
+      const dto = { firstName: 'Jane' };
+
+      await controller.updateUser(admin, 'user-2', dto);
+
+      expect(mockUserService.update).toHaveBeenCalledWith('user-2', dto);
+    });
+
     it('should throw unauthorized without user', () => {
-      expect(() => controller.updateUser(undefined, {})).toThrow(HttpException);
+      expect(() => controller.updateUser(undefined, 'user-1', {})).toThrow(HttpException);
     });
   });
 
   describe('deleteUser', () => {
     it('should delete the current user', async () => {
-      await controller.deleteUser(currentUser);
+      await controller.deleteUser(currentUser, 'user-1');
 
       expect(mockUserService.delete).toHaveBeenCalledWith('user-1');
     });
 
+    it('should delete the user designated by the id param', async () => {
+      const admin = { id: 'admin-1', role: Roles.ADMIN };
+
+      await controller.deleteUser(admin, 'user-2');
+
+      expect(mockUserService.delete).toHaveBeenCalledWith('user-2');
+    });
+
     it('should throw unauthorized without user', () => {
-      expect(() => controller.deleteUser(undefined)).toThrow(HttpException);
+      expect(() => controller.deleteUser(undefined, 'user-1')).toThrow(HttpException);
     });
   });
 
